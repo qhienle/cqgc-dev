@@ -1,0 +1,22 @@
+##2023-06-01
+##Centre for Pediatric Clinical Genomics
+##Flow Cell: H5T55DRX3
+##Principal Investigator: Dr Jean-François Soucy
+##Nanuq References: A00516_0422
+##Content: Internal_Sample_ID -> Client_Sample_Name Conversion grid
+##-------------------------------------------
+##Internal_Sample_ID	Client_Sample_Name
+##-------------------------------------------
+21633	OM230223
+21634	OM230496
+21635	OM230499
+21636	OM230551
+21637	OM230585
+21638	OM160553
+##-------------------------------------------
+##Description of the conversion grid:
+##A "Client_Sample_Name" represents the name of a sequencing sample initially assigned by the client.
+##The "Internal_Sample_ID" is the internal identifier assigned by the Center for this sample.
+##Use of an "Internal_Sample_ID" ensures the traceability of this sample throughout the sequencing
+##process, but also the anonymization of the information generated and transferred in the
+##frame of this project.

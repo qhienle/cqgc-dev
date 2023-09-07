@@ -1,0 +1,262 @@
+#!/usr/bin/env perl
+##! /usr/bin/perl -w
+#
+# $Id: smp-runner,v 1.3 2006/05/24 23:35:50 cmhall Exp $
+#
+# Charles Hall <cmhall@hawaii.edu>
+#
+# Run multiple instances of a program concurrently, passing each successive
+# arguments from a file read from stdin.  This is similar to what xargs
+# provides.
+#
+# example:
+#
+#  > cat inputfile 
+#  1
+#  2
+#  3
+#  4
+#  5
+#  > ./smp-runner --command=sleep --smp=5 < inputfile
+#       1 : sleep 1
+#       2 : sleep 2
+#       3 : sleep 3
+#       4 : sleep 4
+#       5 : sleep 5
+#  done
+
+use strict;
+#use Env qw(CMHTOOLS);
+#use lib "$CMHTOOLS/lib";
+use Getopt::Mixed;
+use POSIX ":sys_wait_h";
+
+my $DEFAULT_COMMAND = 'echo';
+my $DEFAULT_SMP     = 1;
+my $MAX_SMP         = 100;
+my $DEFAULT_QUIET   = 0;
+my $DEFAULT_LOG_DIR = '';
+my $DEFAULT_NOFAIL  = '';
+my $INDEX_FILE_NAME = 'index';
+
+$| = 1;
+
+my $usage = <<END;
+usage: $0
+    [--help]
+    [--smp=<n>]
+    [--command=<cmd>]
+    [--quiet]
+    [--log=<dirname>]
+    [--nofail]
+
+--help
+    Print this help message.
+
+--smp=<n>
+    At most <n> processes will be forked.  If you are running on an smp
+    machine this will greatly reduce the processing time.
+
+--command=<cmd>
+    The command to run on each line of input from stdin.
+
+--quiet
+    Don't print info to stdout.
+
+--log=<dirname>
+    Put log files for each process in directory <dirname>.  Both stdout and
+    stderr will go to these log files.  Also in <dirname> will be a file named
+    'index' which shows the command executed and the log file it's output went
+    to.
+
+--nofail
+    Don't quit if child process returns bad exit status.
+    
+END
+
+Getopt::Mixed::init(
+    "help",
+    "smp=s",
+    "command=s",
+    "quiet",
+    "log=s",
+    "nofail",
+);
+my %opts = ();
+while((my $option, my $value) = Getopt::Mixed::nextOption()) {
+    $opts{$option} = defined($value) ? $value : 1;
+}
+Getopt::Mixed::cleanup();
+
+if(defined($opts{'help'})) {
+    print "$usage\n";
+    exit;
+}
+
+our $smp = $DEFAULT_SMP;
+if(defined($opts{'smp'})) {
+    $smp = $opts{'smp'};
+    if($smp > $MAX_SMP) {
+        $smp = $MAX_SMP;
+    }
+}
+
+our $command = $DEFAULT_COMMAND;
+if(defined($opts{'command'})) {
+    $command = $opts{'command'};
+}
+
+our $quiet = $DEFAULT_QUIET;
+if(defined($opts{'quiet'})) {
+    $quiet = $opts{'quiet'};
+}
+
+our $logdir = $DEFAULT_LOG_DIR;
+our $LOGINDEX;
+if(defined($opts{'log'})) {
+        $logdir = $opts{'log'};
+}
+
+our $nofail = $DEFAULT_NOFAIL;
+if(defined($opts{'nofail'})) {
+    $nofail = $opts{'nofail'};
+}
+
+#
+# if logging, try to create $logdir and open log index file
+#
+if($logdir) {
+    if($logdir =~ /--/) {
+        print "$usage\n";
+        exit;
+    }
+    system("mkdir $logdir");
+    $? && do {
+        #eval { die("$!"); };
+        #&failure($@);
+        die $!;
+    };
+    open $LOGINDEX, ">$logdir/$INDEX_FILE_NAME" or do {
+        #eval { die("$!"); };
+        #&failure($@);
+        die $!;
+    };
+}
+
+#
+# read input from stdin
+#
+my @input = ();
+while(<STDIN>) {
+    chomp;
+
+    # trim
+    $_ =~ s/^\s*//;
+    $_ =~ s/\s*$//;
+
+    push @input, $_;
+}
+
+#
+# Fork $smp processes to run $command for each element in @input.
+#
+# This loops through all elements in @input, forking child processes until
+# there are no more input lines or until $smp child processes are forked. If
+# $smp is reached, we wait for a child process to exit, then continue.  After
+# all inputs are processed, we exit the outer loop, then wait for all child
+# processes to exit.
+#
+my $tcount = 0;
+my $count = 0;
+my $pid = '';
+foreach my $i (@input) {
+
+    $tcount++;
+
+    while($count >= $smp) {
+        # reached $smp, wait for a child process to exit
+        wait();
+        $count--;
+        if($? && $? != -1) {
+            eval { die("child returned bad exit status:\n$!"); };
+            &failure($@);
+        }
+    }
+
+    # harvest as we go to keep defunct processes from accumulating
+    $pid = waitpid(-1, WNOHANG);
+    if($pid && $pid != -1) {
+        if($? && $? != -1) {
+            eval { die("child process returned bad exit status:\n$!"); };
+            &failure($@);
+        }
+        $count--;
+    }
+
+    # build cmd
+    my @s = split(/\s+/, $i);
+    my $j = 1;
+    my $cmd = $command;
+    while($cmd =~ /<$j>/g && scalar(@s) > 0) {
+        my $a = shift @s;
+        $cmd =~ s/<$j>/$a/g;
+        $j++;
+    }
+    my $rem = join(" ", @s);
+    $cmd .= " $rem";
+
+    if(!$quiet) {
+        printf "%6d : %s\n", "$tcount", "$cmd";
+    }
+
+    # if we're logging, redirect to log file
+    my $redirect = '';
+    if($logdir) {
+        $redirect = sprintf(" > $logdir/log.%09d 2>&1", $tcount);
+        print $LOGINDEX "$cmd$redirect\n";
+    }
+
+    $pid = fork();
+    if($pid > 0) {
+        $count++;
+    }
+    elsif($pid == 0) {
+        exec("$cmd$redirect");
+        die "failed to exec() process:\n$!";
+    }
+    else {
+        eval { die("failed to fork() process:\n$!"); };
+        &failure($@);
+    }
+}
+
+# wait for any remaining child processes to exit 
+while($count > 0) {
+    wait();
+    if($? && $? != -1) {
+        eval { die("child process returned bad exit status:\n$!"); };
+        &failure($@);
+    }
+
+    $count--;
+}
+
+if($LOGINDEX) { close $LOGINDEX; }
+
+if(!$quiet) {
+    print "done without errors\n";
+}
+
+#
+#
+#
+sub failure {
+    my ($errmsg) = @_;
+
+    print "errmsg: $errmsg\n";
+
+    if(!$nofail) {
+        if($LOGINDEX) { close $LOGINDEX; }
+        exit 1;
+    }
+}
