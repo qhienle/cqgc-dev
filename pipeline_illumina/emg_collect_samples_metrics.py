@@ -1,23 +1,30 @@
 #!/usr/bin/env python3
 """
-Get metrics for PRAGMatIQ samples.
+Collect metrics for PRAGMatIQ samples archived on `narval.calculquebec.ca`.
 
-USAGE: emg_get_samples_metrics.py --help
+USAGE: emg_get_samples_metrics.py [-d|--directory] 
+       emg_get_samples_metrics.py --help
 
 Parse Emedgene's logs files and folders to get analysis metrics for PRAGMatIQ
-samples. Log files are located here: 
+samples. Download logs from `aws` using the script `archive_PRAGMatIQ.sh`. Log 
+files for each sample are archived at: 
 
-narval.calculquebec.ca:~/projects/ctb-rallard/COMMUN/PRAGMatIQ-EMG
+`narval.calculquebec.ca:/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG`
 
-Logs must first be downloaded from `aws` with the script `archive_PRAGMatIQ.sh`
-or using the following command:
+**N.B.** First connect to narval.calculquebec.ca and load environment before 
+running this script.
 
-`aws s3 --profile emedgene cp s3://cac1-prodca-emg-auto-results/CHU_Sainte_Justine/${sample}/ ./${sample} --recursive`
+```bash
+salloc --account def-rallard --job-name "InteractiveJob" --cpus-per-task 2 --mem-per-cpu 2000  --time 3:0:0
+module load scipy-stack/2023a
+```
 """
 
 import os
-import argparse
 import time
+import subprocess
+import pandas as pd
+from glob import glob
 
 __version__ = 0.1
 
@@ -26,15 +33,14 @@ def parse_args():
     """
     Parse command-line options
     """
-    parser = argparse.ArgumentParser(description="Get metrics for PRAGMatIQ samples.")
-    parser.add_argument('arg', help="Mandatory argument [REQUIRED]")
+    parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples archived on `narval.calculquebec.ca`")
+    parser.add_argument('-d', '--directory', dest='dir',
+                        default="/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG", 
+                        help="Archives directory. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG'")
     return(parser.parse_args())
 
 
 def now():
-    """
-    Returns a timestamp string, ex: print(f"{now} Time to say Hello World!")
-    """
     return(time.strftime('[%Y-%m-%d@%H:%M:%S]'))
 
 
@@ -52,8 +58,8 @@ def main(args):
     - #Indels
     - #CNVs
     """
-    print(f"Required command-line argument is: {args}")
-    print("\nDone.\n")
+    workdir = args.dir
+    os.chdir(workdir)
 
 
 def _test(arg, opt="."):
@@ -64,4 +70,4 @@ def _test(arg, opt="."):
 if __name__ == '__main__':
     args = parse_args()
     main(args)
-    _test(args)
+    #_test(args)
