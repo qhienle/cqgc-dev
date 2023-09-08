@@ -193,6 +193,16 @@ def main(args):
     workdir = os.path.dirname(archdir)
     os.chdir(workdir)
 
+    df_metrics   = get_metrics_from_log('')
+    df_coverages = get_coverage_metrics('')
+    df_cnvs      = count_cnv('')
+    
+    samples = os.listdir(archdir)
+    samples = ['GM230732', '23-01616-T1', 'GM210903', 'GM230658']
+    total   = len(samples)
+    for count, sample in enumerate(samples, start=1):
+        print(f"{now()} Processing {sample}, {count}/{total}")
+
 
 def _test(arg, opt="."):
     print(f"Required command-line argument is: {arg}")
