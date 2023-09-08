@@ -52,7 +52,7 @@ def get_NumOfReads(sample):
     - Returns : A DataFrame. There may be multiple NumOfReads files.
                 [[Sample, Log, NumOfReads], [], ...]
     """
-    files = glob(f"{archdir}/{sample}/NumOfReads/*/{sample}.txt")
+    files = glob(f"{args.dir}/{sample}/NumOfReads/*/{sample}.txt")
     NumOfReads = []
     if len(files) > 1:
         print(f"{now()} WARNING: {sample} has multiple NumOfReads")
@@ -80,7 +80,7 @@ def get_metrics_from_log(sample):
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
 
-    logfiles = glob(f"{archdir}/{sample}/{sample}_vlocal_*_sample.log")
+    logfiles = glob(f"{args.dir}/{sample}/{sample}_vlocal_*_sample.log")
 
     # There may be multiple logfiles. Use the filename's _vlocal_ stamp for id
     #
@@ -128,7 +128,7 @@ def count_cnv(sample):
     - Returns : A DataFrame
     """
     cnvs = []
-    cnv_dirs = glob(f"{archdir}/{sample}/vcf/dragen/*/{sample}.dragen.cnv.vcf.gz")
+    cnv_dirs = glob(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.cnv.vcf.gz")
     count = 0
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
@@ -151,7 +151,7 @@ def get_coverage_metrics(sample):
         - 
     """
     coverages = []
-    files = glob(f"{archdir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv")
+    files = glob(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv")
     for file in files:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
@@ -190,15 +190,14 @@ def main(args):
     - #Indels
     - #CNVs
     """
-    archdir = args.dir
-    workdir = os.path.dirname(archdir)
+    workdir = os.path.dirname(args.dir)
     os.chdir(workdir)
 
     df_metrics   = get_metrics_from_log('')
     df_coverages = get_coverage_metrics('')
     df_cnvs      = count_cnv('')
     
-    samples = os.listdir(archdir)
+    samples = os.listdir(args.dir)
     samples = ['GM230732', '23-01616-T1', 'GM210903', 'GM230658']
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
