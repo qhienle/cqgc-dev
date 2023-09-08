@@ -202,6 +202,31 @@ def main(args):
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         print(f"{now()} Processing {sample}, {count}/{total}")
+        df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
+        df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
+        df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
+
+    df_metrics.drop_duplicates(inplace=True)
+    df_coverages.drop_duplicates(inplace=True)
+    df_cnvs.drop_duplicates(inplace=True)
+
+    df_metrics.reset_index(inplace=True)
+    df_coverages.reset_index(inplace=True)
+    df_cnvs.reset_index(inplace=True)
+
+    df = df_metrics.merge(df_coverages, on='Sample', how='outer')
+    df = df.merge(df_cnvs, on='Sample', how='outer')
+    df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
+
+    df_csv = workdir + os.sep + 'emg_collect_samples_metrics.csv'
+    df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs',
+        'CNV average coverage', 'Coverage uniformity',
+        'Percent Autosome Callability', 'Average coverage',
+        'PCT coverage >20x',
+        'Uniformity of coverage (PCT > 0.2*mean) over genome',
+        'NumOfCNVs']]
+    df1.drop_duplicates(inplace=True)
+    df1.to_csv(df_csv, index=None)
 
 
 def _test(arg, opt="."):
