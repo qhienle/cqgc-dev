@@ -198,7 +198,7 @@ def main(args):
     df_cnvs      = count_cnv('')
     
     samples = os.listdir(args.dir)
-    samples = ['GM230732', '23-01616-T1', 'GM210903', 'GM230658']
+    #samples = ['GM230732', '23-01616-T1', 'GM210903', 'GM230658']
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         print(f"{now()} Processing {sample}, {count}/{total}")
