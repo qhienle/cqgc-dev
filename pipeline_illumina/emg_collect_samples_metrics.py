@@ -218,7 +218,7 @@ def main(args):
     df = df.merge(df_cnvs, on='Sample', how='outer')
     df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
 
-    df_csv = workdir + os.sep + 'emg_collect_samples_metrics.csv'
+    df_csv = workdir + os.sep + 'archives_metrics.csv'
     df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs',
         'CNV average coverage', 'Coverage uniformity',
         'Percent Autosome Callability', 'Average coverage',
