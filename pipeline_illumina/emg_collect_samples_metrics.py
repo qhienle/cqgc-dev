@@ -219,12 +219,12 @@ def main(args):
     df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
 
     df_csv = workdir + os.sep + 'archives_metrics.csv'
-    df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs',
+    df1 = df[['Log filename', 'Log coverage', 'Log NumOfCNVs', 
+        'Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
+        'Average coverage', 'PCT coverage >20x',
+        'Uniformity of coverage (PCT > 0.2*mean) over genome', 
         'CNV average coverage', 'Coverage uniformity',
-        'Percent Autosome Callability', 'Average coverage',
-        'PCT coverage >20x',
-        'Uniformity of coverage (PCT > 0.2*mean) over genome',
-        'NumOfCNVs']]
+        'Percent Autosome Callability', 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
     df1.to_csv(df_csv, index=None)
 
