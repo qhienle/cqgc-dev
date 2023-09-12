@@ -72,6 +72,40 @@ def format_mrn_eid(ep, mrn):
     return(ep + mrn)
 
 
+def cases_to_df(cases):
+    """
+    Load cases (list of list) in a DataFrame, sort and group members
+    Translate column names to match EMG's manifest specifications.
+    Group by family and sort by relation.
+    Add case_group_number (PID) to all family members based on familyID.
+    - `cases`: (list of list)
+    - Returns: Pandas DataFrame
+    """
+    df = pd.DataFrame(cases)
+    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
+                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
+                  'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
+    df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
+    print(f"{now()} Sorted families. Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
+    for index, row in df.iterrows():
+        if row['case_group_number'] == '':
+            try:
+                row['case_group_number'] = familyId2pid[row['family']]
+            except KeyError as err:
+                print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
+    # try:
+    #     df['case_group_number'] = df.apply(lambda x: familyId2pid[x['family']], axis=1)
+    # except KeyError as err:
+    #     print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
+    # else:
+    #     print(f"{now()} Sorted families and assigned case_group_number based on PID\n{familyId2pid}")
+
+    pd.set_option('display.max_columns', 12)
+    pd.set_option('display.max_colwidth', None)
+
+    return df
+
+
 def main(args):
     """
     Retrieve necessary information from Nanuq for creating cases in Emedgene.
@@ -80,14 +114,16 @@ def main(args):
     1. Download list of samples from Nanuq (API) for a given Run ID.
     2. For each sample in the list of SampleNames: 
         2.1 Get the JSON from Nanuq to extract infos to create cases on EMG;
-        2.2 Set the Phenotips ID (PID) as family identifier.
-        2.3 Connect to Phenotips, get the corresponding HPO Identifiers;
+        2.2 Get the Phenotips ID (PID) and the corresponding HPO Identifiers;
+        2.3 Associate patient surname to PID, for later use
         2.4 Connect to BaseSpace and re-construct the path to the FASTQ files;
     3. Combine individual data into a Pandas dataframe
         3.1 Sort, group and print each trio to STDOUT for case creation.
-    4. Convert DataFrame into a csv template for EMG batch upload
-    5. TODO: batch upload to Emedgene using their script
+        3.2 Use case PID instead of surname to connect family members.
+    4. Convert DataFrame into a CSV file (manifest) for EMG batch upload.
+    5. TODO: Batch upload to Emedgene using their script
     6. TODO: Add participants to cases
+    7. TODO: Archive samples for this run
     """
 
     bssh = BSSH()      # Handler to work with BSSH
@@ -118,12 +154,13 @@ def main(args):
     for line in samplenames.text.splitlines():
         if not line.startswith('#'):
             cqgc, sample = line.split("\t")
+            
+            # 2.1 Get information for sample frm Nanuq
+            #
             data = json.loads(nq.get_sample(cqgc))
             print(f"{now()} Got information for biosample {cqgc} a.k.a. {sample}")
-
             if len(data) != 1:
                 print(f"{now()} WARNING: Number of samples retrieved from Nanuq is not 1.\n{data}")
-
             sample_infos = [
                 data[0]["ldmSampleId"],
                 data[0]["labAliquotId"],
@@ -137,7 +174,7 @@ def main(args):
                 data[0]["patient"].get("familyId", "-")
             ]
 
-            # Add Phenotips ID (`pid`) and patients' HPO identifiers
+            # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers
             # Lookup this information in Phenotips, using the EP+MRN
             # Ex: CHUSJ123456
             #
@@ -167,47 +204,28 @@ def main(args):
             sample_infos.append(labels_str)
             sample_infos.append(ids_str)
 
-            # Add family name and PID to the lookup table
+            # 2.3 Add family name and PID to the lookup table
             #
             familyId = data[0]['patient']['familyId']
             if familyId not in familyId2pid and pid.startswith('P'):
                 familyId2pid[familyId] = pid
 
-            # Add paths to fastq on BaseSpace
+            # 2.4 Add paths to fastq on BaseSpace
             #
             fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
             sample_infos.append(';'.join(fastqs))
 
             cases.append(sample_infos)
 
-    # 3. Load cases (list of list) in a DataFrame, sort and group members
-    # Translate column names to match EMG's manifest specifications.
-    # Group by family and sort by relation.
-    # Add case_group_number (PID) to all family members based on familyID.
+    # 3. Convert Cases data into a Pandas DataFrame
     #
-    df = pd.DataFrame(cases)
-    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
-                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
-                  'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
-    df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
-    print(f"{now()} Sorted families. Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
-    for index, row in df.iterrows():
-        if row['case_group_number'] == '':
-            try:
-                row['case_group_number'] = familyId2pid[row['family']]
-            except KeyError as err:
-                print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
-    # try:
-    #     df['case_group_number'] = df.apply(lambda x: familyId2pid[x['family']], axis=1)
-    # except KeyError as err:
-    #     print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
-    # else:
-    #     print(f"{now()} Sorted families and assigned case_group_number based on PID\n{familyId2pid}")
-
+    df  = cases_to_df(cases)
+    df1 = df.drop(['phenotypes', 'filenames'], axis=1)
     print(f"\n{now()} Cases for {args.run}:\n")
-    pd.set_option('display.max_columns', 12)
-    pd.set_option('display.max_colwidth', None)
-    print(df.drop(['phenotypes', 'filenames'], axis=1))
+    # print(df.drop(['phenotypes', 'filenames'], axis=1))
+
+    
+    print(f"{now()} List of samples to archive after cases are finalized on Emedgene: {df1['sample_name']}")
 
     # 4. Output manifest for batch upload, see "Case_creation-script_v2.docx"
     #
