@@ -38,10 +38,8 @@ def parse_args():
     parser.add_argument('-d', '--directory', dest='dir',
                         default="/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives", 
                         help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-a', '--all-archives', dest='all', action="store_true",
-                        help="Collect metrics for all archived samples listed under -d|--directory")
-    group.add_argument('-s', '--samples', nargs="+", help="List of samples to archive")
+    parser.add_argument('-s', '--samples', nargs="?", 
+                        help="List of samples to archive. If None, collects metrics from all archived samples.")
     return(parser.parse_args())
 
 
@@ -193,9 +191,13 @@ def main(args):
     df_coverages = get_coverage_metrics('')
     df_cnvs      = count_cnv('')
     
-    if args.all:
+    # Process list of samples, if provided. Else, collect metrics from all
+    # samples under the "archives" folder.
+    #
+    if args.samples:
+        samples = args.samples 
+    else:
         samples = os.listdir(args.dir)
-    #samples = ['GM230732', '23-01616-T1', 'GM210903', 'GM230658']
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         print(f"{now()} Processing {sample}, {count}/{total}")
@@ -226,8 +228,13 @@ def main(args):
     df1.to_csv(df_csv, index=None)
 
 
-def _test(arg, opt="."):
-    print(f"Required command-line argument is: {arg}")
+def _test(args):
+    if args.samples:
+        samples = args.samples 
+    else:
+        samples = 'None provided'
+    print(samples)
+    print(f"Command-line argument is: {args}")
 
 
 if __name__ == '__main__':
