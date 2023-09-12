@@ -72,40 +72,6 @@ def format_mrn_eid(ep, mrn):
     return(ep + mrn)
 
 
-def cases_to_df(cases):
-    """
-    Load cases (list of list) in a DataFrame, sort and group members
-    Translate column names to match EMG's manifest specifications.
-    Group by family and sort by relation.
-    Add case_group_number (PID) to all family members based on familyID.
-    - `cases`: (list of list)
-    - Returns: Pandas DataFrame
-    """
-    df = pd.DataFrame(cases)
-    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
-                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
-                  'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
-    df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
-    print(f"{now()} Sorted families. Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
-    for index, row in df.iterrows():
-        if row['case_group_number'] == '':
-            try:
-                row['case_group_number'] = familyId2pid[row['family']]
-            except KeyError as err:
-                print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
-    # try:
-    #     df['case_group_number'] = df.apply(lambda x: familyId2pid[x['family']], axis=1)
-    # except KeyError as err:
-    #     print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
-    # else:
-    #     print(f"{now()} Sorted families and assigned case_group_number based on PID\n{familyId2pid}")
-
-    pd.set_option('display.max_columns', 12)
-    pd.set_option('display.max_colwidth', None)
-
-    return df
-
-
 def main(args):
     """
     Retrieve necessary information from Nanuq for creating cases in Emedgene.
@@ -217,12 +183,38 @@ def main(args):
 
             cases.append(sample_infos)
 
-    # 3. Convert Cases data into a Pandas DataFrame
+    # 3. Load cases (list of list) in a DataFrame, sort and group members
+    # Translate column names to match EMG's manifest specifications.
+    # Group by family and sort by relation.
+    # Add case_group_number (PID) to all family members based on familyID.
     #
     df  = cases_to_df(cases)
+    df = pd.DataFrame(cases)
+    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
+                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
+                  'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
+    df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
+    print(f"{now()} Sorted families. Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
+    for index, row in df.iterrows():
+        if row['case_group_number'] == '':
+            try:
+                row['case_group_number'] = familyId2pid[row['family']]
+            except KeyError as err:
+                print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
+    # try:
+    #     df['case_group_number'] = df.apply(lambda x: familyId2pid[x['family']], axis=1)
+    # except KeyError as err:
+    #     print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
+    # else:
+    #     print(f"{now()} Sorted families and assigned case_group_number based on PID\n{familyId2pid}")
+
+    pd.set_option('display.max_columns', 12)
+    pd.set_option('display.max_colwidth', None)
+
     df1 = df.drop(['phenotypes', 'filenames'], axis=1)
     print(f"\n{now()} Cases for {args.run}:\n")
     # print(df.drop(['phenotypes', 'filenames'], axis=1))
+    
 
     
     print(f"{now()} List of samples to archive after cases are finalized on Emedgene: {df1['sample_name']}")
@@ -278,7 +270,13 @@ def main(args):
     #                 '-b'])
 
     # TODO: 6. Add participants to cases
-
+    
+    # TODO: 7. Archive samples from cases finalized on Emedgene
+    #
+    print(f"{now()} Please run the command below on narval to archive samples from finalized csaes on this run:")
+    print(f"{df1['sample_name']}")
+    
+    
 def tests(args):
     print("Running in test mode")
     nq = Nanuq()
