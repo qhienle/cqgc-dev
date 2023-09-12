@@ -68,7 +68,7 @@ def format_mrn_eid(ep, mrn):
     if ep == 'CHUSJ':
         mrn = mrn.lstrip('0')
     elif ep == 'CHUS':
-        pass
+        ep = 'CHUQ'
     return(ep + mrn)
 
 
@@ -79,35 +79,36 @@ def main(args):
 
     1. Download list of samples from Nanuq (API) for a given Run ID.
     2. For each sample in the list of SampleNames: 
-       2.1 Get the JSON from Nanuq to extract infos to create cases on EMG;
-       2.2 Set the Phenotips ID (PID) as family identifier.
-       2.3 Connect to Phenotips, get the corresponding HPO Identifiers;
-       2.4 Connect to BaseSpace and re-construct the path to the FASTQ files;
-    3. Combine individual data into a Pandas dataframe, sort and group trios.
-    4. Turn dataframe into a csv template for EMG batch upload
+        2.1 Get the JSON from Nanuq to extract infos to create cases on EMG;
+        2.2 Set the Phenotips ID (PID) as family identifier.
+        2.3 Connect to Phenotips, get the corresponding HPO Identifiers;
+        2.4 Connect to BaseSpace and re-construct the path to the FASTQ files;
+    3. Combine individual data into a Pandas dataframe
+        3.1 Sort, group and print each trio to STDOUT for case creation.
+    4. Convert DataFrame into a csv template for EMG batch upload
     5. TODO: batch upload to Emedgene using their script
     6. TODO: Add participants to cases
     """
 
+    bssh = BSSH()      # Handler to work with BSSH
+    nq   = Nanuq()     # Interact with Nanuq REST API
+    pho  = Phenotips() # Interact with Phenotips REST API
+
+    # PID is used to group family members, instead of the family name
+    # (nominative info). Build a lookup table to assign PID to members with
+    # the same family name.
+    #
+    familyId2pid = {}   # Lookup table {'surname': 'pid', 'surname': 'pid',...}
+
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
-    nq = Nanuq()
     samplenames = nq.get_samplenames(args.run)
     if not samplenames.text.startswith("##20"):
         sys.exit(f"{now()} ERROR: Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}")
     else:
         print(f"{now()} Retrieved samples conversion table from Nanuq")
     
-    # PID is used to group family members, instead of the family name
-    # (nominative info). Build a lookup table to assign PID to members with
-    # the same family name.
-    #
-    pho   = Phenotips() # Interact with Phenotips REST API
-    familyId2pid = {}    # Lookup table {'suname': 'pid', 'suname': 'pid',...}
-
-    bssh = BSSH() # Handler to work with BSSH
-
     # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
     # (returned as a string by requests.text) and parse sample infos. 
     # SampleNames lines are tab-delimitted. Comment lines begin with "#".
@@ -170,7 +171,7 @@ def main(args):
             #
             familyId = data[0]['patient']['familyId']
             if familyId not in familyId2pid and pid.startswith('P'):
-                    familyId2pid[familyId] = pid
+                familyId2pid[familyId] = pid
 
             # Add paths to fastq on BaseSpace
             #
@@ -179,7 +180,7 @@ def main(args):
 
             cases.append(sample_infos)
 
-    # 3. Load cases (list of list) in a a dataframe, sort and group members
+    # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
     # Group by family and sort by relation.
     # Add case_group_number (PID) to all family members based on familyID.
