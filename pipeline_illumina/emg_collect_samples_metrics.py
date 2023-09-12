@@ -38,8 +38,10 @@ def parse_args():
     parser.add_argument('-d', '--directory', dest='dir',
                         default="/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives", 
                         help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
-    parser.add_argument('-a', '--all-archives', dest='all', action="store_true",
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-a', '--all-archives', dest='all', action="store_true",
                         help="Collect metrics for all archived samples listed under -d|--directory")
+    group.add_argument('-s', '--samples', nargs="+", help="List of samples to archive")
     return(parser.parse_args())
 
 
@@ -191,7 +193,8 @@ def main(args):
     df_coverages = get_coverage_metrics('')
     df_cnvs      = count_cnv('')
     
-    samples = os.listdir(args.dir)
+    if args.all:
+        samples = os.listdir(args.dir)
     #samples = ['GM230732', '23-01616-T1', 'GM210903', 'GM230658']
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
@@ -225,10 +228,9 @@ def main(args):
 
 def _test(arg, opt="."):
     print(f"Required command-line argument is: {arg}")
-    return(os.stat(opt))
 
 
 if __name__ == '__main__':
     args = parse_args()
-    main(args)
-    #_test(args)
+    #main(args)
+    _test(args)
