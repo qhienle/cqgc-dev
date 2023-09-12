@@ -38,6 +38,8 @@ def parse_args():
     parser.add_argument('-d', '--directory', dest='dir',
                         default="/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives", 
                         help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
+    parser.add_argument('-a', '--all-archives', dest='all', action="store_true",
+                        help="Collect metrics for all archived samples listed under -d|--directory")
     return(parser.parse_args())
 
 
@@ -178,17 +180,9 @@ def get_coverage_metrics(sample):
 
 def main(args):
     """
-    From a list of samples, retrieve the following metrics:
-    - Institution
-    - CQGC_ID
-    - Sample_ID
-    - #Reads
-    - Average Coverage
-    - CoverageUniformity
-    - %Bases With Coverage > 20X
-    - #SNV
-    - #Indels
-    - #CNVs
+    From a list of samples, retrieve the several metrics.
+    - `args` : Command-line arguments, from `argparse`.
+    - Returns: A CSV file named `./archives_metrics.csv`.
     """
     workdir = os.path.dirname(args.dir)
     os.chdir(workdir)
