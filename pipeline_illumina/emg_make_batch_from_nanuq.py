@@ -14,8 +14,8 @@ in ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/
 """
 
 import os, sys
-import time
 import argparse
+import logging
 import subprocess
 import json
 import pandas as pd
@@ -34,15 +34,25 @@ __version__ = "0.2"
 def parse_args():
     parser = argparse.ArgumentParser(description="Get Case information from Nanuq for a given Run.")
     parser.add_argument('-r', '--run', required=True, help="FC_SHORT Run ID, ex: 'A00516_339'")
-    parser.add_argument('-d', '--debug', action="store_true", help="Print messages for debug")
+    parser.add_argument('-l', '--logging-level', dest='level', default='info',
+                        help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
 
 
-def now():
+def configure_logging(level):
     """
-    Return Date-Time string for logging. Ex.: print(f"{now()} Hello World!").
+    Set logginig level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
     """
-    return(time.strftime('[%Y-%m-%d@%H:%M:%S]'))
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                    format='[%(asctime)s] %(levelname)s: %(message)s', 
+                    datefmt='%Y-%m-%d@%H:%M:%S')
 
 
 def format_mrn_eid(ep, mrn):
@@ -166,9 +176,9 @@ def main(args):
     #
     samplenames = nq.get_samplenames(args.run)
     if not samplenames.text.startswith("##20"):
-        sys.exit(f"{now()} ERROR: Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}")
+        sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
     else:
-        print(f"{now()} Retrieved samples conversion table from Nanuq") if args.debug else None
+        logging.info("Retrieved samples conversion table from Nanuq")
     
     # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
     # (returned as a string by requests.text) and parse sample infos. 
@@ -183,9 +193,9 @@ def main(args):
             # 2.1 Get information for sample frm Nanuq
             #
             data = json.loads(nq.get_sample(cqgc))
-            print(f"{now()} Got information for biosample {cqgc} a.k.a. {sample}") if args.debug else None
+            logging.debug(f"Got information for biosample {cqgc} a.k.a. {sample}")
             if len(data) != 1:
-                print(f"{now()} WARNING: Number of samples retrieved from Nanuq is not 1.\n{data}")
+                logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
             sample_infos = [
                 data[0]["ldmSampleId"],
                 data[0]["labAliquotId"],
@@ -226,7 +236,7 @@ def main(args):
             sample_infos.append(pid)
             sample_infos.append(labels_str)
             sample_infos.append(ids_str)
-            print(f"{now()} Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n") if args.debug else None
+            logging.debug(f"Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
 
             # 2.3 Add family name and PID to the lookup table
             #
@@ -252,18 +262,19 @@ def main(args):
                   'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
                   'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
     df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
-    print(f"{now()} Sorted families. Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}") if args.debug else None
+    logging.info("Sorted families. Setting PID as case_group_number")
+    logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
     for index, row in df.iterrows():
         if row['case_group_number'] == '':
             try:
                 row['case_group_number'] = familyId2pid[row['family']]
             except KeyError as err:
-                print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
+                logging.warning(f"Could not set PID as family identifier. KeyError: {err}")
     
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
     #
-    print(f"\n{now()} Cases for {args.run}:\n")
+    logging.info(f"\nCases for {args.run}:\n")
     df1 = df.drop(['phenotypes', 'filenames'], axis=1)
     print_case_by_case(df1)
             
@@ -273,7 +284,7 @@ def main(args):
 
     # 5. Batch upload to Emedgene using their script
     #
-    print(f"{now()} Please run the command below, replacing '-u USER' and '-p PASS' with Emedgene credentials:")
+    logging.info("Please run the command below, replacing '-u USER' and '-p PASS' with Emedgene credentials:")
     print('python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p PASS -b\n')
     # subprocess.run(['python', '/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py', 
     #                 '-i', 'emg_batch_manifest.csv', 
@@ -288,18 +299,22 @@ def main(args):
     
     # TODO: 7. Archive samples from cases finalized on Emedgene
     #
-    print(f"{now()} List of samples to archive:")
+    logging.info("List of samples to archive:")
     print(f"{' '.join(df1['sample_name'])}")
     
     
 def tests():
     print("Running in test mode")
-    nq = Nanuq()
-    print(nq.get_sample(21571))
-    print("\nDone.\n")
-
+    logging.debug('Level is DEBUG')
+    logging.info('Level is INFO')
+    logging.warning('Level is WARNING')
+    logging.error('Level is ERROR')
+    logging.critical('Level is CRITICAL')
+    
 
 if __name__ == '__main__':
     args = parse_args()
+    configure_logging(args.level)
+
     main(args)
-    #tests(args)
+    #tests()
