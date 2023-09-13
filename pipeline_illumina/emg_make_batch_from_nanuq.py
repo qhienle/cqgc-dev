@@ -288,7 +288,7 @@ def main(args):
     
     # TODO: 7. Archive samples from cases finalized on Emedgene
     #
-    print(f"{now()} Please run the command below on narval to archive samples from finalized csaes on this run:")
+    print(f"{now()} List of samples to archive:")
     print(f"{' '.join(df1['sample_name'])}")
     
     
