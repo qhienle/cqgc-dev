@@ -68,7 +68,9 @@ def format_mrn_eid(ep, mrn):
     if ep == 'CHUSJ':
         mrn = mrn.lstrip('0')
     elif ep == 'CHUS':
-        ep = 'CHUQ'
+        pass
+    elif ep == 'CHUQ':
+        ep = 'CHUL'
     return(ep + mrn)
 
 
@@ -145,8 +147,6 @@ def main(args):
             # Ex: CHUSJ123456
             #
             ep_mrn = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
-            print(f"{now()} Getting HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
-
             patient   = pho.get_patient_by_mrn(ep_mrn)
             hpo_ids   = []
             hpo_labels= []
@@ -169,6 +169,7 @@ def main(args):
             sample_infos.append(pid)
             sample_infos.append(labels_str)
             sample_infos.append(ids_str)
+            print(f"{now()} Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
 
             # 2.3 Add family name and PID to the lookup table
             #
@@ -185,10 +186,10 @@ def main(args):
 
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
+    # pid => case_group_number, hpo_labels => phenotypes, hpo_ids => hpos
     # Group by family and sort by relation.
     # Add case_group_number (PID) to all family members based on familyID.
     #
-    df  = cases_to_df(cases)
     df = pd.DataFrame(cases)
     df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
                   'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
@@ -215,10 +216,13 @@ def main(args):
     print(f"\n{now()} Cases for {args.run}:\n")
     # print(df.drop(['phenotypes', 'filenames'], axis=1))
     
-
-    
-    print(f"{now()} List of samples to archive after cases are finalized on Emedgene: {df1['sample_name']}")
-
+    for case in df1['case_group_number'].unique():
+        df_tmp = df1[df1['case_group_number'] == case]
+        print(df_tmp[['sample_name', 'biosample', 'relation', 'gender', 'label', 
+                      'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status', 'family']])
+        hpo_terms = df_tmp[df_tmp['relation'] == 'PROBAND']['hpos']
+        print(f"\nHPO Terms for {case}:\n{','.join(hpo_terms)}\n\n")
+            
     # 4. Output manifest for batch upload, see "Case_creation-script_v2.docx"
     #
     df_manifest = pd.DataFrame(
@@ -274,7 +278,7 @@ def main(args):
     # TODO: 7. Archive samples from cases finalized on Emedgene
     #
     print(f"{now()} Please run the command below on narval to archive samples from finalized csaes on this run:")
-    print(f"{df1['sample_name']}")
+    print(f"{' '.join(df1['sample_name'])}")
     
     
 def tests(args):
