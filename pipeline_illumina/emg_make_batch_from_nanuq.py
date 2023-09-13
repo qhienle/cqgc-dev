@@ -51,8 +51,8 @@ def configure_logging(level):
     else:
         level_name = logging.WARNING
     logging.basicConfig(level=level_name, 
-                    format='[%(asctime)s] %(levelname)s: %(message)s', 
-                    datefmt='%Y-%m-%d@%H:%M:%S')
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
 
 
 def format_mrn_eid(ep, mrn):
@@ -80,8 +80,8 @@ def format_mrn_eid(ep, mrn):
         mrn = mrn.lstrip('0')
     elif ep == 'CHUS':
         pass
-    elif ep == 'CHUQ':
-        ep = 'CHUL'
+    # elif ep == 'CHUQ':
+    #     ep = 'CHUL'
     return(ep + mrn)
 
 
@@ -193,7 +193,7 @@ def main(args):
             # 2.1 Get information for sample frm Nanuq
             #
             data = json.loads(nq.get_sample(cqgc))
-            logging.debug(f"Got information for biosample {cqgc} a.k.a. {sample}")
+            logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
             if len(data) != 1:
                 logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
             sample_infos = [
@@ -305,12 +305,11 @@ def main(args):
     
 def tests():
     print("Running in test mode")
-    logging.debug('Level is DEBUG')
-    logging.info('Level is INFO')
-    logging.warning('Level is WARNING')
-    logging.error('Level is ERROR')
-    logging.critical('Level is CRITICAL')
-    
+
+    nq   = Nanuq()     # Interact with Nanuq REST API
+    familyId2pid = {}   # Lookup table {'surname': 'pid', 'surname': 'pid',...}
+
+
 
 if __name__ == '__main__':
     args = parse_args()
