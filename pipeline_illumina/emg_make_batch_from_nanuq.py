@@ -55,7 +55,7 @@ def format_mrn_eid(ep, mrn):
     labeled external ID, "labeled-eid"). In Phenotips, MRN is prepended with 
     the Site's EP initials (_e.g._ "CHUS1626861"). There does not seem to be a
     standard format for MRN identifiers. Here are some of the format detected, 
-    by order of frequency of occurences:
+    by order of frequency of occurrences:
 
     PRAGMatIQ | Phenotips     | Nanuq    | Notes
     ----------|---------------|----------|------------------------------------
@@ -74,6 +74,59 @@ def format_mrn_eid(ep, mrn):
     return(ep + mrn)
 
 
+def df_to_manifest(df):
+    """
+    Generate a manifest file for batch upload to Emedgene from data in df.
+    See "Case_creation-script_v2.docx" for manifest specifications.
+    - `df`: A Pandas DataFrame
+    - Returns: File 'emg_batch_manifest.csv' in current folder
+    """
+    df_manifest = pd.DataFrame(
+        {
+            'case_group_number': df['case_group_number'],
+            'case_type': 'Whole Genome',
+            'filenames': df['filenames'],
+            'bam_file': '', 
+            'execute_now':  'False',
+            'sample_name': df['sample_name'],
+            'relation': df['relation'],
+            'gender': df['gender'],
+            'phenotypes': df['phenotypes'],
+            'hpos': df['hpos'],
+            'boost_genes': '',
+            'gene_list_id': '',
+            'kit_id': '',
+            'selected_preset': '',
+            'due_date(YYYY-MM-DD)': '',
+            'label': df['label'],
+            'bigwig': '',
+            'clinical_notes': df['case_group_number'],
+            'Default Project': '',
+            'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)'],
+        }
+    )
+    df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['label']
+
+    with open('emg_batch_manifest.csv', 'w') as fh:
+        fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
+    
+    
+def print_case_by_case(df):
+    """
+    Format and print df to STDOUT case by case, with HPO terms. 
+    Easier reading, when creating cases manually using Emedgene's web UI.
+    """
+    for case_pid in df['case_group_number'].unique():
+        df_tmp = df[df['case_group_number'] == case_pid]
+        family = df_tmp['family'].tolist()[0]
+        cohort = df_tmp['cohort_type'].tolist()[0]
+        site   = df_tmp['label'].tolist()[0]
+        print(f"### Case PID: {case_pid}, site: {site}, family: {family}, cohort_type: {cohort} ============\n")
+        print(df_tmp[['sample_name', 'biosample', 'relation', 'gender', 'date_of_birth(YYYY-MM-DD)', 'status']].to_string(index=False))
+        hpo_terms = df_tmp[df_tmp['relation'] == 'PROBAND']['hpos']
+        print(f"\nHPO Terms:\n{','.join(hpo_terms)}\n\n")
+
+
 def main(args):
     """
     Retrieve necessary information from Nanuq for creating cases in Emedgene.
@@ -85,7 +138,7 @@ def main(args):
         2.2 Get the Phenotips ID (PID) and the corresponding HPO Identifiers;
         2.3 Associate patient surname to PID, for later use
         2.4 Connect to BaseSpace and re-construct the path to the FASTQ files;
-    3. Combine individual data into a Pandas dataframe
+    3. Combine individual data into a Pandas data frame
         3.1 Sort, group and print each trio to STDOUT for case creation.
         3.2 Use case PID instead of surname to connect family members.
     4. Convert DataFrame into a CSV file (manifest) for EMG batch upload.
@@ -216,56 +269,22 @@ def main(args):
     print(f"\n{now()} Cases for {args.run}:\n")
     # print(df.drop(['phenotypes', 'filenames'], axis=1))
     
-    for case in df1['case_group_number'].unique():
-        df_tmp = df1[df1['case_group_number'] == case]
-        print(df_tmp[['sample_name', 'biosample', 'relation', 'gender', 'label', 
-                      'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status', 'family']])
-        hpo_terms = df_tmp[df_tmp['relation'] == 'PROBAND']['hpos']
-        print(f"\nHPO Terms for {case}:\n{','.join(hpo_terms)}\n\n")
+    # Print to STDOUT case by case, with HPO terms. Easier reading, when 
+    # creating cases manually using Emedgene's web UI
+    #
+    print_case_by_case(df1)
             
     # 4. Output manifest for batch upload, see "Case_creation-script_v2.docx"
     #
-    df_manifest = pd.DataFrame(
-        {
-            'case_group_number': df['case_group_number'],
-            'case_type': 'Whole Genome',
-            'filenames': df['filenames'],
-            'bam_file': '', 
-            'execute_now':  'False',
-            'sample_name': df['sample_name'],
-            'relation': df['relation'],
-            'gender': df['gender'],
-            'phenotypes': df['phenotypes'],
-            'hpos': df['hpos'],
-            'boost_genes': '',
-            'gene_list_id': '',
-            'kit_id': '',
-            'selected_preset': '',
-            'due_date(YYYY-MM-DD)': '',
-            'label': df['label'],
-            'bigwig': '',
-            'clinical_notes': df['case_group_number'],
-            'Default Project': '',
-            'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)'],
-        }
-    )
-    df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['label']
-
-    with open('emg_batch_manifest.csv', 'w') as fh:
-        fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
+    df_to_manifest(df)
 
     # 5. Batch upload to Emedgene using their script
     #
     print(f"{now()} Please run the command below, replacing '-u USER' and '-p PASS' with Emedgene credentials:")
-    print('\npython /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py\\') 
-    print('\t-i emg_batch_manifest.csv \\')
-    print('\t-s 10123 \\')
-    print('\t-hu stejustine.emedgene.com \\')
-    print('\t-u cqgc.bioinfo.hsj@ssss.gouv.qc.ca \\')
-    print('\t-p PASS \\')
-    print('\t-b\n')
-    # subprocess.run(['python', 
-    #                 '/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py', 
+    print('\npython /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py \
+          -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com \
+          -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p PASS -b\n')
+    # subprocess.run(['python', '/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py', 
     #                 '-i', 'emg_batch_manifest.csv', 
     #                 '-s', '10123', 
     #                 '-hu', 'stejustine.emedgene.com', 
@@ -274,6 +293,7 @@ def main(args):
     #                 '-b'])
 
     # TODO: 6. Add participants to cases
+    #
     
     # TODO: 7. Archive samples from cases finalized on Emedgene
     #
@@ -281,7 +301,7 @@ def main(args):
     print(f"{' '.join(df1['sample_name'])}")
     
     
-def tests(args):
+def tests():
     print("Running in test mode")
     nq = Nanuq()
     print(nq.get_sample(21571))
