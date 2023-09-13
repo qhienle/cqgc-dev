@@ -41,7 +41,7 @@ def parse_args():
 
 def configure_logging(level):
     """
-    Set logginig level, based on the level names of the `logging` module.
+    Set logging level, based on the level names of the `logging` module.
     - level (str): 'debug', 'info' or 'warning'
     """
     if level == 'debug':
