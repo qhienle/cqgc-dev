@@ -116,12 +116,15 @@ def print_case_by_case(df):
     Format and print df to STDOUT case by case, with HPO terms. 
     Easier reading, when creating cases manually using Emedgene's web UI.
     """
+    pd.set_option('display.max_columns', 12)
+    pd.set_option('display.max_colwidth', None)
+
     for case_pid in df['case_group_number'].unique():
         df_tmp = df[df['case_group_number'] == case_pid]
         family = df_tmp['family'].tolist()[0]
         cohort = df_tmp['cohort_type'].tolist()[0]
         site   = df_tmp['label'].tolist()[0]
-        print(f"### Case PID: {case_pid}, site: {site}, family: {family}, cohort_type: {cohort} ============\n")
+        print(f"============ Case INFO: {case_pid} | {site} | {cohort} | {family} ============\n")
         print(df_tmp[['sample_name', 'biosample', 'relation', 'gender', 'date_of_birth(YYYY-MM-DD)', 'status']].to_string(index=False))
         hpo_terms = df_tmp[df_tmp['relation'] == 'PROBAND']['hpos']
         print(f"\nHPO Terms:\n{','.join(hpo_terms)}\n\n")
@@ -255,23 +258,12 @@ def main(args):
                 row['case_group_number'] = familyId2pid[row['family']]
             except KeyError as err:
                 print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
-    # try:
-    #     df['case_group_number'] = df.apply(lambda x: familyId2pid[x['family']], axis=1)
-    # except KeyError as err:
-    #     print(f"{now()} ***WARNING!*** Could not set PID as family identifier. KeyError: {err}")
-    # else:
-    #     print(f"{now()} Sorted families and assigned case_group_number based on PID\n{familyId2pid}")
-
-    pd.set_option('display.max_columns', 12)
-    pd.set_option('display.max_colwidth', None)
-
-    df1 = df.drop(['phenotypes', 'filenames'], axis=1)
-    print(f"\n{now()} Cases for {args.run}:\n")
-    # print(df.drop(['phenotypes', 'filenames'], axis=1))
     
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
     #
+    print(f"\n{now()} Cases for {args.run}:\n")
+    df1 = df.drop(['phenotypes', 'filenames'], axis=1)
     print_case_by_case(df1)
             
     # 4. Output manifest for batch upload, see "Case_creation-script_v2.docx"
@@ -281,9 +273,7 @@ def main(args):
     # 5. Batch upload to Emedgene using their script
     #
     print(f"{now()} Please run the command below, replacing '-u USER' and '-p PASS' with Emedgene credentials:")
-    print('\npython /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py \
-          -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com \
-          -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p PASS -b\n')
+    print('python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p PASS -b\n')
     # subprocess.run(['python', '/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py', 
     #                 '-i', 'emg_batch_manifest.csv', 
     #                 '-s', '10123', 
