@@ -119,7 +119,7 @@ class Nanuq:
         if filename for {outfile} is not 'None'.
         """
         try:
-            print(f"{now()} Connecting to {url}")
+            # print(f"{now()} Connecting to {url}")
             response = requests.post(url, data=self.auth_data)
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
