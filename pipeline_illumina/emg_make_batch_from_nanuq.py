@@ -183,7 +183,7 @@ def main(args):
             # 2.1 Get information for sample frm Nanuq
             #
             data = json.loads(nq.get_sample(cqgc))
-            print(f"{now()} Got information for biosample {cqgc} a.k.a. {sample}")
+            print(f"{now()} Got information for biosample {cqgc} a.k.a. {sample}") if args.debug else None
             if len(data) != 1:
                 print(f"{now()} WARNING: Number of samples retrieved from Nanuq is not 1.\n{data}")
             sample_infos = [
