@@ -34,6 +34,7 @@ __version__ = "0.2"
 def parse_args():
     parser = argparse.ArgumentParser(description="Get Case information from Nanuq for a given Run.")
     parser.add_argument('-r', '--run', required=True, help="FC_SHORT Run ID, ex: 'A00516_339'")
+    parser.add_argument('-d', '--debug', action="store_true", help="Print messages for debug")
     return(parser.parse_args())
 
 
@@ -167,7 +168,7 @@ def main(args):
     if not samplenames.text.startswith("##20"):
         sys.exit(f"{now()} ERROR: Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}")
     else:
-        print(f"{now()} Retrieved samples conversion table from Nanuq")
+        print(f"{now()} Retrieved samples conversion table from Nanuq") if args.debug else None
     
     # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
     # (returned as a string by requests.text) and parse sample infos. 
@@ -225,7 +226,7 @@ def main(args):
             sample_infos.append(pid)
             sample_infos.append(labels_str)
             sample_infos.append(ids_str)
-            print(f"{now()} Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
+            print(f"{now()} Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n") if args.debug else None
 
             # 2.3 Add family name and PID to the lookup table
             #
@@ -251,7 +252,7 @@ def main(args):
                   'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
                   'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
     df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
-    print(f"{now()} Sorted families. Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
+    print(f"{now()} Sorted families. Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}") if args.debug else None
     for index, row in df.iterrows():
         if row['case_group_number'] == '':
             try:
