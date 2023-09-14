@@ -22,7 +22,7 @@ module load scipy-stack/2023a
 
 import os
 import argparse
-import time
+import logging
 import subprocess
 import pandas as pd
 from glob import glob
@@ -40,11 +40,25 @@ def parse_args():
                         help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
     parser.add_argument('-s', '--samples', nargs="?", 
                         help="List of samples to archive. If None, collects metrics from all archived samples.")
+    parser.add_argument('-l', '--logging-level', dest='level', default='info',
+                        help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
 
 
-def now():
-    return(time.strftime('[%Y-%m-%d@%H:%M:%S]'))
+def configure_logging(level):
+    """
+    Set logging level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
+    """
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
 
 
 def get_NumOfReads(sample):
@@ -57,7 +71,7 @@ def get_NumOfReads(sample):
     files = glob(f"{args.dir}/{sample}/NumOfReads/*/{sample}.txt")
     NumOfReads = []
     if len(files) > 1:
-        print(f"{now()} WARNING: {sample} has multiple NumOfReads")
+        logging.WARNING(f"{sample} has multiple NumOfReads")
     for file in files:
         path_parts = os.path.split(file)
         dir_parts  = os.path.split(path_parts[0])
@@ -87,7 +101,7 @@ def get_metrics_from_log(sample):
     # There may be multiple logfiles. Use the filename's _vlocal_ stamp for id
     #
     if len(logfiles) > 1:
-        print(f"{now()} WARNING: More than one log file found for {sample}")
+        logging.WARNING(f"More than one log file found for {sample}")
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
@@ -198,9 +212,9 @@ def main(args):
         samples = args.samples 
     else:
         samples = os.listdir(args.dir)
-    total   = len(samples)
+    total = len(samples)
     for count, sample in enumerate(samples, start=1):
-        print(f"{now()} Processing {sample}, {count}/{total}")
+        logging.INFO(f"Processing {sample}, {count}/{total}")
         df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
         df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
         df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
