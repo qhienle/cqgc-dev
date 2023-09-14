@@ -68,20 +68,21 @@ def format_mrn_eid(ep, mrn):
     standard format for MRN identifiers. Here are some of the format detected, 
     by order of frequency of occurrences:
 
-    PRAGMatIQ | Phenotips     | Nanuq    | Notes
-    ----------|---------------|----------|------------------------------------
-    3421069   | CHUSJ3421069  | 03421069 | For CHUSJ, Nanuq adds a leading "0"
-    X3627954  | CHUSJX3627954 | X3627954 | Not numerical, starts with 'X'
-    1628699   | CHUS1628699   | 1628699  | 7 digits, no leading '0'
-    347990    | CHUS347990    | 347990   | 6 and no leading '0' added by Nanuq
-    1633799   | 1633799       | 1633799  | Not prefixed with EP initials
+    PRAGMatIQ | Phenotips     | Nanuq       | Notes
+    ----------|---------------|-------------|------------------------------------
+    3421069   | CHUSJ3421069  | 03421069    | For CHUSJ, Nanuq adds a leading "0"
+    X3627954  | CHUSJX3627954 | X3627954    | Not numerical, starts with 'X'
+    1628699   | CHUS1628699   | 1628699     | 7 digits, no leading '0'
+    347990    | CHUS347990    | 347990      | 6 and no leading '0' added by Nanuq
+    1633799   | 1633799       | 1633799     | Not prefixed with EP initials
+    1644460   | CHUQ1644460   | CHUL1644460 | CHUQ is stored as CHUL in Nanuq
     """
     if ep == 'CHUSJ':
         mrn = mrn.lstrip('0')
     elif ep == 'CHUS':
         pass
-    # elif ep == 'CHUQ':
-    #     ep = 'CHUL'
+    elif ep == 'CHUQ':
+        return(mrn.replace('L', 'Q'))
     return(ep + mrn)
 
 
@@ -303,11 +304,132 @@ def main(args):
     print(f"{' '.join(df1['sample_name'])}")
     
     
+def build_from_nanuq(samplenames):
+
+    bssh = BSSH()      # Handler to work with BSSH
+    nq   = Nanuq()     # Interact with Nanuq REST API
+    pho  = Phenotips() # Interact with Phenotips REST API
+
+    # PID is used to group family members, instead of the family name
+    # (nominative info). Build a lookup table to assign PID to members with
+    # the same family name.
+    #
+    familyId2pid = {}   # Lookup table {'surname': 'pid', 'surname': 'pid',...}
+    
+        # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
+    # (returned as a string by requests.text) and parse sample infos. 
+    # SampleNames lines are tab-delimitted. Comment lines begin with "#".
+    # Results are stored in `cases` and printed to STDOUT at the end.
+    # 
+    cases = []
+    for line in samplenames.text.splitlines():
+        if not line.startswith('#'):
+            cqgc, sample = line.split("\t")
+            
+            # 2.1 Get information for sample frm Nanuq
+            #
+            data = json.loads(nq.get_sample(cqgc))
+            logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
+            if len(data) != 1:
+                logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
+            sample_infos = [
+                data[0]["ldmSampleId"],
+                data[0]["labAliquotId"],
+                data[0]["patient"]["familyMember"],
+                data[0]["patient"]["sex"],
+                data[0]["patient"]["ep"],
+                data[0]["patient"]["mrn"],
+                data[0]["patient"]["designFamily"],
+                data[0]["patient"]["birthDate"],
+                data[0]["patient"]["status"],
+                data[0]["patient"].get("familyId", "-")
+            ]
+
+            # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers
+            # Lookup this information in Phenotips, using the EP+MRN
+            # Ex: CHUSJ123456
+            #
+            ep_mrn = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
+            patient   = pho.get_patient_by_mrn(ep_mrn)
+            hpo_ids   = []
+            hpo_labels= []
+            if patient is not None:
+                pid = patient['id']
+                hpos = pho.parse_hpo(patient)
+                for hpo in hpos:
+                    hpo_ids.append(hpo['id'])
+                    hpo_labels.append(hpo['label'])
+            else:
+                pid = ''
+
+            if len(hpo_ids) == 0:
+                ids_str = ''
+                labels_str= ''
+            else:
+                ids_str = ','.join(hpo_ids)
+                labels_str = ','.join(hpo_labels)
+
+            sample_infos.append(pid)
+            sample_infos.append(labels_str)
+            sample_infos.append(ids_str)
+            logging.debug(f"Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
+
+            # 2.3 Add family name and PID to the lookup table
+            #
+            familyId = data[0]['patient']['familyId']
+            if familyId not in familyId2pid and pid.startswith('P'):
+                familyId2pid[familyId] = pid
+
+            # 2.4 Add paths to fastq on BaseSpace
+            #
+            fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
+            sample_infos.append(';'.join(fastqs))
+
+            cases.append(sample_infos)
+
+    # 3. Load cases (list of list) in a DataFrame, sort and group members
+    # Translate column names to match EMG's manifest specifications.
+    # pid => case_group_number, hpo_labels => phenotypes, hpo_ids => hpos
+    # Group by family and sort by relation.
+    # Add case_group_number (PID) to all family members based on familyID.
+    #
+    df = pd.DataFrame(cases)
+    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
+                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
+                  'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
+    df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
+    logging.info("Sorted families. Setting PID as case_group_number")
+    logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
+    for index, row in df.iterrows():
+        if row['case_group_number'] == '':
+            try:
+                row['case_group_number'] = familyId2pid[row['family']]
+            except KeyError as err:
+                logging.warning(f"Could not set PID as family identifier. KeyError: {err}")
+
+
 def tests():
     print("Running in test mode")
 
     nq   = Nanuq()     # Interact with Nanuq REST API
-    familyId2pid = {}   # Lookup table {'surname': 'pid', 'surname': 'pid',...}
+
+    # 1. Get a list of samples on this run to construct the cases.
+    # TODO: Add experiment name as an alternative identifier for Nanuq API?
+    #
+    samplenames = nq.get_samplenames(args.run)
+    if not samplenames.text.startswith("##20"):
+        sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
+    else:
+        logging.info("Retrieved samples conversion table from Nanuq")
+
+    df = build_from_nanuq(samplenames)
+        
+    # Print to STDOUT case by case, with HPO terms. Easier reading, when 
+    # creating cases manually using Emedgene's web UI
+    #
+    logging.info(f"\nCases for {args.run}:\n")
+    df1 = df.drop(['phenotypes', 'filenames'], axis=1)
+    print_case_by_case(df1)
 
 
 
@@ -315,5 +437,5 @@ if __name__ == '__main__':
     args = parse_args()
     configure_logging(args.level)
 
-    main(args)
-    #tests()
+    #main(args)
+    tests()
