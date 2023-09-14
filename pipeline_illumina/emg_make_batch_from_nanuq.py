@@ -28,6 +28,10 @@ from lib.nanuq import Nanuq
 from lib.gapp import Phenotips
 from lib.gapp import BSSH
 
+nq = Nanuq()
+pho = Phenotips()
+bssh = BSSH()
+
 __version__ = "0.2"
 
 
@@ -161,10 +165,6 @@ def main(args):
     6. TODO: Add participants to cases
     7. TODO: Archive samples for this run
     """
-
-    bssh = BSSH()      # Handler to work with BSSH
-    nq   = Nanuq()     # Interact with Nanuq REST API
-    pho  = Phenotips() # Interact with Phenotips REST API
 
     # PID is used to group family members, instead of the family name
     # (nominative info). Build a lookup table to assign PID to members with
@@ -306,10 +306,6 @@ def main(args):
     
 def build_from_nanuq(samplenames):
 
-    bssh = BSSH()      # Handler to work with BSSH
-    nq   = Nanuq()     # Interact with Nanuq REST API
-    pho  = Phenotips() # Interact with Phenotips REST API
-
     # PID is used to group family members, instead of the family name
     # (nominative info). Build a lookup table to assign PID to members with
     # the same family name.
@@ -321,7 +317,21 @@ def build_from_nanuq(samplenames):
     # SampleNames lines are tab-delimitted. Comment lines begin with "#".
     # Results are stored in `cases` and printed to STDOUT at the end.
     # 
-    cases = []
+    df = pd.DataFrame({
+        'sample_name'              : [], 
+        'biosample'                : [], 
+        'relation'                 : [], 
+        'gender'                   : [], 
+        'label'                    : [], 
+        'mrn'                      : [], 
+        'cohort_type'              : [], 
+        'date_of_birth(YYYY-MM-DD)': [], 
+        'status'                   : [],
+        'family'                   : [], 
+        'case_group_number'        : [], 
+        'phenotypes'               : [], 
+        'hpos'                     : [], 
+        'filenames'                : []})
     for line in samplenames.text.splitlines():
         if not line.startswith('#'):
             cqgc, sample = line.split("\t")
@@ -393,10 +403,6 @@ def build_from_nanuq(samplenames):
     # Group by family and sort by relation.
     # Add case_group_number (PID) to all family members based on familyID.
     #
-    df = pd.DataFrame(cases)
-    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
-                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
-                  'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
     df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
     logging.info("Sorted families. Setting PID as case_group_number")
     logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
@@ -406,12 +412,11 @@ def build_from_nanuq(samplenames):
                 row['case_group_number'] = familyId2pid[row['family']]
             except KeyError as err:
                 logging.warning(f"Could not set PID as family identifier. KeyError: {err}")
+    return df
 
 
 def tests():
     print("Running in test mode")
-
-    nq   = Nanuq()     # Interact with Nanuq REST API
 
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
@@ -421,8 +426,7 @@ def tests():
         sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
     else:
         logging.info("Retrieved samples conversion table from Nanuq")
-
-    df = build_from_nanuq(samplenames)
+        df = build_from_nanuq(samplenames)
         
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
@@ -432,10 +436,9 @@ def tests():
     print_case_by_case(df1)
 
 
-
 if __name__ == '__main__':
     args = parse_args()
     configure_logging(args.level)
 
-    #main(args)
-    tests()
+    main(args)
+    #tests()
