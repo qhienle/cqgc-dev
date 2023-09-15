@@ -101,7 +101,8 @@ def get_metrics_from_log(sample):
     # There may be multiple logfiles. Use the filename's _vlocal_ stamp for id
     #
     if len(logfiles) > 1:
-        logging.WARNING("More than one log file found for sample")
+        #logging.WARNING(f"More than one log file found for {sample}")
+        print(f"More than one log file found for {sample}")
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
