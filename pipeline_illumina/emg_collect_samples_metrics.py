@@ -209,9 +209,9 @@ def main(args):
     # samples under the "archives" folder.
     #
     if args.samples == ['all']:
-        samples = args.samples 
-    else:
         samples = os.listdir(args.dir)
+    else:
+        samples = args.samples 
     total = len(samples)
     for count, sample in enumerate(samples, start=1):
         #logging.INFO(f"Processing {sample}, {count}/{total}")
