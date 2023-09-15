@@ -214,7 +214,8 @@ def main(args):
         samples = os.listdir(args.dir)
     total = len(samples)
     for count, sample in enumerate(samples, start=1):
-        logging.INFO(f"Processing {sample}, {count}/{total}")
+        #logging.INFO(f"Processing {sample}, {count}/{total}")
+        print(f"Processing {sample}, {count}/{total}")
         df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
         df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
         df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
