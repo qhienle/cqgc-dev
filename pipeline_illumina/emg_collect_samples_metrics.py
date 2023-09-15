@@ -38,8 +38,8 @@ def parse_args():
     parser.add_argument('-d', '--directory', dest='dir',
                         default="/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives", 
                         help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
-    parser.add_argument('-s', '--samples', nargs="?", 
-                        help="List of samples to archive. If None, collects metrics from all archived samples.")
+    parser.add_argument('-s', '--samples', nargs="+", required=True,
+                        help="List of samples to archive. Use 'all' to collect metrics from all archived samples.")
     parser.add_argument('-l', '--logging-level', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
@@ -208,7 +208,7 @@ def main(args):
     # Process list of samples, if provided. Else, collect metrics from all
     # samples under the "archives" folder.
     #
-    if args.samples:
+    if args.samples == ['all']:
         samples = args.samples 
     else:
         samples = os.listdir(args.dir)
@@ -243,15 +243,15 @@ def main(args):
 
 
 def _test(args):
-    if args.samples:
-        samples = args.samples 
+    if args.samples == ['all']:
+        samples = 'None provided, processing all'
     else:
-        samples = 'None provided'
+        samples = args.samples
     print(samples)
     print(f"Command-line argument is: {args}")
 
 
 if __name__ == '__main__':
     args = parse_args()
-    #main(args)
-    _test(args)
+    main(args)
+    #_test(args)
