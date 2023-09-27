@@ -210,12 +210,13 @@ def main(args):
                 data[0]["patient"].get("familyId", "-")
             ]
 
-            # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers
-            # Lookup this information in Phenotips, using the EP+MRN
+            # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers for
+            # the proband. Lookup this information in Phenotips, using EP+MRN
             # Ex: CHUSJ123456
             #
             ep_mrn    = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
             patient   = pho.get_patient_by_mrn(ep_mrn)
+            pid       = ''
             hpo_ids   = []
             hpo_labels= []
             warn_msg  = f"Could not get PID using EP+MRN: {ep_mrn}"
@@ -226,8 +227,7 @@ def main(args):
                     hpo_ids.append(hpo['id'])
                     hpo_labels.append(hpo['label'])
             else:
-                pid = ''
-                logging.warn(warn_msg)
+                logging.warning(warn_msg)
 
             if len(hpo_ids) == 0:
                 ids_str = warn_msg
