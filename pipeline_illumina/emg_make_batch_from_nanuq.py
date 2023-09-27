@@ -214,13 +214,13 @@ def main(args):
             # the proband. Lookup this information in Phenotips, using EP+MRN
             # Ex: CHUSJ123456
             #
-            ep_mrn    = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
-            patient   = pho.get_patient_by_mrn(ep_mrn)
-            pid       = ''
-            hpo_ids   = []
-            hpo_labels= []
-            warn_msg  = f"Could not get PID using EP+MRN: {ep_mrn}"
-            if patient is not None:
+            pid        = ''
+            hpo_ids    = []
+            hpo_labels = []
+            ep_mrn     = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
+            patient    = pho.get_patient_by_mrn(ep_mrn)
+            warn_msg   = f"Could not get PID using EP+MRN: {ep_mrn}"
+            if patient is not None: # TODO: and data[0]["patient"]["familyMember"] == "PROBAND":
                 pid = patient['id']
                 hpos = pho.parse_hpo(patient)
                 for hpo in hpos:
@@ -230,8 +230,8 @@ def main(args):
                 logging.warning(warn_msg)
 
             if len(hpo_ids) == 0:
-                ids_str = warn_msg
-                labels_str= warn_msg
+                ids_str    = warn_msg
+                labels_str = warn_msg
             else:
                 ids_str = ','.join(hpo_ids)
                 labels_str = ','.join(hpo_labels)
@@ -307,6 +307,7 @@ def main(args):
     
     
 def build_from_nanuq(samplenames):
+    """Build dataframe as we parse nanuq files, instead of building a list"""
 
     # PID is used to group family members, instead of the family name
     # (nominative info). Build a lookup table to assign PID to members with
