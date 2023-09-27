@@ -191,7 +191,7 @@ def main(args):
         if not line.startswith('#'):
             cqgc, sample = line.split("\t")
             
-            # 2.1 Get information for sample frm Nanuq
+            # 2.1 Get information for sample from Nanuq
             #
             data = json.loads(nq.get_sample(cqgc))
             logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
@@ -214,10 +214,11 @@ def main(args):
             # Lookup this information in Phenotips, using the EP+MRN
             # Ex: CHUSJ123456
             #
-            ep_mrn = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
+            ep_mrn    = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
             patient   = pho.get_patient_by_mrn(ep_mrn)
             hpo_ids   = []
             hpo_labels= []
+            warn_msg  = f"Could not get PID using EP+MRN: {ep_mrn}"
             if patient is not None:
                 pid = patient['id']
                 hpos = pho.parse_hpo(patient)
@@ -226,10 +227,11 @@ def main(args):
                     hpo_labels.append(hpo['label'])
             else:
                 pid = ''
+                logging.warn(warn_msg)
 
             if len(hpo_ids) == 0:
-                ids_str = ''
-                labels_str= ''
+                ids_str = warn_msg
+                labels_str= warn_msg
             else:
                 ids_str = ','.join(hpo_ids)
                 labels_str = ','.join(hpo_labels)
