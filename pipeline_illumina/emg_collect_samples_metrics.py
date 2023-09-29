@@ -61,6 +61,18 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
+def glob_files(pattern):
+    """
+    Glob list of files from pattern and checks that list is not empty
+    """
+    files = glob(pattern)
+    if len(files) == 0:
+        logging.debug(f"More than one log file found with pattern {pattern}")
+    elif len(files) == 0:
+        logging.warning(f"No file found with pattern {pattern}")
+    return files
+
+
 def get_metrics_from_log(sample):
     """
     Get metrics from log file. Metrics for "Percent of genome coverage over 20x" 
@@ -75,47 +87,39 @@ def get_metrics_from_log(sample):
         - Percent Autosome Callability
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    logfiles = glob(f"{args.dir}/{sample}/{sample}_vlocal_*_sample.log")
+    logfiles = glob_files(f"{args.dir}/{sample}/{sample}_vlocal_*_sample.log")
+    for log in logfiles:
+        logname = os.path.basename(log)
+        with open(log, "r") as fh:
+            lines = fh.readlines()
+        reads = ''
+        snps  = ''
+        cnv_avg_coverage    = ''
+        coverage_uniformity = ''
+        callability         = ''
+        contamination       = '' 
+        for line in lines:
+            line_parts = line.rstrip().split()
 
-    # There may be multiple logfiles. Use the filename's _vlocal_ stamp for id
-    #
-    if len(logfiles) > 1:
-        logging.warning(f"More than one log file found for {sample}")
-    elif len(logfiles) == 0:
-        logging.warning(f"Could not find main log file")
-    else:
-        for log in logfiles:
-            logname = os.path.basename(log)
-            with open(log, "r") as fh:
-                lines = fh.readlines()
-            reads = ''
-            snps  = ''
-            cnv_avg_coverage    = ''
-            coverage_uniformity = ''
-            callability         = ''
-            contamination       = '' 
-            for line in lines:
-                line_parts = line.rstrip().split()
-
-                # For some reason, there are often duplicate lines for these metrics in the log file, 
-                # but not in the original bed_coverage_metrics.csv file.
-                # The information is sometimes presented with the bytestring (b'blah...\n') symbols 
-                # and need to be reformatted.
-                #
-                if 'Number of reads' in line:
-                    reads = line_parts[-1].replace("\\n'", "")
-                elif 'Average alignment coverage over genome' in line and 'CNV SUMMARY' in line:
-                    cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
-                elif 'Coverage uniformity' in line:
-                    coverage_uniformity = line_parts[-1].replace("\\n'", "")
-                elif 'SNPs' in line and line_parts[11] == "SNPs":
-                    snps = line_parts[12].replace("\\n'", "")
-                elif 'Percent Autosome Callability' in line:
-                    callability = line_parts[14].replace("\\n'", "")
-                elif 'Estimated sample contamination' in line:
-                    if line_parts[12] != 'standard':
-                        contamination = line_parts[12].replace("\\n'", "")
-            metrics.append([sample, logname, reads, snps, cnv_avg_coverage, coverage_uniformity, callability, contamination])
+            # For some reason, there are often duplicate lines for these metrics in the log file, 
+            # but not in the original bed_coverage_metrics.csv file.
+            # The information is sometimes presented with the bytestring (b'blah...\n') symbols 
+            # and need to be reformatted.
+            #
+            if 'Number of reads' in line:
+                reads = line_parts[-1].replace("\\n'", "")
+            elif 'Average alignment coverage over genome' in line and 'CNV SUMMARY' in line:
+                cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
+            elif 'Coverage uniformity' in line:
+                coverage_uniformity = line_parts[-1].replace("\\n'", "")
+            elif 'SNPs' in line and line_parts[11] == "SNPs":
+                snps = line_parts[12].replace("\\n'", "")
+            elif 'Percent Autosome Callability' in line:
+                callability = line_parts[14].replace("\\n'", "")
+            elif 'Estimated sample contamination' in line:
+                if line_parts[12] != 'standard':
+                    contamination = line_parts[12].replace("\\n'", "")
+        metrics.append([sample, logname, reads, snps, cnv_avg_coverage, coverage_uniformity, callability, contamination])
     return pd.DataFrame(metrics, columns = ["Sample", "Log filename", "NumOfReads", "NumOfSNPs", "CNV average coverage", "Coverage uniformity", "Percent Autosome Callability", "Estimated sample contamination"])
 
 
@@ -129,7 +133,7 @@ def get_coverage_metrics(sample):
         - 
     """
     coverages = []
-    files = glob(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv")
+    files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv")
     for file in files:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
@@ -161,7 +165,7 @@ def count_cnv(sample):
     - Returns : A DataFrame
     """
     cnvs = []
-    cnv_dirs = glob(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.cnv.vcf.gz")
+    cnv_dirs = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.cnv.vcf.gz")
     count = 0
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
@@ -181,19 +185,15 @@ def get_NumOfReads(sample):
     - Returns : A DataFrame. There may be multiple NumOfReads files.
                 [[Sample, Log, NumOfReads], [], ...]
     """
-    files = glob(f"{args.dir}/{sample}/NumOfReads/*/{sample}.txt")
+    files = glob_files(f"{args.dir}/{sample}/NumOfReads/*/{sample}.txt")
     NumOfReads = []
-    if len(files) > 1:
-        logging.warning(f"{sample} has multiple NumOfReads")
-    elif len(files) == 0:
-        logging.warning(f"Could not find NumOfReads file")
-    else:
-        for file in files:
-            path_parts = os.path.split(file)
-            dir_parts  = os.path.split(path_parts[0])
-            log_NumOfReads = dir_parts[1]
-            with open(file, 'r') as fh:
-                NumOfReads.append([sample, log_NumOfReads, fh.readline().strip()])
+    for file in files:
+        path_parts = os.path.split(file)
+        dir_parts  = os.path.split(path_parts[0])
+        log_NumOfReads = dir_parts[1]
+        with open(file, 'r') as fh:
+            NumOfReads.append([sample, log_NumOfReads, fh.readline().strip()])
+
     return pd.DataFrame(NumOfReads, columns=['Sample', 'Log NumOfReads', 'NumOfReads'])
 
 
@@ -203,11 +203,12 @@ def main(args):
     - `args` : Command-line arguments, from `argparse`.1
     - Returns: A CSV file named `./archives_metrics.csv`.
     """
+    configure_logging(args.level)
     workdir = os.path.dirname(args.dir)
     try:
         os.chdir(workdir)
     except FileNotFoundError as e:
-        logging.ERROR(f"{e}; workdir={workdir}")
+        logging.error(f"{e}; workdir={workdir}")
 
     df_metrics   = get_metrics_from_log('')
     df_coverages = get_coverage_metrics('')
@@ -222,11 +223,13 @@ def main(args):
         samples = args.samples
     total = len(samples)
     for count, sample in enumerate(samples, start=1):
-        #logging.info(f"Processing {sample}, {count}/{total}")
-        print(f"Processing {sample}, {count}/{total}")
-        df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
-        df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
-        df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
+        logging.info(f"Processing {sample}, {count}/{total}")
+        if os.path.isdir(f"{args.dir}/{sample}"):
+            df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
+            df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
+            df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
+        else:
+            logging.warning(f"Folder '{args.dir}/{sample}' does not exist")
 
     df_metrics.drop_duplicates(inplace=True)
     df_coverages.drop_duplicates(inplace=True)
