@@ -130,7 +130,7 @@ def get_coverage_metrics(sample):
     - Returns : A DataFrame, with the following information per sample
         - average coverage
         - PCT coverage >20x
-        - 
+        - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
     files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv")
