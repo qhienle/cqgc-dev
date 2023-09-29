@@ -200,7 +200,10 @@ def main(args):
     - Returns: A CSV file named `./archives_metrics.csv`.
     """
     workdir = os.path.dirname(args.dir)
-    os.chdir(workdir)
+    try:
+        os.chdir(workdir)
+    except FileNotFoundError as e:
+        logging.ERROR(f"{e}; workdir={workdir}")
 
     df_metrics   = get_metrics_from_log('')
     df_coverages = get_coverage_metrics('')
