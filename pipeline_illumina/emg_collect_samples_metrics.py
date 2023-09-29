@@ -71,7 +71,7 @@ def get_NumOfReads(sample):
     files = glob(f"{args.dir}/{sample}/NumOfReads/*/{sample}.txt")
     NumOfReads = []
     if len(files) > 1:
-        logging.WARNING(f"{sample} has multiple NumOfReads")
+        logging.warning(f"{sample} has multiple NumOfReads")
     for file in files:
         path_parts = os.path.split(file)
         dir_parts  = os.path.split(path_parts[0])
@@ -101,7 +101,7 @@ def get_metrics_from_log(sample):
     # There may be multiple logfiles. Use the filename's _vlocal_ stamp for id
     #
     if len(logfiles) > 1:
-        #logging.WARNING(f"More than one log file found for {sample}")
+        #logging.warning(f"More than one log file found for {sample}")
         print(f"More than one log file found for {sample}")
     for log in logfiles:
         logname = os.path.basename(log)
@@ -218,7 +218,7 @@ def main(args):
         samples = args.samples 
     total = len(samples)
     for count, sample in enumerate(samples, start=1):
-        #logging.INFO(f"Processing {sample}, {count}/{total}")
+        #logging.info(f"Processing {sample}, {count}/{total}")
         print(f"Processing {sample}, {count}/{total}")
         df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
         df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
