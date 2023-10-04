@@ -146,6 +146,18 @@ def print_case_by_case(df):
         print(f"\nHPO Terms:\n{','.join(hpo_terms)}\n\n")
 
 
+def list_samples_to_archive(df):
+    """
+    Create a file listing samples to archive. This list can later be used to
+    archive samples and to collect metrics with scripts `archive_PRAGMatIQ.sh`
+    and `emg_collect_samples_metrics.py`, respectively.
+    - `df`: A Pandas DataFrame
+    - Returns: list of samples [str] and a one-column file [samples_list.txt]
+    """
+    df['sample_name'].to_csv('samples_list.txt', index=False, header=None)
+    return(f"{' '.join(df['sample_name'])}")
+
+
 def main(args):
     """
     Retrieve necessary information from Nanuq for creating cases in Emedgene.
@@ -302,8 +314,7 @@ def main(args):
     
     # TODO: 7. Archive samples from cases finalized on Emedgene
     #
-    logging.info("List of samples to archive:")
-    print(f"{' '.join(df1['sample_name'])}")
+    logging.info(f"List of samples to archive:\n{list_samples_to_archive(df1)}")
     
     
 def build_from_nanuq(samplenames):
