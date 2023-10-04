@@ -154,7 +154,9 @@ def list_samples_to_archive(df):
     - `df`: A Pandas DataFrame
     - Returns: list of samples [str] and a one-column file [samples_list.txt]
     """
-    df['sample_name'].to_csv('samples_list.txt', index=False, header=None)
+    filename = 'samples_list.txt'
+    df['sample_name'].to_csv(filename, index=False, header=None)
+    logging.info(f"Created file {filename}")
     return(f"{' '.join(df['sample_name'])}")
 
 
@@ -177,6 +179,14 @@ def main(args):
     6. TODO: Add participants to cases
     7. TODO: Archive samples for this run
     """
+
+    workdir = f"{os.getcwd()}{os.sep}{args.run}"
+    try:
+        os.mkdir(workdir)
+        os.chdir(workdir)
+        logging.info(f"Created work directory '{workdir}'")
+    except:
+        logging.warning(f"Could not create {workdir}")
 
     # PID is used to group family members, instead of the family name
     # (nominative info). Build a lookup table to assign PID to members with
