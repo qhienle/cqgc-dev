@@ -35,11 +35,11 @@ def parse_args():
     Parse command-line options
     """
     parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples archived on `narval.calculquebec.ca`")
+    parser.add_argument('-s', '--samples', nargs="+",
+                        help="List of samples to archive. Use 'all' to collect metrics from all archived samples.")
     parser.add_argument('-d', '--directory', dest='dir',
                         default="/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives", 
                         help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
-    parser.add_argument('-s', '--samples', nargs="+", required=True,
-                        help="List of samples to archive. Use 'all' to collect metrics from all archived samples.")
     parser.add_argument('-l', '--logging-level', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
@@ -59,6 +59,21 @@ def configure_logging(level):
     logging.basicConfig(level=level_name, 
                         format='[%(asctime)s] %(levelname)s: %(message)s', 
                         datefmt='%Y-%m-%d@%H:%M:%S')
+
+
+def get_samples_list(file):
+    """
+    Get list of samples to archive from a CSV `file`.
+    - `file`: CSV file with samples in 5th column ("emg_batch_manifest.csv")
+    - Returns: [list] of samples
+    """
+    samples = []
+    with open(file, 'r') as fh:
+        for line in fh.readlines():
+            cols = line.split(',')
+            samples.append(cols[5])
+    samples.pop(0)
+    return samples
 
 
 def glob_files(pattern):
