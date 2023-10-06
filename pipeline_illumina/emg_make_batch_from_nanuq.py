@@ -2,7 +2,7 @@
 """
 Get Case information from Nanuq with Phenotips (PID) for a given _Run_.
 
-USAGE: get_nanuq_files.py --run A00516_420
+USAGE: get_nanuq_files.py A00516_420
        get_nanuq_files.py --help
 
 Nanuq username and password have be saved in a file named '~/.nanuq', like so:
@@ -16,8 +16,9 @@ in ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/
 import os, sys
 import argparse
 import logging
-import subprocess
 import json
+import re
+import subprocess
 import pandas as pd
 
 # Set source path to CQGC-utils so that we can use relative imports
@@ -37,8 +38,8 @@ __version__ = "0.2"
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Get Case information from Nanuq for a given Run.")
-    parser.add_argument('-r', '--run', required=True, help="FC_SHORT Run ID, ex: 'A00516_339'")
-    parser.add_argument('-l', '--logging-level', dest='level', default='info',
+    parser.add_argument('run', help="FC_SHORT Run ID, ex: 'A00516_339'")
+    parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
 
@@ -152,10 +153,11 @@ def list_samples_to_archive(df):
     archive samples and to collect metrics with scripts `archive_PRAGMatIQ.sh`
     and `emg_collect_samples_metrics.py`, respectively.
     - `df`: A Pandas DataFrame
-    - Returns: list of samples [str] and a one-column file [samples_list.txt]
+    - Returns: list of samples [str] and file 'samples_list.txt' for archiving
     """
     filename = 'samples_list.txt'
-    df['sample_name'].to_csv(filename, index=False, header=None)
+    df1 = df[['sample_name', 'biosample', 'label']] # TODO: Add flowcell
+    df1.to_csv(filename, index=False)
     logging.info(f"Created file {filename}")
     return(f"{' '.join(df['sample_name'])}")
 
@@ -302,7 +304,7 @@ def main(args):
     logging.info(f"\nCases for {args.run}:\n")
     df1 = df.drop(['phenotypes', 'filenames'], axis=1)
     print_case_by_case(df1)
-            
+
     # 4. Output manifest for batch upload, see "Case_creation-script_v2.docx"
     #
     df_to_manifest(df)
@@ -355,12 +357,17 @@ def build_from_nanuq(samplenames):
         'case_group_number'        : [], 
         'phenotypes'               : [], 
         'hpos'                     : [], 
-        'filenames'                : []})
+        'filenames'                : [],
+        'date'                     :[]})
+    date = ''
     for line in samplenames.text.splitlines():
-        if not line.startswith('#'):
+        if line.startswith('#'):
+            if re.search(r'^##\d{4}-\d{2}-\d{2}', line):
+                date = line.replace('##', '')
+        else:
             cqgc, sample = line.split("\t")
             
-            # 2.1 Get information for sample frm Nanuq
+            # 2.1 Get information for sample from Nanuq
             #
             data = json.loads(nq.get_sample(cqgc))
             logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
@@ -420,6 +427,7 @@ def build_from_nanuq(samplenames):
             sample_infos.append(';'.join(fastqs))
 
             cases.append(sample_infos)
+    df['date'] = date
 
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
