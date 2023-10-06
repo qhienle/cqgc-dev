@@ -102,7 +102,8 @@ def get_metrics_from_log(sample):
         - Percent Autosome Callability
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    logfiles = glob_files(f"{args.dir}/{sample}/{sample}_vlocal_*_sample.log")
+    #logfiles = glob_files(f"{args.dir}/{sample}/{sample}_vlocal_*_sample.log") # prior to Emedgene v32
+    logfiles = glob_files(f"{args.dir}/{sample}/{sample}_v*_sample.log")
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
@@ -148,7 +149,8 @@ def get_coverage_metrics(sample):
         - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
-    files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv")
+    #files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv") # < EMG v32
+    files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/varcaller/{sample}.dragen.bed_coverage_metrics.csv")
     for file in files:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
@@ -180,7 +182,8 @@ def count_cnv(sample):
     - Returns : A DataFrame
     """
     cnvs = []
-    cnv_dirs = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.cnv.vcf.gz")
+    #cnv_dirs = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.cnv.vcf.gz") # < EMG v32
+    cnv_dirs = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/varcaller/{sample}.dragen.cnv.vcf.gz")
     count = 0
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
@@ -258,7 +261,6 @@ def main(args):
     df = df.merge(df_cnvs, on='Sample', how='outer')
     df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
 
-    df_csv = workdir + os.sep + 'archives_metrics.csv'
     df1 = df[['Log filename', 'Log coverage', 'Log NumOfCNVs', 
         'Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
         'Average coverage', 'PCT coverage >20x',
@@ -266,7 +268,9 @@ def main(args):
         'CNV average coverage', 'Coverage uniformity',
         'Percent Autosome Callability', 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
-    df1.to_csv(df_csv, index=None)
+
+    df1_csv = workdir + os.sep + 'archives_metrics.csv'
+    df1.to_csv(df1_csv, index=None)
 
 
 def _test(args):
