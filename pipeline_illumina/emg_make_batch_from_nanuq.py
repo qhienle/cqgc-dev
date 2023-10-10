@@ -30,7 +30,7 @@ from lib.gapp import Phenotips
 from lib.gapp import BSSH
 
 nq = Nanuq()
-pho = Phenotips()
+#pho = Phenotips()
 bssh = BSSH()
 
 __version__ = "0.2"
@@ -89,6 +89,48 @@ def format_mrn_eid(ep, mrn):
     elif ep == 'CHUQ':
         return(mrn.replace('L', 'Q'))
     return(ep + mrn)
+
+
+def add_hpos(ep, mrn):
+    """
+    Lookup Phenotips ID (PID) and HPO identifiers, using `ep_mrn`
+    - ep_mrn : [str] EP+MRN identifier. Ex: CHUSJ123456
+    - Returns:
+    """
+    pho = Phenotips()
+    pid = ''
+    hpo_ids    = []
+    hpo_labels = []
+
+    ep_mrn   = format_mrn_eid(ep, mrn)
+    patient  = pho.get_patient_by_mrn(ep_mrn)
+    warn_msg = f"Could not get PID using EP+MRN: {ep_mrn}"
+
+    if patient is not None:
+        pid = patient['id']
+        hpos = pho.parse_hpo(patient)
+        for hpo in hpos:
+            hpo_ids.append(hpo['id'])
+            hpo_labels.append(hpo['label'])
+    else:
+        logging.warning(warn_msg)
+
+    if len(hpo_ids) == 0:
+        ids_str    = warn_msg
+        labels_str = warn_msg
+    else:
+        ids_str = ','.join(hpo_ids)
+        labels_str = ','.join(hpo_labels)
+
+    # sample_infos.append(pid)
+    # sample_infos.append(labels_str)
+    # sample_infos.append(ids_str)
+    logging.debug(f"Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
+    logging.debug(f"Phenotips ID for {ep_mrn} is {pid}")
+    logging.debug(f"HPO labels_str is {labels_str}")
+    logging.debug(f"HPO identifiers string is {ids_str}")
+    
+    return(pid, labels_str, ids_str)
 
 
 def df_to_manifest(df):
@@ -156,7 +198,7 @@ def list_samples_to_archive(df):
     - Returns: list of samples [str] and file 'samples_list.txt' for archiving
     """
     filename = 'samples_list.txt'
-    df1 = df[['sample_name', 'biosample', 'label']] # TODO: Add flowcell
+    df1 = df[['sample_name', 'biosample', 'label', 'fc_date']] # TODO: Add flowcell
     df1.to_csv(filename, index=False)
     logging.info(f"Created file {filename}")
     return(f"{' '.join(df['sample_name'])}")
@@ -182,7 +224,7 @@ def main(args):
     7. TODO: Archive samples for this run
     """
 
-    logging.info(f"# Logging run {args.run}")
+    print(f"# Logging run {args.run}")
 
     workdir = f"{os.getcwd()}{os.sep}{args.run}"
     try:
@@ -206,6 +248,10 @@ def main(args):
         sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
     else:
         logging.info("Retrieved samples conversion table from Nanuq")
+
+    fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
+    logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
+
     
     # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
     # (returned as a string by requests.text) and parse sample infos. 
@@ -213,10 +259,6 @@ def main(args):
     # Results are stored in `cases` and printed to STDOUT at the end.
     # 
     cases = []
-
-    fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
-    logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
-
     for line in samplenames.text.splitlines():
         if not line.startswith('#'):
             cqgc, sample = line.split("\t")
@@ -244,32 +286,18 @@ def main(args):
             # the proband. Lookup this information in Phenotips, using EP+MRN
             # Ex: CHUSJ123456
             #
-            pid        = ''
-            hpo_ids    = []
-            hpo_labels = []
-            ep_mrn     = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
-            patient    = pho.get_patient_by_mrn(ep_mrn)
-            warn_msg   = f"Could not get PID using EP+MRN: {ep_mrn}"
-            if patient is not None: # TODO: and data[0]["patient"]["familyMember"] == "PROBAND":
-                pid = patient['id']
-                hpos = pho.parse_hpo(patient)
-                for hpo in hpos:
-                    hpo_ids.append(hpo['id'])
-                    hpo_labels.append(hpo['label'])
+            if data[0]["patient"]["familyMember"] == 'PROBAND':
+                pid, labels_str, ids_str = add_hpos(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
+                sample_infos.append(pid)
+                sample_infos.append(labels_str)
+                sample_infos.append(ids_str)
+                logging.info(f"Got HPO terms from Phenotips for PID {pid}")
+                logging.debug(f"HPO ID:: {ids_str}; Labels: {labels_str}\n")
             else:
-                logging.warning(warn_msg)
-
-            if len(hpo_ids) == 0:
-                ids_str    = warn_msg
-                labels_str = warn_msg
-            else:
-                ids_str = ','.join(hpo_ids)
-                labels_str = ','.join(hpo_labels)
-
-            sample_infos.append(pid)
-            sample_infos.append(labels_str)
-            sample_infos.append(ids_str)
-            logging.debug(f"Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
+                sample_infos.append('')
+                sample_infos.append('')
+                sample_infos.append('')
+                logging.info(f'Not retrieving PID for {cqgc} ({data[0]["patient"]["familyMember"]})')
 
             # 2.3 Add family name and PID to the lookup table
             #
@@ -294,6 +322,7 @@ def main(args):
     df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
                   'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
                   'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
+    df['fc_date'] = fc_date
     df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
     logging.info("Sorted families. Setting PID as case_group_number")
     logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
@@ -333,131 +362,6 @@ def main(args):
     # TODO: 7. Archive samples from cases finalized on Emedgene
     #
     logging.info(f"List of samples to archive:\n{list_samples_to_archive(df1)}")
-    
-    
-def nanuq_to_df(samplenames):
-    """
-    Build a `Pandas` DataFrame as we parse the Nanuq SampleNames file.
-    For each CQGC ID listed in Nanuq's SampleNames file, get sample information
-    from Nanuq to populate a Pandas DataFrame. 
-    - samplenames: [obj] A `requests` response object for Nanuq SampleNames
-    - Returns:     [obj] A `pandas` DataFrame object
-    """
-
-    # PID is used to group family members, instead of the family name
-    # (nominative info). Build a lookup table to assign PID to members with
-    # the same family name.
-    #
-    familyId2pid = {}   # Lookup table {'surname': 'pid', 'surname': 'pid',...}
-    
-        # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
-    # (returned as a string by requests.text) and parse sample infos. 
-    # SampleNames lines are tab-delimitted. Comment lines begin with "#".
-    # Results are stored in `cases` and printed to STDOUT at the end.
-    # 
-    df = pd.DataFrame({
-        'sample_name'              : [], 
-        'biosample'                : [], 
-        'relation'                 : [], 
-        'gender'                   : [], 
-        'label'                    : [], 
-        'mrn'                      : [], 
-        'cohort_type'              : [], 
-        'date_of_birth(YYYY-MM-DD)': [], 
-        'status'                   : [],
-        'family'                   : [], 
-        'case_group_number'        : [], 
-        'phenotypes'               : [], 
-        'hpos'                     : [], 
-        'filenames'                : [],
-        'fc_date'                  : []})
-    fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
-    logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
-
-    for line in samplenames.text.splitlines():
-        if not line.startswith('#'):
-            cqgc, sample = line.split("\t")
-            
-            # 2.1 Get information for sample from Nanuq
-            #
-            data = json.loads(nq.get_sample(cqgc))
-            logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
-            if len(data) != 1:
-                logging.warning(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
-            sample_infos = [
-                data[0]["ldmSampleId"],
-                data[0]["labAliquotId"],
-                data[0]["patient"]["familyMember"],
-                data[0]["patient"]["sex"],
-                data[0]["patient"]["ep"],
-                data[0]["patient"]["mrn"],
-                data[0]["patient"]["designFamily"],
-                data[0]["patient"]["birthDate"],
-                data[0]["patient"]["status"],
-                data[0]["patient"].get("familyId", "-")
-            ]
-
-            # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers
-            # Lookup this information in Phenotips, using the EP+MRN
-            # Ex: CHUSJ123456
-            #
-            ep_mrn = format_mrn_eid(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
-            patient   = pho.get_patient_by_mrn(ep_mrn)
-            hpo_ids   = []
-            hpo_labels= []
-            if patient is not None:
-                pid = patient['id']
-                hpos = pho.parse_hpo(patient)
-                for hpo in hpos:
-                    hpo_ids.append(hpo['id'])
-                    hpo_labels.append(hpo['label'])
-            else:
-                pid = ''
-
-            if len(hpo_ids) == 0:
-                ids_str = ''
-                labels_str= ''
-            else:
-                ids_str = ','.join(hpo_ids)
-                labels_str = ','.join(hpo_labels)
-
-            sample_infos.append(pid)
-            sample_infos.append(labels_str)
-            sample_infos.append(ids_str)
-            logging.debug(f"Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
-
-            # 2.3 Add family name and PID to the lookup table
-            #
-            familyId = data[0]['patient']['familyId']
-            if familyId not in familyId2pid and pid.startswith('P'):
-                familyId2pid[familyId] = pid
-
-            # 2.4 Add paths to fastq on BaseSpace
-            #
-            fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
-            sample_infos.append(';'.join(fastqs))
-
-            #cases.append(sample_infos)
-    
-    logging.debug(f"Setting date for DataFramce to {fc_date}")
-    df['fc_date'] = fc_date
-
-    # 3. Load cases (list of list) in a DataFrame, sort and group members
-    # Translate column names to match EMG's manifest specifications.
-    # pid => case_group_number, hpo_labels => phenotypes, hpo_ids => hpos
-    # Group by family and sort by relation.
-    # Add case_group_number (PID) to all family members based on familyID.
-    #
-    df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
-    logging.info("Sorted families. Setting PID as case_group_number")
-    logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
-    for index, row in df.iterrows():
-        if row['case_group_number'] == '':
-            try:
-                row['case_group_number'] = familyId2pid[row['family']]
-            except KeyError as err:
-                logging.warning(f"Could not set PID as family identifier. KeyError: {err}")
-    return df
 
 
 def tests():
@@ -467,12 +371,74 @@ def tests():
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
     samplenames = nq.get_samplenames(args.run)
-    df = nanuq_to_df(samplenames)
-    print(df)
+    return(samplenames)
 
 if __name__ == '__main__':
     args = parse_args()
     configure_logging(args.level)
 
-    #main(args)
-    tests()
+    main(args)
+    #tests()
+
+
+"""
+Example of Nanuq SampleNames:
+```pyhton
+nq = Nanuq()
+samplenames = nq.get_samplenames("A00516_0445")
+samplenames.text
+```
+##2023-08-09
+##Centre for Pediatric Clinical Genomics
+##Flow Cell: H7N33DSX7
+##Principal Investigator: Dr Mehdi Yeganeh, CHUS Service de génétique médicale, Dr Jean-François Soucy
+##Nanuq References: A00516_0445
+##Content: Internal_Sample_ID -> Client_Sample_Name Conversion grid
+##-------------------------------------------
+##Internal_Sample_ID	Client_Sample_Name
+##-------------------------------------------
+22256	3042652455
+22257	3042642360
+22258	3042645886
+22262	3052768938
+22263	3052768942
+22264	3052768961
+22265	3052768951
+22282	23-05982-T1
+22283	23-06383-T1
+22284	23-06384-T1
+22285	GM231615
+22286	GM231624
+22287	GM231626
+22288	GM231627
+22290	GM231632
+22293	GM231651
+...
+##The "Internal_Sample_ID" is the internal identifier assigned by the Center for this sample.
+##Use of an "Internal_Sample_ID" ensures the traceability of this sample throughout the sequencing
+##process, but also the anonymization of the information generated and transferred in the
+##frame of this project.
+
+
+Example of Nanuq sample: `json.loads(nq.get_sample(22283))`
+[{'ldmSampleId': '23-06383-T1',
+  'ldm': 'LDM-CHUS',
+  'patient': {'designFamily': 'TRIO',
+   'familyId': '23-05982-T1',
+   'familyMember': 'FTH',
+   'firstName': 'Andre-Philippe',
+   'lastName': 'Belley',
+   'ramq': 'BELA93092213',
+   'sex': 'MALE',
+   'mrn': '00000000',
+   'ep': 'CHUS',
+   'birthDate': '22/09/1993',
+   'fetus': False,
+   'status': 'UNK'},
+  'ldmServiceRequestId': '23-06383-T1',
+  'labAliquotId': '22283',
+  'panelCode': 'PRAGMATIQ',
+  'specimenType': 'NBL',
+  'sampleType': 'DNA',
+  'ldmSpecimenId': '23-06383-T1'}]
+"""
