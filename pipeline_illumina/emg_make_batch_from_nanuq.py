@@ -213,6 +213,10 @@ def main(args):
     # Results are stored in `cases` and printed to STDOUT at the end.
     # 
     cases = []
+
+    fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
+    logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
+
     for line in samplenames.text.splitlines():
         if not line.startswith('#'):
             cqgc, sample = line.split("\t")
@@ -379,7 +383,7 @@ def nanuq_to_df(samplenames):
             data = json.loads(nq.get_sample(cqgc))
             logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
             if len(data) != 1:
-                logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
+                logging.warning(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
             sample_infos = [
                 data[0]["ldmSampleId"],
                 data[0]["labAliquotId"],
