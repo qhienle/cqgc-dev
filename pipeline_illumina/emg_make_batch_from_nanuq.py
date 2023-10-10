@@ -297,7 +297,7 @@ def main(args):
                 sample_infos.append('')
                 sample_infos.append('')
                 sample_infos.append('')
-                logging.info(f'Not retrieving PID for {cqgc} ({data[0]["patient"]["familyMember"]})')
+                logging.debug(f'Not retrieving PID for {cqgc} ({data[0]["patient"]["familyMember"]})')
 
             # 2.3 Add family name and PID to the lookup table
             #
@@ -323,6 +323,7 @@ def main(args):
                   'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
                   'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
     df['fc_date'] = fc_date
+    logging.info(f"Add column for flowcell date {fc_date}")
     df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
     logging.info("Sorted families. Setting PID as case_group_number")
     logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
