@@ -330,7 +330,11 @@ def main(args):
     
     
 def build_from_nanuq(samplenames):
-    """Build dataframe as we parse nanuq files, instead of building a list"""
+    """
+    Build dataframe as we parse nanuq files, instead of building a list.
+    - samplenames: [obj] A `requests` response object
+    - Returns:
+    """
 
     # PID is used to group family members, instead of the family name
     # (nominative info). Build a lookup table to assign PID to members with
@@ -359,12 +363,9 @@ def build_from_nanuq(samplenames):
         'hpos'                     : [], 
         'filenames'                : [],
         'date'                     :[]})
-    date = ''
+    fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
     for line in samplenames.text.splitlines():
-        if line.startswith('#'):
-            if re.search(r'^##\d{4}-\d{2}-\d{2}', line):
-                date = line.replace('##', '')
-        else:
+        if not line.startswith('#'):
             cqgc, sample = line.split("\t")
             
             # 2.1 Get information for sample from Nanuq
@@ -427,7 +428,7 @@ def build_from_nanuq(samplenames):
             sample_infos.append(';'.join(fastqs))
 
             cases.append(sample_infos)
-    df['date'] = date
+    df['date'] = fc_date
 
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
