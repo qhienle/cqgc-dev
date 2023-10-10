@@ -329,11 +329,13 @@ def main(args):
     logging.info(f"List of samples to archive:\n{list_samples_to_archive(df1)}")
     
     
-def build_from_nanuq(samplenames):
+def nanuq_to_df(samplenames):
     """
-    Build dataframe as we parse nanuq files, instead of building a list.
+    Build a `Pandas` DataFrame as we parse the Nanuq SampleNames file.
+    For each CQGC ID listed in Nanuq's SampleNames file, get sample information
+    from Nanuq to populate a Pandas DataFrame. 
     - samplenames: [obj] A `requests` response object
-    - Returns:
+    - Returns:     [obj] A `pandas` DataFrame object
     """
 
     # PID is used to group family members, instead of the family name
@@ -427,7 +429,7 @@ def build_from_nanuq(samplenames):
             fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
             sample_infos.append(';'.join(fastqs))
 
-            cases.append(sample_infos)
+            #cases.append(sample_infos)
     df['date'] = fc_date
 
     # 3. Load cases (list of list) in a DataFrame, sort and group members
@@ -455,18 +457,6 @@ def tests():
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
     samplenames = nq.get_samplenames(args.run)
-    if not samplenames.text.startswith("##20"):
-        sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
-    else:
-        logging.info("Retrieved samples conversion table from Nanuq")
-        df = build_from_nanuq(samplenames)
-        
-    # Print to STDOUT case by case, with HPO terms. Easier reading, when 
-    # creating cases manually using Emedgene's web UI
-    #
-    logging.info(f"\nCases for {args.run}:\n")
-    df1 = df.drop(['phenotypes', 'filenames'], axis=1)
-    print_case_by_case(df1)
 
 
 if __name__ == '__main__':
