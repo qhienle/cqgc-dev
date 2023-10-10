@@ -182,6 +182,8 @@ def main(args):
     7. TODO: Archive samples for this run
     """
 
+    logging.info(f"# Logging run {args.run}")
+
     workdir = f"{os.getcwd()}{os.sep}{args.run}"
     try:
         os.mkdir(workdir)
@@ -334,7 +336,7 @@ def nanuq_to_df(samplenames):
     Build a `Pandas` DataFrame as we parse the Nanuq SampleNames file.
     For each CQGC ID listed in Nanuq's SampleNames file, get sample information
     from Nanuq to populate a Pandas DataFrame. 
-    - samplenames: [obj] A `requests` response object
+    - samplenames: [obj] A `requests` response object for Nanuq SampleNames
     - Returns:     [obj] A `pandas` DataFrame object
     """
 
@@ -364,8 +366,10 @@ def nanuq_to_df(samplenames):
         'phenotypes'               : [], 
         'hpos'                     : [], 
         'filenames'                : [],
-        'date'                     :[]})
+        'fc_date'                  : []})
     fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
+    logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
+
     for line in samplenames.text.splitlines():
         if not line.startswith('#'):
             cqgc, sample = line.split("\t")
@@ -430,7 +434,9 @@ def nanuq_to_df(samplenames):
             sample_infos.append(';'.join(fastqs))
 
             #cases.append(sample_infos)
-    df['date'] = fc_date
+    
+    logging.debug(f"Setting date for DataFramce to {fc_date}")
+    df['fc_date'] = fc_date
 
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
