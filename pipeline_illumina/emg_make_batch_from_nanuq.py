@@ -457,11 +457,12 @@ def tests():
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
     samplenames = nq.get_samplenames(args.run)
-
+    df = nanuq_to_df(samplenames)
+    print(df)
 
 if __name__ == '__main__':
     args = parse_args()
     configure_logging(args.level)
 
-    main(args)
-    #tests()
+    #main(args)
+    tests()
