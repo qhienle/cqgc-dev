@@ -311,7 +311,7 @@ def main(args):
             sample_infos.append(';'.join(fastqs))
 
             cases.append(sample_infos)
-
+    print(cases)
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
     # pid => case_group_number, hpo_labels => phenotypes, hpo_ids => hpos
@@ -327,6 +327,8 @@ def main(args):
     df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
     logging.info("Sorted families. Setting PID as case_group_number")
     logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
+    df.to_csv('df.csv', index=None)
+    print(df)
     for index, row in df.iterrows():
         if row['case_group_number'] == '':
             try:
