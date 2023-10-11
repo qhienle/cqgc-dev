@@ -191,13 +191,13 @@ def print_case_by_case(df):
     pd.set_option('display.max_columns', 12)
     pd.set_option('display.max_colwidth', None)
 
-    for case_pid in df['case_group_number'].unique():
-        df_tmp = df[df['case_group_number'] == case_pid]
-        family = df_tmp['family'].tolist()[0]
+    for case in df['case_group_number'].unique():
+        df_tmp = df[df['case_group_number'] == case]
+        pid    = df_tmp['pid'].tolist()[0]
         cohort = df_tmp['cohort_type'].tolist()[0]
         site   = df_tmp['label'].tolist()[0]
-        print(f"============ Case INFO: {case_pid} | {site} | {cohort} | {family} ============\n")
-        print(df_tmp[['sample_name', 'biosample', 'relation', 'gender', 'date_of_birth(YYYY-MM-DD)', 'status']].to_string(index=False))
+        print(f"============ Case INFO: {case} | {site} | {cohort} | {pid} ============\n")
+        print(df_tmp[['pid', 'sample_name', 'biosample', 'relation', 'gender', 'date_of_birth(YYYY-MM-DD)', 'status']].to_string(index=False))
         hpo_terms = df_tmp[df_tmp['relation'] == 'PROBAND']['hpos']
         print(f"\nHPO Terms:\n{','.join(hpo_terms)}\n\n")
 
@@ -301,16 +301,14 @@ def main(args):
             #
             if data[0]["patient"]["familyMember"] == 'PROBAND':
                 pid, labels_str, ids_str = add_hpos(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
-                sample_infos.append(pid)
-                sample_infos.append(labels_str)
-                sample_infos.append(ids_str)
                 logging.info(f"Got HPO terms from Phenotips for PID {pid}")
-                logging.debug(f"HPO ID:: {ids_str}; Labels: {labels_str}\n")
             else:
-                sample_infos.append('')
-                sample_infos.append('')
-                sample_infos.append('')
+                pid, labels_str, ids_str = ('', '', '')
                 logging.debug(f'Not retrieving PID for {cqgc} ({data[0]["patient"]["familyMember"]})')
+            sample_infos.append(pid)
+            sample_infos.append(labels_str)
+            sample_infos.append(ids_str)
+            logging.debug(f"PID: {pid}; HPO ID: {ids_str}; Labels: {labels_str}\n")
 
             # 2.3 Add family name and PID to the lookup table
             #
