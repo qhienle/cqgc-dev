@@ -133,6 +133,19 @@ def add_hpos(ep, mrn):
     return(pid, labels_str, ids_str)
 
 
+def set_familyId2pid(cases, familyId2pid):
+    """
+    Use PID to set as familyID. This identifier is used by Emedgene as 
+    'case_group_number' to group family members of a case.
+    - cases: [list of lists]
+    - familyID2pid: [dict] Correspondence table 'SURNAME': 'PID'
+    - Returns: [list of lists]
+    """
+    for case in cases:
+        print(case)
+    return(cases)
+
+
 def df_to_manifest(df):
     """
     Generate a manifest file for batch upload to Emedgene from data in df.
@@ -159,7 +172,7 @@ def df_to_manifest(df):
             'due_date(YYYY-MM-DD)': '',
             'label': df['label'],
             'bigwig': '',
-            'clinical_notes': df['case_group_number'],
+            'clinical_notes': df['pid'],
             'Default Project': '',
             'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)'],
         }
@@ -311,7 +324,9 @@ def main(args):
             sample_infos.append(';'.join(fastqs))
 
             cases.append(sample_infos)
-    print(cases)
+    
+    #set_familyId2pid(cases, familyId2pid)
+
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
     # pid => case_group_number, hpo_labels => phenotypes, hpo_ids => hpos
@@ -321,20 +336,22 @@ def main(args):
     df = pd.DataFrame(cases)
     df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
                   'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
-                  'family', 'case_group_number', 'phenotypes', 'hpos', 'filenames']
+                  'case_group_number', 'pid', 'phenotypes', 'hpos', 'filenames']
     df['fc_date'] = fc_date
     logging.info(f"Add column for flowcell date {fc_date}")
-    df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
-    logging.info("Sorted families. Setting PID as case_group_number")
-    logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
-    df.to_csv('df.csv', index=None)
-    print(df)
+    df = df.sort_values(by=['case_group_number', 'relation'], ascending=[True, False])
+    #logging.info("Sorted families. Setting PID as case_group_number")
+    #logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
+    print(f"\nContent of lookup table familyId2pid: {familyId2pid}")
+
+    df.to_csv(f'{args.run}{os.sep}df.csv', index=None)
+
     for index, row in df.iterrows():
-        if row['case_group_number'] == '':
+        if row['pid'] == '':
             try:
-                row['case_group_number'] = familyId2pid[row['family']]
+                row['pid'] = familyId2pid[row['family']]
             except KeyError as err:
-                logging.warning(f"Could not set PID as family identifier. KeyError: {err}")
+                logging.warning(f"Could not set PID for {row['sample_name']}. KeyError: {err}")
     
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
