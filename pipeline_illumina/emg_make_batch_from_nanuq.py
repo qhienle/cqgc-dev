@@ -133,19 +133,6 @@ def add_hpos(ep, mrn):
     return(pid, labels_str, ids_str)
 
 
-def set_familyId2pid(cases, familyId2pid):
-    """
-    Use PID to set as familyID. This identifier is used by Emedgene as 
-    'case_group_number' to group family members of a case.
-    - cases: [list of lists]
-    - familyID2pid: [dict] Correspondence table 'SURNAME': 'PID'
-    - Returns: [list of lists]
-    """
-    for case in cases:
-        print(case)
-    return(cases)
-
-
 def df_to_manifest(df):
     """
     Generate a manifest file for batch upload to Emedgene from data in df.
@@ -226,8 +213,7 @@ def main(args):
     2. For each sample in the list of SampleNames: 
         2.1 Get the JSON from Nanuq to extract infos to create cases on EMG;
         2.2 Get the Phenotips ID (PID) and the corresponding HPO Identifiers;
-        2.3 Associate patient surname to PID, for later use
-        2.4 Connect to BaseSpace and re-construct the path to the FASTQ files;
+        2.3 Connect to BaseSpace and re-construct the path to the FASTQ files;
     3. Combine individual data into a Pandas data frame
         3.1 Sort, group and print each trio to STDOUT for case creation.
         3.2 Use case PID instead of surname to connect family members.
@@ -246,12 +232,6 @@ def main(args):
         logging.info(f"Created work directory '{workdir}'")
     except:
         logging.warning(f"Could not create {workdir}")
-
-    # PID is used to group family members, instead of the family name
-    # (nominative info). Build a lookup table to assign PID to members with
-    # the same family name.
-    #
-    familyId2pid = {}   # Lookup table {'surname': 'pid', 'surname': 'pid',...}
 
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
@@ -310,21 +290,13 @@ def main(args):
             sample_infos.append(ids_str)
             logging.debug(f"PID: {pid}; HPO ID: {ids_str}; Labels: {labels_str}\n")
 
-            # 2.3 Add family name and PID to the lookup table
-            #
-            familyId = data[0]['patient']['familyId']
-            if familyId not in familyId2pid and pid.startswith('P'):
-                familyId2pid[familyId] = pid
-
-            # 2.4 Add paths to fastq on BaseSpace
+            # 2.3 Add paths to fastq on BaseSpace
             #
             fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
             sample_infos.append(';'.join(fastqs))
 
             cases.append(sample_infos)
     
-    #set_familyId2pid(cases, familyId2pid)
-
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
     # pid => case_group_number, hpo_labels => phenotypes, hpo_ids => hpos
@@ -339,17 +311,6 @@ def main(args):
     logging.info(f"Add column for flowcell date {fc_date}")
     df = df.sort_values(by=['case_group_number', 'relation'], ascending=[True, False])
     #logging.info("Sorted families. Setting PID as case_group_number")
-    #logging.debug(f"Set PID as case_group_number based on look up table familyId2pid:\n{familyId2pid}")
-    print(f"\nContent of lookup table familyId2pid: {familyId2pid}")
-
-    df.to_csv(f'{args.run}{os.sep}df.csv', index=None)
-
-    for index, row in df.iterrows():
-        if row['pid'] == '':
-            try:
-                row['pid'] = familyId2pid[row['family']]
-            except KeyError as err:
-                logging.warning(f"Could not set PID for {row['sample_name']}. KeyError: {err}")
     
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
