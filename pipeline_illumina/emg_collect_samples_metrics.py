@@ -225,26 +225,27 @@ def main(args):
     - Returns: A CSV file named `./archives_metrics.csv`.
     """
     configure_logging(args.level)
-    workdir = os.path.dirname(args.dir)
-    try:
-        os.chdir(workdir)
-    except FileNotFoundError as e:
-        logging.error(f"{e}; workdir={workdir}")
+    workdir = os.getcwd()
+    logsdir = args.dir
+    if os.path.isdir(logsdir):
+        logging.info(f"Logs directory, {logsdir}, already exists")
+    else:
+        try: 
+            os.mkdir(logsdir)
+        except FileNotFoundError as e:
+            logging.error(f"{e}; logsdir={logsdir}")
 
     df_metrics   = get_metrics_from_log('')
     df_coverages = get_coverage_metrics('')
     df_cnvs      = count_cnv('')
     
-    # Process list of samples, if provided. Else, collect metrics from all
-    # samples under the "archives" folder.
+    # Process list of samples contained in samples_list file.
     #
-    if args.samples == ['all']:
-        samples = os.listdir(args.dir)
-    else:
-        samples = args.samples
-    total = len(samples)
+    samples = get_samples_list(args.samples)
+    total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
+        # TODO: Download log files
         if os.path.isdir(f"{args.dir}/{sample}"):
             df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
             df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
