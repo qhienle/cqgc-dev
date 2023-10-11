@@ -2,13 +2,12 @@
 """
 Collect metrics for PRAGMatIQ samples.
 
-USAGE: emg_get_samples_metrics.py SAMPLES_LIST_FILE
+USAGE: emg_get_samples_metrics.py SAMPLES
        emg_get_samples_metrics.py --help
 
 Parse Emedgene's logs files to get analysis metrics for PRAGMatIQ samples 
-listed in SAMPLES_LIST_FILE. List of Samples should be provided in a CSV file,
-in which the names of samples to be analyzed are in the first column. For 
-example, the `samples_list.txt` output by `emg_make_batch_from_nanuq.py`:
+listed in file SAMPLES, a CSV file in which the names of samples are in the 1st
+column. Ex: `samples_list.txt` output from `emg_make_batch_from_nanuq.py`:
 
     sample_name,biosample,label,fc_date
     GM231651,22293,CHUSJ,2023-08-09
@@ -38,20 +37,20 @@ def parse_args():
     """
     Parse command-line options
     """
-    parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples archived on `narval.calculquebec.ca`")
-    parser.add_argument('-s', '--samples', nargs="+",
-                        help="List of samples to archive. Use 'all' to collect metrics from all archived samples.")
+    parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples")
+    parser.add_argument('-s', '--samples', default="samples_list.txt", 
+                        help="Filename to CSV list of samples. Default=`samples_list.txt` [str]")
     parser.add_argument('-d', '--directory', dest='dir', default="emg_logs", 
-                        help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
+                        help="Directory containing EMG log files. Default='emg_logs' [str]")
     parser.add_argument('-l', '--logging-level', dest='level', default='info',
-                        help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
+                        help="Logging level, can be 'debug', 'info', 'warning'. Default='info' [str]")
     return(parser.parse_args())
 
 
 def configure_logging(level):
     """
     Set logging level, based on the level names of the `logging` module.
-    - level (str): 'debug', 'info' or 'warning'
+    - level: [str] 'debug', 'info' or 'warning'
     """
     if level == 'debug':
         level_name = logging.DEBUG
@@ -67,14 +66,15 @@ def configure_logging(level):
 def get_samples_list(file):
     """
     Get list of samples to archive from a CSV `file`.
-    - `file`: CSV file with samples in 5th column ("emg_batch_manifest.csv")
+    - `file`: [str] path to CSV file with list of sample names in 1st column.
     - Returns: [list] of samples
     """
     samples = []
     with open(file, 'r') as fh:
+        next(fh)
         for line in fh.readlines():
-            cols = line.split(',')
-            samples.append(cols[5])
+            sample = line.split(',')[0]
+            samples.append(sample)
     samples.pop(0)
     return samples
 
@@ -277,15 +277,11 @@ def main(args):
 
 
 def _test(args):
-    if args.samples == ['all']:
-        samples = 'None provided, processing all'
-    else:
-        samples = args.samples
+    samples = get_samples_list(args.samples)
     print(samples)
-    print(f"Command-line argument is: {args}")
 
 
 if __name__ == '__main__':
     args = parse_args()
-    main(args)
-    #_test(args)
+    #main(args)
+    _test(args)
