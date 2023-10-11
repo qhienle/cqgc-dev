@@ -2,11 +2,11 @@
 """
 Collect metrics for PRAGMatIQ samples archived on `narval.calculquebec.ca`.
 
-USAGE: emg_get_samples_metrics.py [-d|--directory] 
-       emg_get_samples_metrics.py --help
+USAGE: emg_get_samples_metrics_all.py [-d|--directory] 
+       emg_get_samples_metrics_all.py --help
 
-Parse Emedgene's logs files and folders to get analysis metrics for PRAGMatIQ
-samples. Download logs from `aws` using the script `archive_PRAGMatIQ.sh`. Log 
+Parse Emedgene's logs files and folders to get analysis metrics for all past
+PRAGMatIQ samples. Download logs from `aws` using the script `archive_PRAGMatIQ.sh`. Log 
 files for each sample are archived at: 
 
 `narval.calculquebec.ca:/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG`
@@ -35,8 +35,6 @@ def parse_args():
     Parse command-line options
     """
     parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples archived on `narval.calculquebec.ca`")
-    parser.add_argument('-s', '--samples', nargs="+",
-                        help="List of samples to archive. Use 'all' to collect metrics from all archived samples.")
     parser.add_argument('-d', '--directory', dest='dir',
                         default="/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives", 
                         help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
@@ -59,21 +57,6 @@ def configure_logging(level):
     logging.basicConfig(level=level_name, 
                         format='[%(asctime)s] %(levelname)s: %(message)s', 
                         datefmt='%Y-%m-%d@%H:%M:%S')
-
-
-def get_samples_list(file):
-    """
-    Get list of samples to archive from a CSV `file`.
-    - `file`: CSV file with samples in 5th column ("emg_batch_manifest.csv")
-    - Returns: [list] of samples
-    """
-    samples = []
-    with open(file, 'r') as fh:
-        for line in fh.readlines():
-            cols = line.split(',')
-            samples.append(cols[5])
-    samples.pop(0)
-    return samples
 
 
 def glob_files(pattern):
@@ -235,10 +218,7 @@ def main(args):
     # Process list of samples, if provided. Else, collect metrics from all
     # samples under the "archives" folder.
     #
-    if args.samples == ['all']:
-        samples = os.listdir(args.dir)
-    else:
-        samples = args.samples
+    samples = os.listdir(args.dir)
     total = len(samples)
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
@@ -274,11 +254,6 @@ def main(args):
 
 
 def _test(args):
-    if args.samples == ['all']:
-        samples = 'None provided, processing all'
-    else:
-        samples = args.samples
-    print(samples)
     print(f"Command-line argument is: {args}")
 
 
