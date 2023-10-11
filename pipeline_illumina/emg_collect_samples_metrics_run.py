@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
 """
-Collect metrics for PRAGMatIQ samples archived on `narval.calculquebec.ca`.
+Collect metrics for PRAGMatIQ samples.
 
-USAGE: emg_get_samples_metrics.py [-d|--directory] 
+USAGE: emg_get_samples_metrics.py SAMPLES_LIST_FILE
        emg_get_samples_metrics.py --help
 
-Parse Emedgene's logs files and folders to get analysis metrics for PRAGMatIQ
-samples. Download logs from `aws` using the script `archive_PRAGMatIQ.sh`. Log 
-files for each sample are archived at: 
+Parse Emedgene's logs files to get analysis metrics for PRAGMatIQ samples 
+listed in SAMPLES_LIST_FILE. List of Samples should be provided in a CSV file,
+in which the names of samples to be analyzed are in the first column. For 
+example, the `samples_list.txt` output by `emg_make_batch_from_nanuq.py`:
 
-`narval.calculquebec.ca:/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG`
+    sample_name,biosample,label,fc_date
+    GM231651,22293,CHUSJ,2023-08-09
+    23-05982-T1,22282,CHUS,2023-08-09
+    3042652455,22256,CHUQ,2023-08-09
+    (...)
 
-**N.B.** First connect to narval.calculquebec.ca and load environment before 
-running this script.
-
-```bash
-salloc --account def-rallard --job-name "InteractiveJob" --cpus-per-task 2 --mem-per-cpu 2000  --time 3:0:0
-module load scipy-stack/2023a
-```
+-d|--directory: Folder where log files are chached. If the folder is already
+present, log file therein are re-used, instead of downloading from AWS S3.
+Default folder is `emg_logs`.
+    
+Metrics collected are written to a CSV table and an HTML report file. 
+Log files are downloaded from EMG's S3 bucket using the CLI `aws` in a tmp dir.  
 """
 
 import os
@@ -37,8 +41,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples archived on `narval.calculquebec.ca`")
     parser.add_argument('-s', '--samples', nargs="+",
                         help="List of samples to archive. Use 'all' to collect metrics from all archived samples.")
-    parser.add_argument('-d', '--directory', dest='dir',
-                        default="/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives", 
+    parser.add_argument('-d', '--directory', dest='dir', default="emg_logs", 
                         help="Archives directory of all the samples. Default='/lustre06/project/6032434/COMMUN/PRAGMatIQ-EMG/archives'")
     parser.add_argument('-l', '--logging-level', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
