@@ -258,7 +258,12 @@ def main(args):
             
             # 2.1 Get information for sample from Nanuq
             #
-            data = json.loads(nq.get_sample(cqgc))
+            try:
+                data = json.loads(nq.get_sample(cqgc))
+            except Exception as e:
+                logging.warning(f"JSONDecodeError {e} could not decode sample {cqgc} ({sample})")
+                continue
+
             logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
             if len(data) != 1:
                 logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
