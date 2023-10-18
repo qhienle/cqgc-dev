@@ -246,7 +246,7 @@ def main(args):
     samples = get_samples_list(args.samples)
     total   = len(samples)
     os.chdir(logsdir)
-    logging.info(f"HERE {os.getcwd()}")
+    logging.info(f"HERE {os.getcwd()} SAMPLES {samples}")
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
         # TODO: Download log files
