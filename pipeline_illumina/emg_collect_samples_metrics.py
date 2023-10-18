@@ -71,7 +71,7 @@ def get_samples_list(file):
     """
     samples = []
     with open(file, 'r') as fh:
-        next(fh)
+        next(fh) # Skip header
         for line in fh.readlines():
             sample = line.split(',')[0]
             samples.append(sample)
@@ -105,8 +105,7 @@ def get_metrics_from_log(sample):
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
     logfiles = glob_files(f"{sample}_v*_sample.log")
-    logging.info(os.getcwd())
-    logging.info(logfiles)
+    logging.debug(logfiles)
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
@@ -153,7 +152,7 @@ def get_coverage_metrics(sample):
     """
     coverages = []
     files = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
-    logging.info(files)
+    logging.debug(files)
 
     for file in files:
         path_parts   = os.path.split(file)
