@@ -106,6 +106,8 @@ def get_metrics_from_log(sample):
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
     logfiles = glob_files(f"{sample}_v*_sample.log")
+    logging.info(os.getcwd())
+    logging.info(logfiles)
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
@@ -152,6 +154,8 @@ def get_coverage_metrics(sample):
     """
     coverages = []
     files = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
+    logging.info(files)
+
     for file in files:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
@@ -184,6 +188,7 @@ def count_cnv(sample):
     """
     cnvs = []
     cnv_dirs = glob_files(f"{sample}.dragen.cnv.vcf.gz")
+    logging.info(cnv_dirs)
     count = 0
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
@@ -231,7 +236,7 @@ def main(args):
             os.mkdir(logsdir)
         except FileNotFoundError as e:
             logging.error(f"{e}; logsdir={logsdir}")
-
+    
     df_metrics   = get_metrics_from_log('')
     df_coverages = get_coverage_metrics('')
     df_cnvs      = count_cnv('')
@@ -240,15 +245,14 @@ def main(args):
     #
     samples = get_samples_list(args.samples)
     total   = len(samples)
+    os.chdir(logsdir)
+    logging.info(f"HERE {os.getcwd()}")
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
         # TODO: Download log files
-        if os.path.isdir(f"{args.dir}/{sample}"):
-            df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
-            df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
-            df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
-        else:
-            logging.warning(f"Folder '{args.dir}/{sample}' does not exist")
+        df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
+        df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
+        df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
 
     df_metrics.drop_duplicates(inplace=True)
     df_coverages.drop_duplicates(inplace=True)
@@ -281,5 +285,5 @@ def _test(args):
 
 if __name__ == '__main__':
     args = parse_args()
-    #main(args)
-    _test(args)
+    main(args)
+    #_test(args)
