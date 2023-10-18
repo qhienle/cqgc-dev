@@ -71,7 +71,7 @@ def get_samples_list(file):
     """
     samples = []
     with open(file, 'r') as fh:
-        next(fh)
+        #next(fh)
         for line in fh.readlines():
             sample = line.split(',')[0]
             samples.append(sample)
