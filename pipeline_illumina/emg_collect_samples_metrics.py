@@ -105,8 +105,7 @@ def get_metrics_from_log(sample):
         - Percent Autosome Callability
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    #logfiles = glob_files(f"{args.dir}/{sample}/{sample}_vlocal_*_sample.log") # prior to Emedgene v32
-    logfiles = glob_files(f"{args.dir}/{sample}/{sample}_v*_sample.log")
+    logfiles = glob_files(f"{sample}_v*_sample.log")
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
@@ -152,8 +151,7 @@ def get_coverage_metrics(sample):
         - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
-    #files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv") # < EMG v32
-    files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/varcaller/{sample}.dragen.bed_coverage_metrics.csv")
+    files = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
     for file in files:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
@@ -185,8 +183,7 @@ def count_cnv(sample):
     - Returns : A DataFrame
     """
     cnvs = []
-    #cnv_dirs = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.cnv.vcf.gz") # < EMG v32
-    cnv_dirs = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/varcaller/{sample}.dragen.cnv.vcf.gz")
+    cnv_dirs = glob_files(f"{sample}.dragen.cnv.vcf.gz")
     count = 0
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
@@ -206,7 +203,7 @@ def get_NumOfReads(sample):
     - Returns : A DataFrame. There may be multiple NumOfReads files.
                 [[Sample, Log, NumOfReads], [], ...]
     """
-    files = glob_files(f"{args.dir}/{sample}/NumOfReads/*/{sample}.txt")
+    files = glob_files(f"{sample}.txt")
     NumOfReads = []
     for file in files:
         path_parts = os.path.split(file)

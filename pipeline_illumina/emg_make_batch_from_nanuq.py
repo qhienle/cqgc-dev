@@ -228,10 +228,10 @@ def main(args):
     workdir = f"{os.getcwd()}{os.sep}{args.run}"
     try:
         os.mkdir(workdir)
-        os.chdir(workdir)
         logging.info(f"Created work directory '{workdir}'")
     except:
         logging.warning(f"Could not create {workdir}")
+    os.chdir(workdir)
 
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
