@@ -183,10 +183,10 @@ def print_case_by_case(df):
         pid    = df_tmp['pid'].tolist()[0]
         cohort = df_tmp['cohort_type'].tolist()[0]
         site   = df_tmp['label'].tolist()[0]
-        print(f"============ Case INFO: {case} | {site} | {cohort} | {pid} ============\n")
+        print(f"============ {pid} | {case} | {site} | {cohort} ============\n")
         print(df_tmp[['pid', 'sample_name', 'biosample', 'relation', 'gender', 'date_of_birth(YYYY-MM-DD)', 'status']].to_string(index=False))
         hpo_terms = df_tmp[df_tmp['relation'] == 'PROBAND']['hpos']
-        print(f"\nHPO Terms:\n{','.join(hpo_terms)}\n\n")
+        print(f"HPO Terms: {','.join(hpo_terms)}\n\n")
 
 
 def list_samples_to_archive(df):
