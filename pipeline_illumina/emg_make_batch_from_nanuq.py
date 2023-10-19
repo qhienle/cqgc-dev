@@ -197,11 +197,12 @@ def list_samples_to_archive(df):
     - `df`: A Pandas DataFrame
     - Returns: list of samples [str] and file 'samples_list.txt' for archiving
     """
-    filename = 'samples_list.txt'
+    filename = 'samples_list.csv'
     df1 = df[['sample_name', 'biosample', 'label', 'fc_date']] # TODO: Add flowcell
+    df1 = df1.rename(columns={'sample_name': 'Sample', 'biosample': 'CQGC_ID', 'label': 'Site', 'fc_date': 'Date'})
     df1.to_csv(filename, index=False)
     logging.info(f"Created file {filename}")
-    return(f"{' '.join(df['sample_name'])}")
+    return(f"{' '.join(df['Sample'])}")
 
 
 def main(args):
