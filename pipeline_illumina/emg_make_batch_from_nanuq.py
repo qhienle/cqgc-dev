@@ -202,7 +202,7 @@ def list_samples_to_archive(df):
     df1 = df1.rename(columns={'sample_name': 'Sample', 'biosample': 'CQGC_ID', 'label': 'Site', 'fc_date': 'Date'})
     df1.to_csv(filename, index=False)
     logging.info(f"Created file {filename}")
-    return(f"{' '.join(df['Sample'])}")
+    return(f"{' '.join(df1['Sample'])}")
 
 
 def main(args):
