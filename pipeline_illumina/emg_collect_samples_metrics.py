@@ -27,6 +27,7 @@ import os
 import argparse
 import logging
 import subprocess
+import gzip
 import pandas as pd
 from glob import glob
 
@@ -191,9 +192,10 @@ def count_cnv(sample):
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
         version    = os.path.basename(path_parts[0])
-        vcf_zcat   = subprocess.run(['zcat', vcf], text=True, capture_output=True)
-        for line in vcf_zcat.stdout.splitlines():
-            if line.startswith('chr'):
+        with gzip.open(vcf, 'rb') as gzfh:
+            gzlines = gzfh.readlines()
+        for line in gzlines:
+            if line.startswith(b'chr'):
                 count += 1
         cnvs.append([sample, version, count])
     return pd.DataFrame(cnvs, columns=['Sample', 'Log NumOfCNVs', 'NumOfCNVs'])
