@@ -105,7 +105,7 @@ def get_metrics_from_log(sample):
             # The information is sometimes presented with the bytestring (b'blah...\n') symbols 
             # and need to be reformatted.
             #
-            if 'Number of reads' in line:
+            if 'Number of reads:' in line:
                 reads = line_parts[-1].replace("\\n'", "")
             elif 'Average alignment coverage over genome' in line and 'CNV SUMMARY' in line:
                 cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
