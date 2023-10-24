@@ -162,6 +162,7 @@ def get_coverage_metrics(sample):
         coverage_20x = ''
         uniformity_coverage_02 = ''
         uniformity_coverage_04 = ''
+        autosomal_cover_ratio  = ''
         with open(file, "r") as fh:
             for line in fh:
                 cols = line.rstrip().split(',')
@@ -180,13 +181,16 @@ def get_coverage_metrics(sample):
                         uniformity_coverage_02 = cols[3]
                     elif '(PCT > 0.4*mean)' in cols[2]:
                         uniformity_coverage_04 = cols[3]
-        coverages.append([sample, version, avg_coverage, coverage_20x, uniformity_coverage_02, uniformity_coverage_04])
+                elif 'Mean/Median autosomal coverage ratio over genome' in cols[2]:
+                        autosomal_cover_ratio = cols[3]
+        coverages.append([sample, version, avg_coverage, coverage_20x, uniformity_coverage_02, uniformity_coverage_04, autosomal_cover_ratio])
     return pd.DataFrame(coverages, columns=['Sample', 
                                             'Log coverage', 
                                             'Average coverage', 
                                             'PCT coverage >20x', 
                                             'Uniformity of coverage (PCT > 0.2*mean) over genome', 
-                                            'Uniformity of coverage (PCT > 0.4*mean) over genome'])
+                                            'Uniformity of coverage (PCT > 0.4*mean) over genome',
+                                            'Mean/Median autosomal coverage ratio over genome'])
 
 
 def count_cnv(sample):
@@ -280,6 +284,7 @@ def main(args):
         'Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
         'Average coverage', 'PCT coverage >20x',
         'Uniformity of coverage (PCT > 0.2*mean) over genome', 
+        'Uniformity of coverage (PCT > 0.4*mean) over genome', 
         'CNV average coverage', 'Coverage uniformity',
         'Percent Autosome Callability', 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
