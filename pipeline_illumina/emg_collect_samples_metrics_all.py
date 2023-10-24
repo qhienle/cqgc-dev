@@ -97,6 +97,8 @@ def get_metrics_from_log(sample):
         cnv_avg_coverage    = ''
         amplifications      = ''
         pass_amplifications = ''
+        deletions           = '' 
+        pass_deletions      = ''
         coverage_uniformity = ''
         callability         = ''
         contamination       = '' 
