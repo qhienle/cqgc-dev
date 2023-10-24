@@ -152,7 +152,7 @@ def get_coverage_metrics(sample):
     logfiles = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
     logging.debug(f"List of logfiles to parse: {logfiles}")
 
-    for file in files:
+    for file in logfiles:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
         avg_coverage = ''
