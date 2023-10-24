@@ -86,7 +86,7 @@ def get_metrics_from_log(sample):
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
     logfiles = glob_files(f"{sample}_v*_sample.log")
-    logging.debug(logfiles)
+    logging.debug(f"List of logfiles to parse: {logfiles}")
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
@@ -150,7 +150,7 @@ def get_coverage_metrics(sample):
     """
     coverages = []
     files = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
-    logging.debug(files)
+    logging.debug(f"List of logfiles to parse: {logfiles}")
 
     for file in files:
         path_parts   = os.path.split(file)
@@ -198,7 +198,7 @@ def count_cnv(sample):
     """
     cnvs = []
     cnv_dirs = glob_files(f"{sample}.dragen.cnv.vcf.gz")
-    logging.info(cnv_dirs)
+    logging.info(f"List of logfiles to parse: {cnv_dirs}")
     count = 0
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
@@ -250,6 +250,8 @@ def main(args):
     # Process list of samples, if provided. Else, collect metrics from all
     # samples under the "archives" folder.
     #
+    os.chdir(args.dir)
+    logging.info(f"HERE {os.getcwd()} SAMPLES {samples}")
     samples = os.listdir(args.dir)
     total = len(samples)
     for count, sample in enumerate(samples, start=1):

@@ -21,8 +21,7 @@ for sample in ${samples[@]}; do
     ((count++))
 done
 
-samples=(GM231982
-GM232029
+samples=(
 GM232109
 GM231994
 GM232017
@@ -35,5 +34,4 @@ GM232145
 GM232135
 GM232134
 GM232141
-GM232133
-)
+GM232133)
