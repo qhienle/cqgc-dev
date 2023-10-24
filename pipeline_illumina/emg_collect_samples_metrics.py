@@ -127,7 +127,7 @@ def get_metrics_from_log(sample):
             #
             if 'Number of reads:' in line:
                 reads = line_parts[-1].replace("\\n'", "")
-            elif 'Average alignment coverage over genome' in line and 'CNV SUMMARY' in line:
+            elif 'Average alignment coverage over genome' in line and 'COVERAGE SUMMARY' in line:
                 cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
             elif 'Coverage uniformity' in line:
                 coverage_uniformity = line_parts[-1].replace("\\n'", "")
@@ -160,6 +160,8 @@ def get_coverage_metrics(sample):
         version      = os.path.basename(path_parts[0])
         avg_coverage = ''
         coverage_20x = ''
+        uniformity_coverage_02 = ''
+        uniformity_coverage_04 = ''
         with open(file, "r") as fh:
             for line in fh:
                 cols = line.rstrip().split(',')
@@ -174,9 +176,17 @@ def get_coverage_metrics(sample):
                     # v1.2.2_dragen4.0.3-hg38_0edf29a/GM230732.dragen.bed_coverage_metrics.csv:
                     # COVERAGE SUMMARY,,PCT of genome with coverage [  20x: inf),80.13
                 elif 'Uniformity of coverage' in cols[2]:
-                    uniformity_coverage = cols[3]
-        coverages.append([sample, version, avg_coverage, coverage_20x, uniformity_coverage])
-    return pd.DataFrame(coverages, columns=['Sample', 'Log coverage', 'Average coverage', 'PCT coverage >20x', 'Uniformity of coverage (PCT > 0.2*mean) over genome'])
+                    if '(PCT > 0.2*mean)' in cols[2]:
+                        uniformity_coverage_02 = cols[3]
+                    elif '(PCT > 0.4*mean)' in cols[2]:
+                        uniformity_coverage_04 = cols[3]
+        coverages.append([sample, version, avg_coverage, coverage_20x, uniformity_coverage_02, uniformity_coverage_04])
+    return pd.DataFrame(coverages, columns=['Sample', 
+                                            'Log coverage', 
+                                            'Average coverage', 
+                                            'PCT coverage >20x', 
+                                            'Uniformity of coverage (PCT > 0.2*mean) over genome', 
+                                            'Uniformity of coverage (PCT > 0.4*mean) over genome'])
 
 
 def count_cnv(sample):
