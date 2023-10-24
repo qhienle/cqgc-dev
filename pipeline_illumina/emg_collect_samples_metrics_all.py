@@ -149,7 +149,7 @@ def get_coverage_metrics(sample):
         - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
-    files = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
+    logfiles = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
     logging.debug(f"List of logfiles to parse: {logfiles}")
 
     for file in files:
