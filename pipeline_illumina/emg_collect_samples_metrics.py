@@ -247,7 +247,6 @@ def get_NumOfReads(sample):
         log_NumOfReads = dir_parts[1]
         with open(file, 'r') as fh:
             NumOfReads.append([sample, log_NumOfReads, fh.readline().strip()])
-
     return pd.DataFrame(NumOfReads, columns=['Sample', 'Log NumOfReads', 'NumOfReads'])
 
 

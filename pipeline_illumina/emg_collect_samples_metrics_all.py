@@ -85,8 +85,8 @@ def get_metrics_from_log(sample):
         - Percent Autosome Callability
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    #logfiles = glob_files(f"{args.dir}/{sample}/{sample}_vlocal_*_sample.log") # prior to Emedgene v32
-    logfiles = glob_files(f"{args.dir}/{sample}/{sample}_v*_sample.log")
+    logfiles = glob_files(f"{sample}_v*_sample.log")
+    logging.debug(logfiles)
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
@@ -94,6 +94,8 @@ def get_metrics_from_log(sample):
         reads = ''
         snps  = ''
         cnv_avg_coverage    = ''
+        amplifications      = ''
+        pass_amplifications = ''
         coverage_uniformity = ''
         callability         = ''
         contamination       = '' 
@@ -107,10 +109,18 @@ def get_metrics_from_log(sample):
             #
             if 'Number of reads:' in line:
                 reads = line_parts[-1].replace("\\n'", "")
-            elif 'Average alignment coverage over genome' in line and 'CNV SUMMARY' in line:
+            elif 'Average alignment coverage over genome' in line and 'COVERAGE SUMMARY' in line:
                 cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
             elif 'Coverage uniformity' in line:
                 coverage_uniformity = line_parts[-1].replace("\\n'", "")
+            elif 'Number of amplifications' in line:
+                amplifications = line_parts[-1].replace("\\n'", "")
+            elif 'Number of passing amplifications' in line:
+                pass_amplifications = line_parts[-1].replace("\\n'", "")
+            elif 'Number of deletions' in line:
+                deletions = line_parts[-1].replace("\\n'", "")
+            elif 'Number of passing deletions' in line:
+                pass_deletions = line_parts[-1].replace("\\n'", "")
             elif 'SNPs' in line and line_parts[11] == "SNPs":
                 snps = line_parts[12].replace("\\n'", "")
             elif 'Percent Autosome Callability' in line:
@@ -118,8 +128,15 @@ def get_metrics_from_log(sample):
             elif 'Estimated sample contamination' in line:
                 if line_parts[12] != 'standard':
                     contamination = line_parts[12].replace("\\n'", "")
-        metrics.append([sample, logname, reads, snps, cnv_avg_coverage, coverage_uniformity, callability, contamination])
-    return pd.DataFrame(metrics, columns = ["Sample", "Log filename", "NumOfReads", "NumOfSNPs", "CNV average coverage", "Coverage uniformity", "Percent Autosome Callability", "Estimated sample contamination"])
+        metrics.append([sample, logname, reads, snps, cnv_avg_coverage, coverage_uniformity, amplifications, pass_amplifications, deletions, pass_deletions, callability, contamination])
+    return pd.DataFrame(metrics, columns = ["Sample", "Log filename", "NumOfReads", 
+                                            "NumOfSNPs", "CNV average coverage", 
+                                            "CNV Number of amplifications", 
+                                            "CNV Number of passing amplifications", 
+                                            "CNV Number of deletions", 
+                                            "CNV Number of passing deletions", 
+                                            "Coverage uniformity", "Percent Autosome Callability", 
+                                            "Estimated sample contamination"])
 
 
 def get_coverage_metrics(sample):
@@ -132,13 +149,17 @@ def get_coverage_metrics(sample):
         - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
-    #files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.bed_coverage_metrics.csv") # < EMG v32
-    files = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/varcaller/{sample}.dragen.bed_coverage_metrics.csv")
+    files = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
+    logging.debug(files)
+
     for file in files:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
         avg_coverage = ''
         coverage_20x = ''
+        uniformity_coverage_02 = ''
+        uniformity_coverage_04 = ''
+        autosomal_cover_ratio  = ''
         with open(file, "r") as fh:
             for line in fh:
                 cols = line.rstrip().split(',')
@@ -153,9 +174,20 @@ def get_coverage_metrics(sample):
                     # v1.2.2_dragen4.0.3-hg38_0edf29a/GM230732.dragen.bed_coverage_metrics.csv:
                     # COVERAGE SUMMARY,,PCT of genome with coverage [  20x: inf),80.13
                 elif 'Uniformity of coverage' in cols[2]:
-                    uniformity_coverage = cols[3]
-        coverages.append([sample, version, avg_coverage, coverage_20x, uniformity_coverage])
-    return pd.DataFrame(coverages, columns=['Sample', 'Log coverage', 'Average coverage', 'PCT coverage >20x', 'Uniformity of coverage (PCT > 0.2*mean) over genome'])
+                    if '(PCT > 0.2*mean)' in cols[2]:
+                        uniformity_coverage_02 = cols[3]
+                    elif '(PCT > 0.4*mean)' in cols[2]:
+                        uniformity_coverage_04 = cols[3]
+                elif 'Mean/Median autosomal coverage ratio over genome' in cols[2]:
+                        autosomal_cover_ratio = cols[3]
+        coverages.append([sample, version, avg_coverage, coverage_20x, uniformity_coverage_02, uniformity_coverage_04, autosomal_cover_ratio])
+    return pd.DataFrame(coverages, columns=['Sample', 
+                                            'Log coverage', 
+                                            'Average coverage', 
+                                            'PCT coverage >20x', 
+                                            'Uniformity of coverage (PCT > 0.2*mean) over genome', 
+                                            'Uniformity of coverage (PCT > 0.4*mean) over genome',
+                                            'Mean/Median autosomal coverage ratio over genome'])
 
 
 def count_cnv(sample):
@@ -165,15 +197,16 @@ def count_cnv(sample):
     - Returns : A DataFrame
     """
     cnvs = []
-    #cnv_dirs = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/{sample}.dragen.cnv.vcf.gz") # < EMG v32
-    cnv_dirs = glob_files(f"{args.dir}/{sample}/vcf/dragen/*/varcaller/{sample}.dragen.cnv.vcf.gz")
+    cnv_dirs = glob_files(f"{sample}.dragen.cnv.vcf.gz")
+    logging.info(cnv_dirs)
     count = 0
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
         version    = os.path.basename(path_parts[0])
-        vcf_zcat   = subprocess.run(['zcat', vcf], text=True, capture_output=True)
-        for line in vcf_zcat.stdout.splitlines():
-            if line.startswith('chr'):
+        with gzip.open(vcf, 'rb') as gzfh:
+            gzlines = gzfh.readlines()
+        for line in gzlines:
+            if line.startswith(b'chr'):
                 count += 1
         cnvs.append([sample, version, count])
     return pd.DataFrame(cnvs, columns=['Sample', 'Log NumOfCNVs', 'NumOfCNVs'])
@@ -186,7 +219,7 @@ def get_NumOfReads(sample):
     - Returns : A DataFrame. There may be multiple NumOfReads files.
                 [[Sample, Log, NumOfReads], [], ...]
     """
-    files = glob_files(f"{args.dir}/{sample}/NumOfReads/*/{sample}.txt")
+    files = glob_files(f"{sample}.txt")
     NumOfReads = []
     for file in files:
         path_parts = os.path.split(file)
@@ -194,7 +227,6 @@ def get_NumOfReads(sample):
         log_NumOfReads = dir_parts[1]
         with open(file, 'r') as fh:
             NumOfReads.append([sample, log_NumOfReads, fh.readline().strip()])
-
     return pd.DataFrame(NumOfReads, columns=['Sample', 'Log NumOfReads', 'NumOfReads'])
 
 
@@ -241,11 +273,13 @@ def main(args):
     df = df.merge(df_cnvs, on='Sample', how='outer')
     df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
 
-    df1 = df[['Log filename', 'Log coverage', 'Log NumOfCNVs', 
-        'Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
-        'Average coverage', 'PCT coverage >20x',
+    df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
+        'Average coverage', 'CNV average coverage', 'Coverage uniformity',
+        'CNV Number of amplifications', 'CNV Number of passing amplifications', 
+        'CNV Number of deletions', 'CNV Number of passing deletions', 
+        'PCT coverage >20x',
         'Uniformity of coverage (PCT > 0.2*mean) over genome', 
-        'CNV average coverage', 'Coverage uniformity',
+        'Uniformity of coverage (PCT > 0.4*mean) over genome', 
         'Percent Autosome Callability', 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
 
