@@ -63,7 +63,7 @@ def glob_files(pattern):
     """
     Glob list of files from pattern and checks that list is not empty
     """
-    files = glob(pattern)
+    files = glob(pattern, recursive=True)
     if len(files) == 0:
         logging.debug(f"More than one log file found with pattern {pattern}")
     elif len(files) == 0:
@@ -85,7 +85,7 @@ def get_metrics_from_log(sample):
         - Percent Autosome Callability
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    logfiles = glob_files(f"{sample}_v*_sample.log")
+    logfiles = glob_files(f"{args.dir}/{sample}/{sample}_v*_sample.log")
     logging.debug(f"List of logfiles to parse: {logfiles}")
     for log in logfiles:
         logname = os.path.basename(log)
@@ -149,7 +149,7 @@ def get_coverage_metrics(sample):
         - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
-    logfiles = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
+    logfiles = glob_files(f"{args.dir}/{sample}/**/{sample}.dragen.bed_coverage_metrics.csv")
     logging.debug(f"List of logfiles to parse: {logfiles}")
 
     for file in logfiles:
@@ -197,7 +197,7 @@ def count_cnv(sample):
     - Returns : A DataFrame
     """
     cnvs = []
-    cnv_dirs = glob_files(f"{sample}.dragen.cnv.vcf.gz")
+    cnv_dirs = glob_files(f"{args.dir}/{sample}/**/{sample}.dragen.cnv.vcf.gz")
     logging.info(f"List of logfiles to parse: {cnv_dirs}")
     count = 0
     for vcf in cnv_dirs:
@@ -250,8 +250,6 @@ def main(args):
     # Process list of samples, if provided. Else, collect metrics from all
     # samples under the "archives" folder.
     #
-    os.chdir(args.dir)
-    logging.info(f"HERE {os.getcwd()} SAMPLES {samples}")
     samples = os.listdir(args.dir)
     total = len(samples)
     for count, sample in enumerate(samples, start=1):
