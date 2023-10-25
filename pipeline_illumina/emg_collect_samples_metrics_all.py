@@ -129,10 +129,18 @@ def get_metrics_from_log(sample):
                 snps = line_parts[12].replace("\\n'", "")
             elif 'Percent Autosome Callability' in line:
                 callability = line_parts[14].replace("\\n'", "")
+            elif 'Number of unique & mapped reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
+                mapped_reads     = line_parts[-2]
+                mapped_reads_pct = line_parts[-1].replace("\\n'", "")
+            elif 'Number of duplicate marked reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
+                duplicate_reads_pct = line_parts[-1].replace("\\n'", "")
             elif 'Estimated sample contamination' in line:
                 if line_parts[12] != 'standard':
                     contamination = line_parts[12].replace("\\n'", "")
-        metrics.append([sample, logname, reads, snps, coverage_uniformity, amplifications, pass_amplifications, deletions, pass_deletions, callability, contamination])
+        metrics.append([sample, logname, reads, snps, coverage_uniformity, 
+                        amplifications, pass_amplifications, deletions, pass_deletions, 
+                        mapped_reads, mapped_reads_pct, duplicate_reads_pct,
+                        callability, contamination])
     return pd.DataFrame(metrics, columns = ["Sample", "Log filename", 
                                             "NumOfReads", "NumOfSNPs",
                                             "Coverage uniformity", 
@@ -140,6 +148,9 @@ def get_metrics_from_log(sample):
                                             "CNV Number of passing amplifications", 
                                             "CNV Number of deletions", 
                                             "CNV Number of passing deletions", 
+                                            'Number of unique & mapped reads',
+                                            'Number of unique & mapped reads PCT',
+                                            'Number of duplicate marked reads PCT', 
                                             "Percent Autosome Callability", 
                                             "Estimated sample contamination"])
 
@@ -285,6 +296,10 @@ def main(args):
         'PCT coverage >20x',
         'Uniformity of coverage (PCT > 0.2*mean) over genome', 
         'Uniformity of coverage (PCT > 0.4*mean) over genome', 
+        'Mean/Median autosomal coverage ratio over genome',
+        'Number of unique & mapped reads',
+        'Number of unique & mapped reads PCT',
+        'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability', 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
 
