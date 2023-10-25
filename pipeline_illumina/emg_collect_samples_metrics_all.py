@@ -112,8 +112,9 @@ def get_metrics_from_log(sample):
             #
             if 'Number of reads:' in line:
                 reads = line_parts[-1].replace("\\n'", "")
-            elif 'Average alignment coverage over genome' in line and 'COVERAGE SUMMARY' in line:
-                cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
+            # CNV?
+            # elif 'Average alignment coverage over genome' in line and 'COVERAGE SUMMARY' in line:
+            #     cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
             elif 'Coverage uniformity' in line:
                 coverage_uniformity = line_parts[-1].replace("\\n'", "")
             elif 'Number of amplifications' in line:
@@ -131,14 +132,15 @@ def get_metrics_from_log(sample):
             elif 'Estimated sample contamination' in line:
                 if line_parts[12] != 'standard':
                     contamination = line_parts[12].replace("\\n'", "")
-        metrics.append([sample, logname, reads, snps, cnv_avg_coverage, coverage_uniformity, amplifications, pass_amplifications, deletions, pass_deletions, callability, contamination])
-    return pd.DataFrame(metrics, columns = ["Sample", "Log filename", "NumOfReads", 
-                                            "NumOfSNPs", "CNV average coverage", 
+        metrics.append([sample, logname, reads, snps, coverage_uniformity, amplifications, pass_amplifications, deletions, pass_deletions, callability, contamination])
+    return pd.DataFrame(metrics, columns = ["Sample", "Log filename", 
+                                            "NumOfReads", "NumOfSNPs",
+                                            "Coverage uniformity", 
                                             "CNV Number of amplifications", 
                                             "CNV Number of passing amplifications", 
                                             "CNV Number of deletions", 
                                             "CNV Number of passing deletions", 
-                                            "Coverage uniformity", "Percent Autosome Callability", 
+                                            "Percent Autosome Callability", 
                                             "Estimated sample contamination"])
 
 
@@ -277,7 +279,7 @@ def main(args):
     df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
 
     df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
-        'Average coverage', 'CNV average coverage', 'Coverage uniformity',
+        'Average coverage', 'Coverage uniformity',
         'CNV Number of amplifications', 'CNV Number of passing amplifications', 
         'CNV Number of deletions', 'CNV Number of passing deletions', 
         'PCT coverage >20x',
