@@ -117,14 +117,14 @@ def get_metrics_from_log(sample):
             #     cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
             elif 'Coverage uniformity' in line:
                 coverage_uniformity = line_parts[-1].replace("\\n'", "")
-            elif 'Number of amplifications' in line:
+            elif 'Number of amplifications' in line and 'CNV SUMMARY' in line:
                 amplifications = line_parts[-1].replace("\\n'", "")
-            elif 'Number of passing amplifications' in line:
-                pass_amplifications = line_parts[-1].replace("\\n'", "")
-            elif 'Number of deletions' in line:
+            elif 'Number of passing amplifications' in line and 'CNV SUMMARY' in line:
+                pass_amplifications = line_parts[-2].replace("\\n'", "")
+            elif 'Number of deletions' in line and 'CNV SUMMARY' in line:
                 deletions = line_parts[-1].replace("\\n'", "")
-            elif 'Number of passing deletions' in line:
-                pass_deletions = line_parts[-1].replace("\\n'", "")
+            elif 'Number of passing deletions' in line and 'CNV SUMMARY' in line:
+                pass_deletions = line_parts[-2].replace("\\n'", "")
             elif 'SNPs' in line and line_parts[11] == "SNPs":
                 snps = line_parts[12].replace("\\n'", "")
             elif 'Percent Autosome Callability' in line:
