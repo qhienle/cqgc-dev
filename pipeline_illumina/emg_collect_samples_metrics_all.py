@@ -102,6 +102,9 @@ def get_metrics_from_log(sample):
         coverage_uniformity = ''
         callability         = ''
         contamination       = '' 
+        mapped_reads        = '' 
+        mapped_reads_pct    = '' 
+        duplicate_reads_pct = '' 
         for line in lines:
             line_parts = line.rstrip().split()
 
