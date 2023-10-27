@@ -79,7 +79,7 @@ def get_samples_list(file):
     return samples
 
 
-def download_emg_logs(sample, profile='emedgene', logsdir='emg_logs'):
+def download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs'):
     """
     List files available on AWS bucket for Emedgene `profile` and download 
     selected log files required to collect metrics for `sample`.
@@ -97,15 +97,16 @@ def download_emg_logs(sample, profile='emedgene', logsdir='emg_logs'):
     files = []
     for line in ls.stdout.splitlines():
         file = f"{site}/{line.split()[-1]}"
-        if file.endswith("_sample.log"):
-            subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
-            files.append(file)
-        elif line.endswith(".dragen.bed_coverage_metrics.csv"):
-            subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
-            files.append(file)
-        elif line.endswith(".dragen.cnv.vcf.gz"):
-            subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
-            files.append(file)
+        if not os.path.isfile(file):
+            if file.endswith("_sample.log"):
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
+                files.append(file)
+            elif line.endswith(".dragen.bed_coverage_metrics.csv"):
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
+                files.append(file)
+            elif line.endswith(".dragen.cnv.vcf.gz"):
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
+                files.append(file)
     return files
 
 
@@ -329,7 +330,7 @@ def main(args):
     logging.info(f"HERE {os.getcwd()} SAMPLES {samples}")
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
-        logfiles = download_emg_logs(sample, profile='emedgene', logsdir='emg_logs')
+        logfiles = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
         logging.debug(f"Downloaded logfiles: {logfiles}")
         df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
         df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
