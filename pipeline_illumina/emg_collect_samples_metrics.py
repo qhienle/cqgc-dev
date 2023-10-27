@@ -311,7 +311,7 @@ def main(args):
     workdir = os.getcwd()
     logsdir = args.dir
     if os.path.isdir(logsdir):
-        logging.info(f"Logs directory, {logsdir}, already exists")
+        logging.info(f"Logs directory, '{logsdir}', already exists")
     else:
         try: 
             os.mkdir(logsdir)
