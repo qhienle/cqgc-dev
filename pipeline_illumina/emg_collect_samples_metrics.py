@@ -333,8 +333,9 @@ def main(args):
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
         logfiles = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
-        logging.debug(f"Downloaded logfiles: {logfiles}")
+        logging.debug(f"S3 logfiles: {logfiles}")
         logfiles     = glob_files(f"{args.dir}/{sample}_v*_sample.log")
+        print(f"Emedgene main logfile from which to get metrics: '{logfiles}'")
         df_metrics   = pd.concat([df_metrics, get_metrics_from_log(logfiles)], ignore_index=True)
         df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
         df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
