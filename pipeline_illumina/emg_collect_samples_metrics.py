@@ -99,14 +99,17 @@ def download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs'):
         s3_file = f"{site}/{line.split()[-1]}"
         if file.endswith("_sample.log"):
             if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
+                print(f"Log file {logsdir}{os.sep}{file} not found. Downloading from S3...")
                 subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
             files.append(file)
         elif line.endswith(".dragen.bed_coverage_metrics.csv"):
             if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
+                print(f"Log file {logsdir}{os.sep}{file} not found. Downloading from S3...")
                 subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
             files.append(file)
         elif line.endswith(".dragen.cnv.vcf.gz"):
             if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
+                print(f"Log file {logsdir}{os.sep}{file} not found. Downloading from S3...")
                 subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
             files.append(file)
     return files
@@ -146,7 +149,6 @@ def get_metrics_from_log(sample):
             lines = fh.readlines()
         reads = ''
         snps  = ''
-        cnv_avg_coverage    = ''
         amplifications      = ''
         pass_amplifications = ''
         deletions           = '' 
@@ -352,14 +354,14 @@ def main(args):
 
     df1 = df[['Log filename', 'Log coverage', 'Log NumOfCNVs', 
         'Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
-        'Average coverage', 'CNV average coverage', 'Coverage uniformity',
+        'Average coverage', 'Coverage uniformity',
         'CNV Number of amplifications', 'CNV Number of passing amplifications', 
         'CNV Number of deletions', 'CNV Number of passing deletions', 
         'PCT coverage >20x',
         'Uniformity of coverage (PCT > 0.2*mean) over genome', 
         'Uniformity of coverage (PCT > 0.4*mean) over genome', 
         'Percent Autosome Callability', 'Estimated sample contamination']]
-    df1.drop_duplicates(inplace=True)
+    df1 = df1.drop_duplicates()
 
     df1_csv = workdir + os.sep + 'archives_metrics.csv'
     df1.to_csv(df1_csv, index=None)
