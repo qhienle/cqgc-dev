@@ -87,26 +87,28 @@ def download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs'):
     - profile: AWS credentials, either `emedgene` or `emedgene-eval` [str]
     - returns: Downloaded files under folder `./emg_logs/` [list]
     """
+    os.mkdir(logsdir) if not os.path.isdir(logsdir) else None
     site = 's3://cac1-prodca-emg-auto-results'
     domains = {'emedgene': 'CHU_Sainte_Justine', 'emedgene-eval': 'Ste_Justine_eval'}
     url = f"{site}/{domains[profile]}/{sample}"
-    if not os.path.isdir(logsdir):
-        os.mkdir(logsdir)
-
+        
     ls = subprocess.run(['aws', 's3', '--profile', profile, 'ls', '--recursive', url], capture_output=True, text=True)
     files = []
     for line in ls.stdout.splitlines():
-        file = f"{site}/{line.split()[-1]}"
-        if not os.path.isfile(file):
-            if file.endswith("_sample.log"):
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
-                files.append(file)
-            elif line.endswith(".dragen.bed_coverage_metrics.csv"):
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
-                files.append(file)
-            elif line.endswith(".dragen.cnv.vcf.gz"):
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
-                files.append(file)
+        file    = line.split()[-1].split('/')[-1]
+        s3_file = f"{site}/{line.split()[-1]}"
+        if file.endswith("_sample.log"):
+            if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
+            files.append(file)
+        elif line.endswith(".dragen.bed_coverage_metrics.csv"):
+            if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
+            files.append(file)
+        elif line.endswith(".dragen.cnv.vcf.gz"):
+            if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
+            files.append(file)
     return files
 
 
