@@ -252,7 +252,7 @@ def get_NumOfReads(sample):
 
 def main(args):
     """
-    From a list of samples, retrieve the several metrics.
+    From a list of samples, retrieve several metrics.
     - `args` : Command-line arguments, from `argparse`.1
     - Returns: A CSV file named `./archives_metrics.csv`.
     """
