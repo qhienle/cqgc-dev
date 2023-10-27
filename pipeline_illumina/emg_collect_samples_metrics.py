@@ -79,6 +79,36 @@ def get_samples_list(file):
     return samples
 
 
+def download_emg_logs(sample, profile='emedgene', logsdir='emg_logs'):
+    """
+    List files available on AWS bucket for Emedgene `profile` and download 
+    selected log files required to collect metrics for `sample`.
+    - sample:  Name of sample to retrives [str]
+    - profile: AWS credentials, either `emedgene` or `emedgene-eval` [str]
+    - returns: Downloaded files under folder `./emg_logs/` [list]
+    """
+    site = 's3://cac1-prodca-emg-auto-results'
+    domains = {'emedgene': 'CHU_Sainte_Justine', 'emedgene-eval': 'Ste_Justine_eval'}
+    url = f"{site}/{domains[profile]}/{sample}"
+    if not os.path.isdir(logsdir):
+        os.mkdir(logsdir)
+
+    ls = subprocess.run(['aws', 's3', '--profile', profile, 'ls', '--recursive', url], capture_output=True, text=True)
+    files = []
+    for line in ls.stdout.splitlines():
+        file = f"{site}/{line.split()[-1]}"
+        if file.endswith("_sample.log"):
+            subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
+            files.append(file)
+        elif line.endswith(".dragen.bed_coverage_metrics.csv"):
+            subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
+            files.append(file)
+        elif line.endswith(".dragen.cnv.vcf.gz"):
+            subprocess.run(['aws', 's3', '--profile', profile, 'cp', file, logsdir], check=True)
+            files.append(file)
+    return files
+
+
 def glob_files(pattern):
     """
     Glob list of files from pattern and checks that list is not empty
@@ -105,8 +135,8 @@ def get_metrics_from_log(sample):
         - Percent Autosome Callability
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    logfiles = glob_files(f"{sample}_v*_sample.log")
-    logging.debug(logfiles)
+    logfiles = glob_files(f"{args.dir}/{sample}/{sample}_v*_sample.log")
+    logging.debug(f"List of logfiles to parse: {logfiles}")
     for log in logfiles:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
@@ -116,9 +146,14 @@ def get_metrics_from_log(sample):
         cnv_avg_coverage    = ''
         amplifications      = ''
         pass_amplifications = ''
+        deletions           = '' 
+        pass_deletions      = ''
         coverage_uniformity = ''
         callability         = ''
         contamination       = '' 
+        mapped_reads        = '' 
+        mapped_reads_pct    = '' 
+        duplicate_reads_pct = '' 
         for line in lines:
             line_parts = line.rstrip().split()
 
@@ -129,33 +164,46 @@ def get_metrics_from_log(sample):
             #
             if 'Number of reads:' in line:
                 reads = line_parts[-1].replace("\\n'", "")
-            elif 'Average alignment coverage over genome' in line and 'COVERAGE SUMMARY' in line:
-                cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
+            # CNV?
+            # elif 'Average alignment coverage over genome' in line and 'COVERAGE SUMMARY' in line:
+            #     cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
             elif 'Coverage uniformity' in line:
                 coverage_uniformity = line_parts[-1].replace("\\n'", "")
-            elif 'Number of amplifications' in line:
+            elif 'Number of amplifications' in line and 'CNV SUMMARY' in line:
                 amplifications = line_parts[-1].replace("\\n'", "")
-            elif 'Number of passing amplifications' in line:
-                pass_amplifications = line_parts[-1].replace("\\n'", "")
-            elif 'Number of deletions' in line:
+            elif 'Number of passing amplifications' in line and 'CNV SUMMARY' in line:
+                pass_amplifications = line_parts[-2].replace("\\n'", "")
+            elif 'Number of deletions' in line and 'CNV SUMMARY' in line:
                 deletions = line_parts[-1].replace("\\n'", "")
-            elif 'Number of passing deletions' in line:
-                pass_deletions = line_parts[-1].replace("\\n'", "")
+            elif 'Number of passing deletions' in line and 'CNV SUMMARY' in line:
+                pass_deletions = line_parts[-2].replace("\\n'", "")
             elif 'SNPs' in line and line_parts[11] == "SNPs":
                 snps = line_parts[12].replace("\\n'", "")
             elif 'Percent Autosome Callability' in line:
                 callability = line_parts[14].replace("\\n'", "")
+            elif 'Number of unique & mapped reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
+                mapped_reads     = line_parts[-2]
+                mapped_reads_pct = line_parts[-1].replace("\\n'", "")
+            elif 'Number of duplicate marked reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
+                duplicate_reads_pct = line_parts[-1].replace("\\n'", "")
             elif 'Estimated sample contamination' in line:
                 if line_parts[12] != 'standard':
                     contamination = line_parts[12].replace("\\n'", "")
-        metrics.append([sample, logname, reads, snps, cnv_avg_coverage, coverage_uniformity, amplifications, pass_amplifications, deletions, pass_deletions, callability, contamination])
-    return pd.DataFrame(metrics, columns = ["Sample", "Log filename", "NumOfReads", 
-                                            "NumOfSNPs", "CNV average coverage", 
+        metrics.append([sample, logname, reads, snps, coverage_uniformity, 
+                        amplifications, pass_amplifications, deletions, pass_deletions, 
+                        mapped_reads, mapped_reads_pct, duplicate_reads_pct,
+                        callability, contamination])
+    return pd.DataFrame(metrics, columns = ["Sample", "Log filename", 
+                                            "NumOfReads", "NumOfSNPs",
+                                            "Coverage uniformity", 
                                             "CNV Number of amplifications", 
                                             "CNV Number of passing amplifications", 
                                             "CNV Number of deletions", 
                                             "CNV Number of passing deletions", 
-                                            "Coverage uniformity", "Percent Autosome Callability", 
+                                            'Number of unique & mapped reads',
+                                            'Number of unique & mapped reads PCT',
+                                            'Number of duplicate marked reads PCT', 
+                                            "Percent Autosome Callability", 
                                             "Estimated sample contamination"])
 
 
@@ -169,10 +217,10 @@ def get_coverage_metrics(sample):
         - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
-    files = glob_files(f"{sample}.dragen.bed_coverage_metrics.csv")
-    logging.debug(files)
+    logfiles = glob_files(f"{args.dir}/{sample}/**/{sample}.dragen.bed_coverage_metrics.csv")
+    logging.debug(f"List of logfiles to parse: {logfiles}")
 
-    for file in files:
+    for file in logfiles:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
         avg_coverage = ''
@@ -267,6 +315,8 @@ def main(args):
         except FileNotFoundError as e:
             logging.error(f"{e}; logsdir={logsdir}")
     
+    # Initialize empty Padnas DataFrames
+    #
     df_metrics   = get_metrics_from_log('')
     df_coverages = get_coverage_metrics('')
     df_cnvs      = count_cnv('')
@@ -279,7 +329,8 @@ def main(args):
     logging.info(f"HERE {os.getcwd()} SAMPLES {samples}")
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
-        # TODO: Download log files
+        logfiles = download_emg_logs(sample, profile='emedgene', logsdir='emg_logs')
+        logging.debug(f"Downloaded logfiles: {logfiles}")
         df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
         df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
         df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
