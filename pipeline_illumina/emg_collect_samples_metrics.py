@@ -127,7 +127,7 @@ def glob_files(pattern):
     return files
 
 
-def get_metrics_from_log(sample):
+def get_metrics_from_log(sample, logfiles=[]):
     """
     Get metrics from log file. Metrics for "Percent of genome coverage over 20x" 
     and "Average coverage" are not consistently formatted. Get these infos from
@@ -141,7 +141,6 @@ def get_metrics_from_log(sample):
         - Percent Autosome Callability
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    logfiles = glob_files(f"{args.dir}/{sample}/{sample}_v*_sample.log")
     logging.debug(f"List of logfiles to parse: {logfiles}")
     for log in logfiles:
         logname = os.path.basename(log)
@@ -322,7 +321,7 @@ def main(args):
     
     # Initialize empty Pandas DataFrames
     #
-    df_metrics   = get_metrics_from_log('')
+    df_metrics   = get_metrics_from_log(None)
     df_coverages = get_coverage_metrics('')
     df_cnvs      = count_cnv('')
     
@@ -330,13 +329,13 @@ def main(args):
     #
     samples = get_samples_list(args.samples)
     total   = len(samples)
-    os.chdir(logsdir)
     logging.info(f"HERE {os.getcwd()} SAMPLES {samples}")
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
         logfiles = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
         logging.debug(f"Downloaded logfiles: {logfiles}")
-        df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample)], ignore_index=True)
+        logfiles     = glob_files(f"{args.dir}/{sample}_v*_sample.log")
+        df_metrics   = pd.concat([df_metrics, get_metrics_from_log(logfiles)], ignore_index=True)
         df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
         df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
 
