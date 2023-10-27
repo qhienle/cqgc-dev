@@ -315,7 +315,7 @@ def main(args):
         except FileNotFoundError as e:
             logging.error(f"{e}; logsdir={logsdir}")
     
-    # Initialize empty Padnas DataFrames
+    # Initialize empty Pandas DataFrames
     #
     df_metrics   = get_metrics_from_log('')
     df_coverages = get_coverage_metrics('')
