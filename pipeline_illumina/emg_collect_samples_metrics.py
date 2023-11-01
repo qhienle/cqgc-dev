@@ -270,7 +270,7 @@ def count_cnv(sample):
     """
     cnvs = []
     cnv_dirs = glob_files(f"{sample}.dragen.cnv.vcf.gz")
-    logging.info(cnv_dirs)
+    logging.debug(f"Files in 'cnv_dirs': {cnv_dirs}")
     count = 0
     for vcf in cnv_dirs:
         path_parts = os.path.split(vcf)
@@ -329,7 +329,6 @@ def main(args):
     #
     samples = get_samples_list(args.samples)
     total   = len(samples)
-    logging.info(f"HERE {os.getcwd()} SAMPLES {samples}")
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
         logfiles = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
@@ -364,6 +363,7 @@ def main(args):
 
     df1_csv = workdir + os.sep + 'archives_metrics.csv'
     df1.to_csv(df1_csv, index=None)
+    logging.info(f"Current Metrics DataFrame:\n{df1}")
 
 
 def _test(args):
