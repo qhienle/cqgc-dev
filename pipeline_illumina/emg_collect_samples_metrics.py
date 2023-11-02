@@ -336,14 +336,14 @@ def main(args):
         logs = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
         logging.debug(f"S3 logfiles: {logs}")
 
-        log_files     = glob_files(f"{args.dir}/{sample}_v*_sample.log")
-        df_metrics    = pd.concat([df_metrics, get_metrics_from_log(sample, log_files=log_files)], ignore_index=True)
+        log_files  = glob_files(f"{args.dir}/{sample}_v*_sample.log")
+        df_metrics = pd.concat([df_metrics, get_metrics_from_log(sample, log_files=log_files)], ignore_index=True)
 
         coverage_files = glob_files(f"{args.dir}/{sample}.dragen.bed_coverage_metrics.csv")
         df_coverages   = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_files=coverage_files)], ignore_index=True)
 
-        vcf_files     = glob_files(f"{args.dir}/{sample}.dragen.cnv.vcf.gz")
-        df_cnvs       = pd.concat([df_cnvs, count_cnv(sample, vcf_files=vcf_files)], ignore_index=True)
+        vcf_files = glob_files(f"{args.dir}/{sample}.dragen.cnv.vcf.gz")
+        df_cnvs   = pd.concat([df_cnvs, count_cnv(sample, vcf_files=vcf_files)], ignore_index=True)
 
     df_metrics.drop_duplicates(inplace=True)
     df_coverages.drop_duplicates(inplace=True)
