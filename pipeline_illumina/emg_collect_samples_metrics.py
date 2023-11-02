@@ -262,17 +262,17 @@ def get_coverage_metrics(sample):
                                             'Mean/Median autosomal coverage ratio over genome'])
 
 
-def count_cnv(sample):
+def count_cnv(sample, vcf_files=[]):
     """
     Count number of CNVs, by counting line in the VCF file
-    - `sample`: identifier for sample, ex: "GM231297"
-    - Returns : A DataFrame
+    - `sample`   : Identifier for sample, ex: "GM231297" [str]
+    - `vcf_files`: List of VCF files [list]
+    - Returns    : A DataFrame
     """
-    cnvs = []
-    cnv_dirs = glob_files(f"{sample}.dragen.cnv.vcf.gz")
-    logging.debug(f"Files in 'cnv_dirs': {cnv_dirs}")
+    cnvs = [] # List for collecting rows in DataFrame
+    logging.debug(f"List of CNV logfiles to parse: {vcf_files}")
     count = 0
-    for vcf in cnv_dirs:
+    for vcf in vcf_files:
         path_parts = os.path.split(vcf)
         version    = os.path.basename(path_parts[0])
         with gzip.open(vcf, 'rb') as gzfh:
@@ -316,7 +316,7 @@ def main(args):
     else:
         try: 
             os.mkdir(logsdir)
-        except FileNotFoundError as e:
+        except FileNotFoundError as e:¶
             logging.error(f"{e}; logsdir={logsdir}")
     
     # Initialize empty Pandas DataFrames
@@ -333,10 +333,14 @@ def main(args):
         logging.info(f"Processing {sample}, {count}/{total}")
         logfiles = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
         logging.debug(f"S3 logfiles: {logfiles}")
+
         logfiles     = glob_files(f"{args.dir}/{sample}_v*_sample.log")
         df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample, logfiles=logfiles)], ignore_index=True)
+        
         df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
-        df_cnvs      = pd.concat([df_cnvs, count_cnv(sample)], ignore_index=True)
+        
+        vcf_files = glob_files(f"{args.dir}/{sample}.dragen.cnv.vcf.gz")
+        df_cnvs   = pd.concat([df_cnvs, count_cnv(sample, vcf_files=vcf_files)], ignore_index=True)
 
     df_metrics.drop_duplicates(inplace=True)
     df_coverages.drop_duplicates(inplace=True)
@@ -358,7 +362,7 @@ def main(args):
         'PCT coverage >20x',
         'Uniformity of coverage (PCT > 0.2*mean) over genome', 
         'Uniformity of coverage (PCT > 0.4*mean) over genome', 
-        'Percent Autosome Callability', 'Estimated sample contamination']]
+        'Percent Autosome Callability']]#, 'Estimated sample contamination']]
     df1 = df1.drop_duplicates()
 
     df1_csv = workdir + os.sep + 'archives_metrics.csv'
