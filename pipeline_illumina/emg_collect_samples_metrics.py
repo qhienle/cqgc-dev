@@ -127,7 +127,7 @@ def glob_files(pattern):
     return files
 
 
-def get_metrics_from_log(sample, logfiles=[]):
+def get_metrics_from_log(sample, log_files=[]):
     """
     Get metrics from log file. Metrics for "Percent of genome coverage over 20x" 
     and "Average coverage" are not consistently formatted. Get these infos from
@@ -141,8 +141,8 @@ def get_metrics_from_log(sample, logfiles=[]):
         - Percent Autosome Callability
     """
     metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    logging.debug(f"List of logfiles to parse: {logfiles}")
-    for log in logfiles:
+    logging.debug(f"List of logfiles to parse: {log_files}")
+    for log in log_files:
         logname = os.path.basename(log)
         with open(log, "r") as fh:
             lines = fh.readlines()
@@ -211,7 +211,7 @@ def get_metrics_from_log(sample, logfiles=[]):
                                             "Estimated sample contamination"])
 
 
-def get_coverage_metrics(sample):
+def get_coverage_metrics(sample, coverage_files=[]):
     """
     Get coverage metrics for `sample`.
     - `sample`: identifier for sample, ex: "GM231297"
@@ -221,10 +221,9 @@ def get_coverage_metrics(sample):
         - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
-    logfiles = glob_files(f"{args.dir}/{sample}/**/{sample}.dragen.bed_coverage_metrics.csv")
-    logging.debug(f"List of logfiles to parse: {logfiles}")
+    logging.debug(f"List of logfiles to parse: {coverage_files}")
 
-    for file in logfiles:
+    for file in coverage_files:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
         avg_coverage = ''
@@ -316,14 +315,14 @@ def main(args):
     else:
         try: 
             os.mkdir(logsdir)
-        except FileNotFoundError as e:¶
+        except FileNotFoundError as e:
             logging.error(f"{e}; logsdir={logsdir}")
     
     # Initialize empty Pandas DataFrames
     #
     df_metrics   = get_metrics_from_log(None)
-    df_coverages = get_coverage_metrics('')
-    df_cnvs      = count_cnv('')
+    df_coverages = get_coverage_metrics(None)
+    df_cnvs      = count_cnv(None)
     
     # Process list of samples contained in samples_list file.
     #
@@ -331,16 +330,17 @@ def main(args):
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
-        logfiles = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
-        logging.debug(f"S3 logfiles: {logfiles}")
+        logs = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
+        logging.debug(f"S3 logfiles: {logs}")
 
-        logfiles     = glob_files(f"{args.dir}/{sample}_v*_sample.log")
-        df_metrics   = pd.concat([df_metrics, get_metrics_from_log(sample, logfiles=logfiles)], ignore_index=True)
-        
-        df_coverages = pd.concat([df_coverages, get_coverage_metrics(sample)], ignore_index=True)
-        
-        vcf_files = glob_files(f"{args.dir}/{sample}.dragen.cnv.vcf.gz")
-        df_cnvs   = pd.concat([df_cnvs, count_cnv(sample, vcf_files=vcf_files)], ignore_index=True)
+        log_files     = glob_files(f"{args.dir}/{sample}_v*_sample.log")
+        df_metrics    = pd.concat([df_metrics, get_metrics_from_log(sample, log_files=log_files)], ignore_index=True)
+
+        coverage_files = glob_files(f"{args.dir}/{sample}.dragen.bed_coverage_metrics.csv")
+        df_coverages  = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_files=coverage_files)], ignore_index=True)
+
+        vcf_files     = glob_files(f"{args.dir}/{sample}.dragen.cnv.vcf.gz")
+        df_cnvs       = pd.concat([df_cnvs, count_cnv(sample, vcf_files=vcf_files)], ignore_index=True)
 
     df_metrics.drop_duplicates(inplace=True)
     df_coverages.drop_duplicates(inplace=True)
@@ -354,16 +354,19 @@ def main(args):
     df = df.merge(df_cnvs, on='Sample', how='outer')
     df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
 
-    df1 = df[['Log filename', 'Log coverage', 'Log NumOfCNVs', 
-        'Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
+    df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
         'Average coverage', 'Coverage uniformity',
         'CNV Number of amplifications', 'CNV Number of passing amplifications', 
         'CNV Number of deletions', 'CNV Number of passing deletions', 
         'PCT coverage >20x',
         'Uniformity of coverage (PCT > 0.2*mean) over genome', 
         'Uniformity of coverage (PCT > 0.4*mean) over genome', 
-        'Percent Autosome Callability']]#, 'Estimated sample contamination']]
-    df1 = df1.drop_duplicates()
+        'Mean/Median autosomal coverage ratio over genome',
+        'Number of unique & mapped reads',
+        'Number of unique & mapped reads PCT',
+        'Number of duplicate marked reads PCT', 
+        'Percent Autosome Callability']] #, 'Estimated sample contamination']]
+    df1.drop_duplicates(inplace=True)
 
     df1_csv = workdir + os.sep + 'archives_metrics.csv'
     df1.to_csv(df1_csv, index=None)
