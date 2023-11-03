@@ -7,7 +7,7 @@ USAGE: emg_get_samples_metrics.py SAMPLES
 
 Parse Emedgene's logs files to get analysis metrics for PRAGMatIQ samples 
 listed in file SAMPLES, a CSV file in which the names of samples are in the 1st
-column. Ex: `samples_list.txt` output from `emg_make_batch_from_nanuq.py`:
+column. Ex: `samples_list.csv` output from `emg_make_batch_from_nanuq.py`:
 
     sample_name,biosample,label,fc_date
     GM231651,22293,CHUSJ,2023-08-09
@@ -39,8 +39,8 @@ def parse_args():
     Parse command-line options
     """
     parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples")
-    parser.add_argument('-s', '--samples', default="samples_list.txt", 
-                        help="Filename to CSV list of samples. Default=`samples_list.txt` [str]")
+    parser.add_argument('-s', '--samples', default="samples_list.csv", 
+                        help="Filename to CSV list of samples. Default=`samples_list.csv` [str]")
     parser.add_argument('-d', '--directory', dest='dir', default="emg_logs", 
                         help="Directory containing EMG log files. Default='emg_logs' [str]")
     parser.add_argument('-l', '--logging-level', dest='level', default='info',
