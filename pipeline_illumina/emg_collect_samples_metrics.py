@@ -45,6 +45,8 @@ def parse_args():
                         help="Directory containing EMG log files. Default='emg_logs' [str]")
     parser.add_argument('-l', '--logging-level', dest='level', default='info',
                         help="Logging level, can be 'debug', 'info', 'warning'. Default='info' [str]")
+    parser.add_argument('-p', '--profile', default='emedgene',
+                        help="Emedgene profile, can be 'emedgene' or 'emedgene-eval'. Default='emedgene' [str]")
     return(parser.parse_args())
 
 
@@ -338,7 +340,7 @@ def main(args):
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
-        logs = download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs')
+        logs = download_emg_s3_logs(sample, profile=args.profile, logsdir='emg_logs')
         logging.debug(f"S3 logfiles: {logs}")
 
         log_files  = glob_files(f"{args.dir}/{sample}_v*_sample.log")
