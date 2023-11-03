@@ -82,13 +82,14 @@ def get_samples_list(file):
 def download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs'):
     """
     List files available on AWS bucket for Emedgene `profile` and download 
-    selected log files required to collect metrics for `sample`.
-    - sample:  Name of sample to retrives [str]
+    to logsdir three files for collecting dragen metrics of `sample`: 
+    '_sample.log', '.dragen.bed_coverage_metrics.csv' and '.dragen.cnv.vcf.gz'
+    - sample : Name of sample to retrive [str]
     - profile: AWS credentials, either `emedgene` or `emedgene-eval` [str]
-    - returns: Downloaded files under folder `./emg_logs/` [list]
+    - returns: Downloaded files under folder `logsdir` [list]
+        NOTE: As there may be more than one of each "metrics" and "vcf" files.
+        these are tagged with the version hash of the subdir on s3.
     """
-
-    # TODO: DO NOT CLOBBER EXISTING FILES, IN CASES WHERE MORE THAN ONE ANALYSIS EXISTS
 
     os.mkdir(logsdir) if not os.path.isdir(logsdir) else None
     site = 's3://cac1-prodca-emg-auto-results'
@@ -98,23 +99,27 @@ def download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs'):
     ls = subprocess.run(['aws', 's3', '--profile', profile, 'ls', '--recursive', url], capture_output=True, text=True)
     files = []
     for line in ls.stdout.splitlines():
-        file    = line.split()[-1].split('/')[-1]
-        s3_file = f"{site}/{line.split()[-1]}"
+        s3_file    = line.split()[-1]
+        s3_url     = f"{site}/{s3_file}"
+        path_parts = s3_file.split('/')
+        file       = path_parts[-1]
         if file.endswith("_sample.log"):
             if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
                 print(f"Log file {logsdir}{os.sep}{file} not found. Downloading from S3...")
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
-            files.append(file)
-        elif line.endswith(".dragen.bed_coverage_metrics.csv"):
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, logsdir], check=True)
+            files.append(f"{logsdir}{os.sep}{file}")
+        elif file.endswith(".dragen.bed_coverage_metrics.csv"):
             if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
                 print(f"Log file {logsdir}{os.sep}{file} not found. Downloading from S3...")
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
-            files.append(file)
-        elif line.endswith(".dragen.cnv.vcf.gz"):
+                output  = f"{logsdir}{os.sep}{sample}_{path_parts[4]}.dragen.bed_coverage_metrics.csv"
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, output], check=True)
+            files.append(output)
+        elif file.endswith(".dragen.cnv.vcf.gz"):
             if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
                 print(f"Log file {logsdir}{os.sep}{file} not found. Downloading from S3...")
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_file, logsdir], check=True)
-            files.append(file)
+                output  = f"{logsdir}{os.sep}{sample}_{path_parts[4]}.dragen.cnv.vcf.gz"
+                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, output], check=True)
+            files.append(output)
     return files
 
 
