@@ -219,7 +219,7 @@ def get_metrics_from_log(sample, log_files=[]):
                                             'Number of duplicate marked reads PCT', 
                                             "Percent Autosome Callability", 
                                             "Estimated sample contamination"])
-    df['NumOfCNVs'] = df["CNV Number of amplifications"] + df["CNV Number of deletions"]
+    df['NumOfCNVs'] = df["CNV Number of amplifications"].astype(int) + df["CNV Number of deletions"].astype(int)
     return df
 
 
@@ -317,7 +317,7 @@ def main(args):
     df_coverages.reset_index(inplace=True)
 
     df = df_metrics.merge(df_coverages, on='Sample', how='outer')
-    df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
+    df.drop(['index_x'], axis=1, inplace=True)
 
     df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
         'Average coverage', 'Coverage uniformity',
@@ -332,6 +332,7 @@ def main(args):
         'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability']] #, 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
+    print(df1[['NumOfCNVs', 'CNV Number of amplifications', 'CNV Number of deletions']])
 
     df1_csv = workdir + os.sep + 'archives_metrics.csv'
     df1.to_csv(df1_csv, index=None)
