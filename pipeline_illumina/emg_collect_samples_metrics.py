@@ -207,7 +207,7 @@ def get_metrics_from_log(sample, log_files=[]):
                         amplifications, pass_amplifications, deletions, pass_deletions, 
                         mapped_reads, mapped_reads_pct, duplicate_reads_pct,
                         callability, contamination])
-    return pd.DataFrame(metrics, columns = ["Sample", "Log filename", 
+    df = pd.DataFrame(metrics, columns = ["Sample", "Log filename", 
                                             "NumOfReads", "NumOfSNPs",
                                             "Coverage uniformity", 
                                             "CNV Number of amplifications", 
@@ -219,6 +219,8 @@ def get_metrics_from_log(sample, log_files=[]):
                                             'Number of duplicate marked reads PCT', 
                                             "Percent Autosome Callability", 
                                             "Estimated sample contamination"])
+    df['NumOfCNVs'] = df["CNV Number of amplifications"] + df["CNV Number of deletions"]
+    return df
 
 
 def get_coverage_metrics(sample, coverage_files=[]):
@@ -271,46 +273,6 @@ def get_coverage_metrics(sample, coverage_files=[]):
                                             'Mean/Median autosomal coverage ratio over genome'])
 
 
-def count_cnv(sample, vcf_files=[]):
-    """
-    Count number of CNVs, by counting line in the VCF file
-    - `sample`   : Identifier for sample, ex: "GM231297" [str]
-    - `vcf_files`: List of VCF files [list]
-    - Returns    : A DataFrame
-    """
-    cnvs = [] # List for collecting rows in DataFrame
-    logging.debug(f"List of CNV logfiles to parse: {vcf_files}")
-    count = 0
-    for vcf in vcf_files:
-        path_parts = os.path.split(vcf)
-        version    = os.path.basename(path_parts[0])
-        with gzip.open(vcf, 'rb') as gzfh:
-            gzlines = gzfh.readlines()
-        for line in gzlines:
-            if line.startswith(b'chr'):
-                count += 1
-        cnvs.append([sample, version, count])
-    return pd.DataFrame(cnvs, columns=['Sample', 'Log NumOfCNVs', 'NumOfCNVs'])
-
-
-def get_NumOfReads(sample):
-    """
-    Get Number of Reads for `sample`
-    - `sample`: identifier for sample, ex: "GM231297"
-    - Returns : A DataFrame. There may be multiple NumOfReads files.
-                [[Sample, Log, NumOfReads], [], ...]
-    """
-    files = glob_files(f"{sample}.txt")
-    NumOfReads = []
-    for file in files:
-        path_parts = os.path.split(file)
-        dir_parts  = os.path.split(path_parts[0])
-        log_NumOfReads = dir_parts[1]
-        with open(file, 'r') as fh:
-            NumOfReads.append([sample, log_NumOfReads, fh.readline().strip()])
-    return pd.DataFrame(NumOfReads, columns=['Sample', 'Log NumOfReads', 'NumOfReads'])
-
-
 def main(args):
     """
     From a list of samples, retrieve several metrics.
@@ -332,7 +294,6 @@ def main(args):
     #
     df_metrics   = get_metrics_from_log(None)
     df_coverages = get_coverage_metrics(None)
-    df_cnvs      = count_cnv(None)
     
     # Process list of samples contained in samples_list file.
     #
@@ -340,7 +301,7 @@ def main(args):
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
-        logs = download_emg_s3_logs(sample, profile=args.profile, logsdir='emg_logs')
+        logs = download_emg_s3_logs(sample, profile=args.profile, logsdir=logsdir)
         logging.debug(f"S3 logfiles: {logs}")
 
         log_files  = glob_files(f"{args.dir}/{sample}_v*_sample.log")
@@ -349,19 +310,13 @@ def main(args):
         coverage_files = glob_files(f"{args.dir}/{sample}*.dragen.bed_coverage_metrics.csv")
         df_coverages   = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_files=coverage_files)], ignore_index=True)
 
-        vcf_files = glob_files(f"{args.dir}/{sample}*.dragen.cnv.vcf.gz")
-        df_cnvs   = pd.concat([df_cnvs, count_cnv(sample, vcf_files=vcf_files)], ignore_index=True)
-
     df_metrics.drop_duplicates(inplace=True)
     df_coverages.drop_duplicates(inplace=True)
-    df_cnvs.drop_duplicates(inplace=True)
 
     df_metrics.reset_index(inplace=True)
     df_coverages.reset_index(inplace=True)
-    df_cnvs.reset_index(inplace=True)
 
     df = df_metrics.merge(df_coverages, on='Sample', how='outer')
-    df = df.merge(df_cnvs, on='Sample', how='outer')
     df.drop(['index','index_x', 'index_y'], axis=1, inplace=True)
 
     df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
