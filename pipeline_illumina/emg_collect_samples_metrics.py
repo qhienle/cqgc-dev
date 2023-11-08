@@ -27,7 +27,6 @@ import os
 import argparse
 import logging
 import subprocess
-import gzip
 import pandas as pd
 from glob import glob
 
