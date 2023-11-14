@@ -7,8 +7,8 @@
 #
 samples=$@
 total_samples=${#@}
-#samples=()
-#total_samples=${#samples[@]}
+samples=(GM232329 GM232309 GM232315 3083160307 3093273582 3093272994)
+total_samples=${#samples[@]}
 
 cd ${HOME}/projects/ctb-rallard/COMMUN/PRAGMatIQ-EMG
 cp archive_PRAGMatIQ.log archive_PRAGMatIQ.log0
@@ -20,5 +20,3 @@ for sample in ${samples[@]}; do
     echo ${sample} $( date +'%Y-%m-%d %T' ) >> archive_PRAGMatIQ.log
     ((count++))
 done
-
-samples=("23-09085-T1" "23-02343-T1" "23-02342-T1")
