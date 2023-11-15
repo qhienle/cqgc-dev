@@ -183,13 +183,13 @@ def get_metrics_from_log(sample, log_files=[]):
             elif 'Coverage uniformity' in line:
                 coverage_uniformity = line_parts[-1].replace("\\n'", "")
             elif 'Number of amplifications' in line and 'CNV SUMMARY' in line:
-                amplifications = line_parts[-1].replace("\\n'", "")
+                amplifications = int(line_parts[-1].replace("\\n'", ""))
             elif 'Number of passing amplifications' in line and 'CNV SUMMARY' in line:
-                pass_amplifications = line_parts[-2].replace("\\n'", "")
+                pass_amplifications = int(line_parts[-2].replace("\\n'", ""))
             elif 'Number of deletions' in line and 'CNV SUMMARY' in line:
-                deletions = line_parts[-1].replace("\\n'", "")
+                deletions = int(line_parts[-1].replace("\\n'", ""))
             elif 'Number of passing deletions' in line and 'CNV SUMMARY' in line:
-                pass_deletions = line_parts[-2].replace("\\n'", "")
+                pass_deletions = int(line_parts[-2].replace("\\n'", ""))
             elif 'SNPs' in line and line_parts[11] == "SNPs":
                 snps = line_parts[12].replace("\\n'", "")
             elif 'Percent Autosome Callability' in line:
@@ -202,12 +202,13 @@ def get_metrics_from_log(sample, log_files=[]):
             elif 'Estimated sample contamination' in line:
                 if line_parts[12] != 'standard':
                     contamination = line_parts[12].replace("\\n'", "")
-        metrics.append([sample, logname, reads, snps, coverage_uniformity, 
+        cnvs = amplifications + deletions
+        metrics.append([sample, logname, reads, snps, cnvs, coverage_uniformity, 
                         amplifications, pass_amplifications, deletions, pass_deletions, 
                         mapped_reads, mapped_reads_pct, duplicate_reads_pct,
                         callability, contamination])
     df = pd.DataFrame(metrics, columns = ["Sample", "Log filename", 
-                                            "NumOfReads", "NumOfSNPs",
+                                            "NumOfReads", "NumOfSNPs", "NumOfCNVs",
                                             "Coverage uniformity", 
                                             "CNV Number of amplifications", 
                                             "CNV Number of passing amplifications", 
@@ -218,7 +219,6 @@ def get_metrics_from_log(sample, log_files=[]):
                                             'Number of duplicate marked reads PCT', 
                                             "Percent Autosome Callability", 
                                             "Estimated sample contamination"])
-    df['NumOfCNVs'] = df["CNV Number of amplifications"].astype(int) + df["CNV Number of deletions"].astype(int)
     return df
 
 
