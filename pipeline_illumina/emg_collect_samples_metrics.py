@@ -9,7 +9,7 @@ Parse Emedgene's logs files to get analysis metrics for PRAGMatIQ samples
 listed in file SAMPLES, a CSV file in which the names of samples are in the 1st
 column. Ex: `samples_list.csv` output from `emg_make_batch_from_nanuq.py`:
 
-    sample_name,biosample,label,fc_date
+    Sample,CQGC_ID,Site,Date
     GM231651,22293,CHUSJ,2023-08-09
     23-05982-T1,22282,CHUS,2023-08-09
     3042652455,22256,CHUQ,2023-08-09
