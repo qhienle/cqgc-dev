@@ -38,6 +38,7 @@ def parse_args():
     Parse command-line options
     """
     parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples")
+    parser.add_argument('run', help="FC_SHORT Run ID, ex: 'A00516_339'")
     parser.add_argument('-s', '--samples', default="samples_list.csv", 
                         help="Filename to CSV list of samples. Default=`samples_list.csv` [str]")
     parser.add_argument('-d', '--directory', dest='dir', default="emg_logs", 
@@ -331,11 +332,19 @@ def main(args):
         'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability']] #, 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
-    print(df1[['NumOfCNVs', 'CNV Number of amplifications', 'CNV Number of deletions']])
 
-    df1_csv = workdir + os.sep + 'archives_metrics.csv'
-    df1.to_csv(df1_csv, index=None)
+    #df1_csv = workdir + os.sep + 'archives_metrics.csv'
+    #df1.to_csv(df1_csv, index=None)
     logging.info(f"Current Metrics DataFrame:\n{df1}")
+
+    # Combine dataframe with samples_list.csv and generate figures for the HTML report
+    #
+    df_samples = pd.read_csv('samples_list.csv', encoding="latin-1")
+    #df_samples['CQGC_ID'] = df_samples['CQGC_ID'].astype('str')
+    #df_samples['Sample']  = df_samples['Sample'].astype('str')
+    df = df1.merge(df_samples, how='inner')
+    df.to_csv(f'{args.run}_metrics.csv', index=None)
+
 
 
 def _test(args):
