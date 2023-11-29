@@ -116,12 +116,12 @@ def download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs'):
                 logging.info(f"Log file {output} not found. Downloading from S3...")
                 subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, output], check=True)
             files.append(output)
-        elif file.endswith(".dragen.cnv.vcf.gz"):
-            output = f"{logsdir}{os.sep}{sample}_{path_parts[4]}.dragen.cnv.vcf.gz"
-            if not os.path.isfile(output):
-                logging.info(f"Log file {output} not found. Downloading from S3...")
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, output], check=True)
-            files.append(output)
+        # elif file.endswith(".dragen.cnv.vcf.gz"):
+        #     output = f"{logsdir}{os.sep}{sample}_{path_parts[4]}.dragen.cnv.vcf.gz"
+        #     if not os.path.isfile(output):
+        #         logging.info(f"Log file {output} not found. Downloading from S3...")
+        #         subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, output], check=True)
+        #     files.append(output)
     return files
 
 
