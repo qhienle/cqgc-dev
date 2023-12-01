@@ -158,9 +158,11 @@ done
 - [Phenotips API](https://docs.phenotips.com/reference/accessandauthentication)
 - [Human Phenotype Ontology (HPOs)](https://hpo.jax.org/app/)
 - [Batch case upload instructions by Emedgene](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload)
-- "Case_creation_script_v2.docx"
-- `create_batch_cases_v2.py --help`
-- "create_batch_cases_v2_template.csv"
+- [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements)
+- Old/Alternative method, using scripts:
+    - "Case_creation_script_v2.docx"
+    - `create_batch_cases_v2.py --help`
+    - "create_batch_cases_v2_template.csv"
 
 ## Annexe
 
