@@ -136,7 +136,8 @@ def add_hpos(ep, mrn):
 def df_to_manifest(df):
     """
     Generate a manifest file for batch upload to Emedgene from data in df.
-    See "Case_creation-script_v2.docx" for manifest specifications.
+    See "https://help.emedgene.com/en/articles/7231644-csv-format-requirements"
+    for manifest specifications.
     - `df`: A Pandas DataFrame
     - Returns: File 'emg_batch_manifest.csv' in current folder
     """
@@ -165,8 +166,33 @@ def df_to_manifest(df):
         }
     )
     df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['label']
+    df_manifest = pd.DataFrame(
+        {
+            'Family Id': df['case_group_number'],
+            'case_type': 'Whole Genome',
+            'filenames': df['filenames'],
+            'bam_file': '', 
+            'execute_now':  'False',
+            'sample_name': df['sample_name'],
+            'relation': df['relation'],
+            'gender': df['gender'],
+            'phenotypes': df['phenotypes'],
+            'hpos': df['hpos'],
+            'boost_genes': '',
+            'gene_list_id': '',
+            'kit_id': '',
+            'selected_preset': '',
+            'due_date(YYYY-MM-DD)': '',
+            'label': df['label'],
+            'bigwig': '',
+            'clinical_notes': df['pid'],
+            'Default Project': '',
+            'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)'],
+        }
+    )
 
     with open('emg_batch_manifest.csv', 'w') as fh:
+        fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
         fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
     
     
