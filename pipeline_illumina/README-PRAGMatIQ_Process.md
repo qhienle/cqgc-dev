@@ -123,6 +123,8 @@ Créer les cas avec la commande `python create_batch_cases_v2.py -i emg_batch_ma
 
 Puis se connecter _via_ l'interface web à Emedgene pour lancer les analyses.
 
+Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload).
+
 
 ### 4. (**TODO**) Ajouter les participants
 
@@ -155,6 +157,7 @@ done
 - [Phenotips](https://chusj-phenotips.us.auth0.com/)
 - [Phenotips API](https://docs.phenotips.com/reference/accessandauthentication)
 - [Human Phenotype Ontology (HPOs)](https://hpo.jax.org/app/)
+- [Batch case upload instructions by Emedgene](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload)
 - "Case_creation_script_v2.docx"
 - `create_batch_cases_v2.py --help`
 - "create_batch_cases_v2_template.csv"
