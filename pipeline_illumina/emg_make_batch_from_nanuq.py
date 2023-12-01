@@ -165,15 +165,17 @@ def df_to_manifest(df):
             'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)'],
         }
     )
-    df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['label']
     df_manifest = pd.DataFrame(
         {
-            'Family Id': df['case_group_number'],
-            'case_type': 'Whole Genome',
-            'filenames': df['filenames'],
-            'bam_file': '', 
+            'Family Id': df['Family Id'],
+            'Case Type': 'Whole Genome',
+            'Files Names': df['filenames'],
+            'Sample Type': 'FASTQ',
+            'BioSample Name': df['sample_name'],
+            'Visualization Files': '',
+            'Storage Provider Id': 10123,
+            'Default Project': '',
             'execute_now':  'False',
-            'sample_name': df['sample_name'],
             'relation': df['relation'],
             'gender': df['gender'],
             'phenotypes': df['phenotypes'],
@@ -190,6 +192,11 @@ def df_to_manifest(df):
             'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)'],
         }
     )
+    # With the "Files Names"="auto" option, BSSH users can automatically locate
+    # FASTQ files based on the BioSample Name and Default Project provided.
+    # Unfortunately, this would mean that cases woul bear the lab's CQGC_ID.
+    #
+    df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['label']
 
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
@@ -204,8 +211,8 @@ def print_case_by_case(df):
     pd.set_option('display.max_columns', 12)
     pd.set_option('display.max_colwidth', None)
 
-    for case in df['case_group_number'].unique():
-        df_tmp = df[df['case_group_number'] == case]
+    for case in df['Family Id'].unique():
+        df_tmp = df[df['Family Id'] == case]
         pid    = df_tmp['pid'].tolist()[0]
         cohort = df_tmp['cohort_type'].tolist()[0]
         site   = df_tmp['label'].tolist()[0]
@@ -331,18 +338,18 @@ def main(args):
     
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.
-    # pid => case_group_number, hpo_labels => phenotypes, hpo_ids => hpos
+    # pid => Family Id, hpo_labels => phenotypes, hpo_ids => hpos
     # Group by family and sort by relation.
-    # Add case_group_number (PID) to all family members based on familyID.
+    # Add Family Id (PID) to all family members based on familyID.
     #
     df = pd.DataFrame(cases)
     df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
                   'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
-                  'case_group_number', 'pid', 'phenotypes', 'hpos', 'filenames']
+                  'Family Id', 'pid', 'phenotypes', 'hpos', 'filenames']
     df['fc_date'] = fc_date
     logging.info(f"Add column for flowcell date {fc_date}")
-    df = df.sort_values(by=['case_group_number', 'relation'], ascending=[True, False])
-    #logging.info("Sorted families. Setting PID as case_group_number")
+    df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
+    #logging.info("Sorted families. Setting PID as Family Id")
     
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
