@@ -167,6 +167,19 @@ def df_to_manifest_for_batch_script(df):
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
         fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
+
+    # Upload manifest to create cases on EMG
+    #
+    logging.info("Please run the command below, replacing '-u USER' and '-p PASS' with Emedgene credentials:")
+    logging.info('python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p PASS -b\n')
+    # subprocess.run(['python', '/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py', 
+    #                 '-i', 'emg_batch_manifest.csv', 
+    #                 '-s', '10123', 
+    #                 '-hu', 'stejustine.emedgene.com', 
+    #                 '-u', 'cqgc.bioinfo.hsj@ssss.gouv.qc.ca', 
+    #                 '-p', 'PASS', 
+    #                 '-b'])
+
     
     
 def df_to_manifest(df):
@@ -210,7 +223,7 @@ def df_to_manifest(df):
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
         fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
-    
+
     
 def print_case_by_case(df):
     """
@@ -261,7 +274,7 @@ def main(args):
         3.1 Sort, group and print each trio to STDOUT for case creation.
         3.2 Use case PID instead of surname to connect family members.
     4. Convert DataFrame into a CSV file (manifest) for EMG batch upload.
-    5. TODO: Batch upload to Emedgene using their script
+    5. TODO: Batch upload to Emedgene either using their script, or the UI;
     6. TODO: Add participants to cases
     7. TODO: Archive samples for this run
     """
@@ -367,21 +380,10 @@ def main(args):
     df1 = df.drop(['phenotypes', 'filenames'], axis=1)
     print_case_by_case(df1)
 
-    # 4. Output manifest for batch upload, see "Case_creation-script_v2.docx"
+    # 4. Output manifest for batch upload, by script or through the UI
     #
     df_to_manifest(df)
-
-    # 5. Batch upload to Emedgene using their script
-    #
-    logging.info("Please run the command below, replacing '-u USER' and '-p PASS' with Emedgene credentials:")
-    print('python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p PASS -b\n')
-    # subprocess.run(['python', '/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py', 
-    #                 '-i', 'emg_batch_manifest.csv', 
-    #                 '-s', '10123', 
-    #                 '-hu', 'stejustine.emedgene.com', 
-    #                 '-u', 'cqgc.bioinfo.hsj@ssss.gouv.qc.ca', 
-    #                 '-p', 'PASS', 
-    #                 '-b'])
+    logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
 
     # TODO: 6. Add participants to cases
     #
