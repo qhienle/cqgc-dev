@@ -133,65 +133,74 @@ def add_hpos(ep, mrn):
     return(pid, labels_str, ids_str)
 
 
-def df_to_manifest(df):
+def df_to_manifest_for_batch_script(df):
     """
-    Generate a manifest file for batch upload to Emedgene from data in df.
-    See "https://help.emedgene.com/en/articles/7231644-csv-format-requirements"
-    for manifest specifications.
+    From data in df, generate a manifest file for batch upload to Emedgene
+    using the emg script `create_batch_cases_v2.py`.
     - `df`: A Pandas DataFrame
     - Returns: File 'emg_batch_manifest.csv' in current folder
     """
-    df_manifest = pd.DataFrame(
-        {
-            'case_group_number': df['case_group_number'],
-            'case_type': 'Whole Genome',
-            'filenames': df['filenames'],
-            'bam_file': '', 
-            'execute_now':  'False',
-            'sample_name': df['sample_name'],
-            'relation': df['relation'],
-            'gender': df['gender'],
-            'phenotypes': df['phenotypes'],
-            'hpos': df['hpos'],
-            'boost_genes': '',
-            'gene_list_id': '',
-            'kit_id': '',
-            'selected_preset': '',
-            'due_date(YYYY-MM-DD)': '',
-            'label': df['label'],
-            'bigwig': '',
-            'clinical_notes': df['pid'],
-            'Default Project': '',
-            'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)'],
-        }
-    )
-    df_manifest = pd.DataFrame(
-        {
-            'Family Id': df['Family Id'],
-            'Case Type': 'Whole Genome',
-            'Files Names': df['filenames'],
-            'Sample Type': 'FASTQ',
-            'BioSample Name': df['sample_name'],
-            'Visualization Files': '',
-            'Storage Provider Id': 10123,
-            'Default Project': '',
-            'execute_now':  'False',
-            'relation': df['relation'],
-            'gender': df['gender'],
-            'phenotypes': df['phenotypes'],
-            'hpos': df['hpos'],
-            'boost_genes': '',
-            'gene_list_id': '',
-            'kit_id': '',
-            'selected_preset': '',
-            'due_date(YYYY-MM-DD)': '',
-            'label': df['label'],
-            'bigwig': '',
-            'clinical_notes': df['pid'],
-            'Default Project': '',
-            'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)'],
-        }
-    )
+    df_manifest = pd.DataFrame({
+        'case_group_number': df['case_group_number'],
+        'case_type': 'Whole Genome',
+        'filenames': df['filenames'],
+        'bam_file': '', 
+        'execute_now':  'False',
+        'sample_name': df['sample_name'],
+        'relation': df['relation'],
+        'gender': df['gender'],
+        'phenotypes': df['phenotypes'],
+        'hpos': df['hpos'],
+        'boost_genes': '',
+        'gene_list_id': '',
+        'kit_id': '',
+        'selected_preset': '',
+        'due_date(YYYY-MM-DD)': '',
+        'label': df['label'],
+        'bigwig': '',
+        'clinical_notes': df['pid'],
+        'Default Project': '',
+        'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)']
+    })
+    df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['label']
+
+    with open('emg_batch_manifest.csv', 'w') as fh:
+        fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
+        fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
+    
+    
+def df_to_manifest(df):
+    """
+    From data in df, generate a manifest file for batch upload to Emedgene 
+    using the UI. For specifications of the manifest, see:
+    "https://help.emedgene.com/en/articles/7231644-csv-format-requirements"
+    - `df`: A Pandas DataFrame
+    - Returns: File 'emg_batch_manifest.csv' in current folder
+    """
+    df_manifest = pd.DataFrame({
+        'Family Id': df['Family Id'],
+        'Case Type': 'Whole Genome',
+        'Files Names': df['filenames'],
+        'Sample Type': 'FASTQ',
+        'BioSample Name': df['sample_name'],
+        'Visualization Files': '',
+        'Storage Provider Id': 10123,
+        'Default Project': '',
+        'Execute_now':  'False',
+        'Relation': df['relation'],
+        'Gender': df['gender'],
+        'Phenotypes': df['phenotypes'],
+        'Phenotypes Id': df['hpos'],
+        'Date Of Birth': df['date_of_birth(YYYY-MM-DD)'],
+        'Boost Genes': '',
+        'Gene List Id': '',
+        'Kit Id': '',
+        'Selected Preset': '',
+        'Label Id': df['label'],
+        'Clinical Notes': df['pid'],
+        'Due Date': '',
+        'Opt In': ''
+    })
     # With the "Files Names"="auto" option, BSSH users can automatically locate
     # FASTQ files based on the BioSample Name and Default Project provided.
     # Unfortunately, this would mean that cases woul bear the lab's CQGC_ID.
