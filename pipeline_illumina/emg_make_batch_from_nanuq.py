@@ -205,7 +205,7 @@ def df_to_manifest(df):
     # FASTQ files based on the BioSample Name and Default Project provided.
     # Unfortunately, this would mean that cases woul bear the lab's CQGC_ID.
     #
-    df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['label']
+    df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['Label Id']
 
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
