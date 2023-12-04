@@ -219,6 +219,10 @@ def df_to_manifest(df):
     # Unfortunately, this would mean that cases woul bear the lab's CQGC_ID.
     #
     df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['Label Id']
+    df_manifest['Relation'].replace('PROBAND', 'proband', inplace=True)
+    df_manifest['Relation'].replace('MTH', 'mother', inplace=True)
+    df_manifest['Relation'].replace('FTH', 'father', inplace=True)
+    df_manifest['Relation'].replace('SIB', 'sibling', inplace=True) # TODO: Verify 'SIB'
 
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
