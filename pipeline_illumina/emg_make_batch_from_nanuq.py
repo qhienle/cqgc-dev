@@ -273,10 +273,10 @@ def main(args):
     3. Combine individual data into a Pandas data frame
         3.1 Sort, group and print each trio to STDOUT for case creation.
         3.2 Use case PID instead of surname to connect family members.
-    4. Convert DataFrame into a CSV file (manifest) for EMG batch upload.
-    5. TODO: Batch upload to Emedgene either using their script, or the UI;
-    6. TODO: Add participants to cases
-    7. TODO: Archive samples for this run
+    4. Convert DataFrame into a CSV file (manifest) for EMG batch upload either
+       using their script, or the UI;
+    5. TODO: Add participants to cases
+    6. TODO: Archive samples for this run
     """
 
     print(f"# Logging run {args.run}")
@@ -385,10 +385,10 @@ def main(args):
     df_to_manifest(df)
     logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
 
-    # TODO: 6. Add participants to cases
+    # TODO: 5. Add participants to cases
     #
     
-    # TODO: 7. Archive samples from cases finalized on Emedgene
+    # TODO: 6. Archive samples from cases finalized on Emedgene
     #
     logging.info(f"List of samples to archive:\n{list_samples_to_archive(df1)}")
 
