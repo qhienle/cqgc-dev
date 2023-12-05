@@ -223,6 +223,9 @@ def df_to_manifest(df):
     df_manifest['Relation'].replace('MTH', 'mother', inplace=True)
     df_manifest['Relation'].replace('FTH', 'father', inplace=True)
     df_manifest['Relation'].replace('SIB', 'sibling', inplace=True) # TODO: Verify 'SIB'
+    df_manifest['Gender'].replace('FEMALE', 'F', inplace=True)
+    df_manifest['Gender'].replace('MALE', 'M', inplace=True)
+    df_manifest['Gender'].replace('', 'U', inplace=True)
 
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
