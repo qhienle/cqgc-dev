@@ -225,7 +225,7 @@ def df_to_manifest(df):
     df_manifest['Relation'].replace('SIB', 'sibling', inplace=True) # TODO: Verify 'SIB'
 
     with open('emg_batch_manifest.csv', 'w') as fh:
-        fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
+        fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
         fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
 
     
