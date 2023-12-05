@@ -218,8 +218,8 @@ def df_to_manifest(df):
     # FASTQ files based on the BioSample Name and Default Project provided.
     # Unfortunately, this would mean that cases woul bear the lab's CQGC_ID.
     #
-    #df_manifest.loc[df_manifest['Phenotypes'] == 'proband', 'Phenotypes'] = df['phenotypes']
-    df_manifest.loc[df_manifest['Phenotypes'] == 'proband', 'Phenotypes'] = ''
+    #df_manifest.loc[df_manifest['Relation'] == 'PROBAND', 'Phenotypes'] = df['phenotypes']
+    df_manifest.loc[df_manifest['Relation'] == 'PROBAND', 'Phenotypes'] = ''
     df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['Label Id']
 
     df_manifest['Relation'].replace('PROBAND', 'proband', inplace=True)
