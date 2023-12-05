@@ -202,7 +202,7 @@ def df_to_manifest(df):
         'Execute_now':  'False',
         'Relation': df['relation'],
         'Gender': df['gender'],
-        'Phenotypes': df['phenotypes'],
+        'Phenotypes': 'Healthy',
         'Phenotypes Id': df['hpos'],
         'Date Of Birth': pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y'),
         'Boost Genes': '',
@@ -218,7 +218,10 @@ def df_to_manifest(df):
     # FASTQ files based on the BioSample Name and Default Project provided.
     # Unfortunately, this would mean that cases woul bear the lab's CQGC_ID.
     #
+    #df_manifest.loc[df_manifest['Phenotypes'] == 'proband', 'Phenotypes'] = df['phenotypes']
+    df_manifest.loc[df_manifest['Phenotypes'] == 'proband', 'Phenotypes'] = ''
     df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['Label Id']
+
     df_manifest['Relation'].replace('PROBAND', 'proband', inplace=True)
     df_manifest['Relation'].replace('MTH', 'mother', inplace=True)
     df_manifest['Relation'].replace('FTH', 'father', inplace=True)
@@ -227,8 +230,6 @@ def df_to_manifest(df):
     df_manifest['Gender'].replace('FEMALE', 'F', inplace=True)
     df_manifest['Gender'].replace('MALE', 'M', inplace=True)
     df_manifest['Gender'].replace('', 'U', inplace=True)
-
-    df_manifest['Phenotypes'].replace('', 'Healthy', inplace=True)
 
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
