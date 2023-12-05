@@ -228,6 +228,8 @@ def df_to_manifest(df):
     df_manifest['Gender'].replace('MALE', 'M', inplace=True)
     df_manifest['Gender'].replace('', 'U', inplace=True)
 
+    df_manifest['Phenotypes'].replace('', 'Healthy', inplace=True)
+
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
         fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
