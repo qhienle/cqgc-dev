@@ -190,6 +190,9 @@ def df_to_manifest(df):
     - `df`: A Pandas DataFrame
     - Returns: File 'emg_batch_manifest.csv' in current folder
     """
+    # Correspondance table used to convert Labels to Label ID
+    #
+    label2ID = {'CHUS': 12, 'CHUSJ': 13, 'CHUQ': 14, 'MUHC': 15}
     df_manifest = pd.DataFrame({
         'Family Id': df['Family Id'],
         'Case Type': 'Whole Genome',
