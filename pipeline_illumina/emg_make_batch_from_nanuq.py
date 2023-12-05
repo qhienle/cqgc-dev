@@ -119,8 +119,8 @@ def add_hpos(ep, mrn):
         ids_str    = warn_msg
         labels_str = warn_msg
     else:
-        ids_str = ','.join(hpo_ids)
-        labels_str = ','.join(hpo_labels)
+        ids_str = ';'.join(hpo_ids)
+        labels_str = ';'.join(hpo_labels)
 
     # sample_infos.append(pid)
     # sample_infos.append(labels_str)
