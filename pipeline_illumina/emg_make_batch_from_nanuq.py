@@ -204,7 +204,7 @@ def df_to_manifest(df):
         'Gender': df['gender'],
         'Phenotypes': df['phenotypes'],
         'Phenotypes Id': df['hpos'],
-        'Date Of Birth': df['date_of_birth(YYYY-MM-DD)'],
+        'Date Of Birth': pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y'),
         'Boost Genes': '',
         'Gene List Id': '',
         'Kit Id': '',
@@ -223,6 +223,7 @@ def df_to_manifest(df):
     df_manifest['Relation'].replace('MTH', 'mother', inplace=True)
     df_manifest['Relation'].replace('FTH', 'father', inplace=True)
     df_manifest['Relation'].replace('SIB', 'sibling', inplace=True) # TODO: Verify 'SIB'
+
     df_manifest['Gender'].replace('FEMALE', 'F', inplace=True)
     df_manifest['Gender'].replace('MALE', 'M', inplace=True)
     df_manifest['Gender'].replace('', 'U', inplace=True)
