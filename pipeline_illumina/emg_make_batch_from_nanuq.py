@@ -39,6 +39,7 @@ __version__ = "0.2"
 def parse_args():
     parser = argparse.ArgumentParser(description="Get Case information from Nanuq for a given Run.")
     parser.add_argument('run', help="FC_SHORT Run ID, ex: 'A00516_339'")
+    parser.add_argument('--site', '-s', default='prod', help="Emedgene sites: 'prod' or 'eval' [default='prod']")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
