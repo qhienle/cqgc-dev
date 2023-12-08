@@ -242,7 +242,7 @@ def df_to_manifest(df):
         label2ID = {'CHUS': 14, 'CHUSJ': 15, 'CHUQ': 16, 'CUSM': 17}
     else:
         logging.error(f"Option `--site|-s` ( '{args.site}') is not one of 'prod' or 'eval'")
-    df_manifest['Label Id'].apply(lambda x: label2ID[x])
+    df_manifest['Label Id'] = df_manifest['Label Id'].apply(lambda x: label2ID[x])
 
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
