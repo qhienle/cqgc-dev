@@ -230,7 +230,7 @@ def df_to_manifest(df):
 
     df_manifest['Gender'].replace('FEMALE', 'F', inplace=True)
     df_manifest['Gender'].replace('MALE', 'M', inplace=True)
-    df_manifest['Gender'].replace('', 'U', inplace=True)
+    df_manifest['Gender'].replace('', 'U', inplace=True) 
 
     # Replace labels with corresponding IDs, which are platform-dependent
     # Use a correspondance table used to convert Labels to Label ID 
