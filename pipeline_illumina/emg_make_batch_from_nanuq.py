@@ -191,9 +191,6 @@ def df_to_manifest(df):
     - `df`: A Pandas DataFrame
     - Returns: File 'emg_batch_manifest.csv' in current folder
     """
-    # Correspondance table used to convert Labels to Label ID
-    #
-    label2ID = {'CHUS': 12, 'CHUSJ': 13, 'CHUQ': 14, 'MUHC': 15}
     df_manifest = pd.DataFrame({
         'Family Id': df['Family Id'],
         'Case Type': 'Whole Genome',
@@ -234,6 +231,18 @@ def df_to_manifest(df):
     df_manifest['Gender'].replace('FEMALE', 'F', inplace=True)
     df_manifest['Gender'].replace('MALE', 'M', inplace=True)
     df_manifest['Gender'].replace('', 'U', inplace=True)
+
+    # Replace labels with corresponding IDs, which are platform-dependent
+    # Use a correspondance table used to convert Labels to Label ID 
+    # TODO: Use API to get list of codes instead of hard-coding the data
+    #
+    if args.site == 'prod':
+        label2ID = {'CHUS': 12, 'CHUSJ': 13, 'CHUQ': 14, 'CUSM': 15}
+    elif args.site == 'eval':
+        label2ID = {'CHUS': 14, 'CHUSJ': 15, 'CHUQ': 16, 'CUSM': 17}
+    else:
+        logging.error(f"Option `--site|-s` ( '{args.site}') is not one of 'prod' or 'eval'")
+    df_manifest['Label Id'].apply(lambda x: label2ID[x])
 
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
@@ -386,7 +395,7 @@ def main(args):
     df['fc_date'] = fc_date
     logging.info(f"Add column for flowcell date {fc_date}")
     df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
-    #logging.info("Sorted families. Setting PID as Family Id")
+    df.to_csv("df.csv", index=None)
     
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
