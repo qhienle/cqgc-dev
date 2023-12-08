@@ -395,7 +395,6 @@ def main(args):
     df['fc_date'] = fc_date
     logging.info(f"Add column for flowcell date {fc_date}")
     df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
-    df.to_csv("df.csv", index=None)
     
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
