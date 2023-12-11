@@ -142,7 +142,7 @@ class Nanuq:
         - run: RunID (ex: "200302_A00516_0106_BHNKHFDMXX" or "A00516_0106")
         - Returns: valid short format for RunID (ex: "A00516_0106")
         """
-        sequencers = ['A00516', 'A00977', 'NB551410']
+        sequencers = ['LH00336', 'A00516', 'A00977', 'NB551410']
         fc_parts = run.split('_')
         if len(fc_parts) == 4 and fc_parts[0] == 'Seq':
             # Format "Seq_S2_PRAG_20230811"
