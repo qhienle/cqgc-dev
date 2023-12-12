@@ -2,8 +2,13 @@
 """
 Get Case information from Nanuq with Phenotips (PID) for a given _Run_.
 
-USAGE: get_nanuq_files.py A00516_420
-       get_nanuq_files.py --help
+USAGE: emg_make_batch_from_nanuq.py A00516_420
+       emg_make_batch_from_nanuq.py A00516_420 --file SampleNames.txt
+       emg_make_batch_from_nanuq.py --help
+
+List of samples can be provided using --file, instead of fetching from Nanuq.
+This file can either be the "SampleNames.txt" downloaded from Nanuq, or a one-
+column listing of CQGC IDs.
 
 Nanuq username and password have be saved in a file named '~/.nanuq', like so:
 `echo "j_username=USERNAME&j_password=PASSWORD&toto=1" > ~/.nanuq`
@@ -40,6 +45,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Get Case information from Nanuq for a given Run.")
     parser.add_argument('run', help="FC_SHORT Run ID, ex: 'A00516_339'")
     parser.add_argument('--site', '-s', default='prod', help="Emedgene sites: 'prod' or 'eval' [default='prod']")
+    parser.add_argument('--file', '-f', help="Get samples from --file instead of Nanuq `Run`")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
@@ -59,6 +65,23 @@ def configure_logging(level):
     logging.basicConfig(level=level_name, 
                         format='[%(asctime)s] %(levelname)s: %(message)s', 
                         datefmt='%Y-%m-%d@%H:%M:%S')
+
+
+def list_samples(file=None):
+    """
+    Return a list of CQGC ID for samples from `file`.
+    - file (str): Nanuq's "SampleNames.txt" or a one-column list of CQGC IDs.
+    """
+    if file is None:
+        pass # Get list of files directly from Nnauq
+    else:
+        try:
+            with open(file, 'r') as fh:
+                lines = fh.readlines()
+        except FileNotFoundError as err:
+            logging.error(err)
+        else:
+            lines
 
 
 def format_mrn_eid(ep, mrn):
@@ -316,14 +339,16 @@ def main(args):
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
-    samplenames = nq.get_samplenames(args.run)
-    if not samplenames.text.startswith("##20"):
-        sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
+    if args.file:
+        logging.info(f"Using list of samples from file {args.file} instead of Nanuq")
     else:
-        logging.info("Retrieved samples conversion table from Nanuq")
-
-    fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
-    logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
+        samplenames = nq.get_samplenames(args.run)
+        if not samplenames.text.startswith("##20"):
+            sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
+        else:
+            logging.info("Retrieved samples conversion table from Nanuq")
+            fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
+            logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
 
     
     # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
