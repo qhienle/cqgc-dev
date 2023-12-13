@@ -452,13 +452,7 @@ def main(args):
 
 
 def tests():
-    print("Running in test mode")
-
-    # 1. Get a list of samples on this run to construct the cases.
-    # TODO: Add experiment name as an alternative identifier for Nanuq API?
-    #
-    samplenames = nq.get_samplenames(args.run)
-    return(samplenames)
+    return(1)
 
 if __name__ == '__main__':
     args = parse_args()
