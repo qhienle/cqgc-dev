@@ -69,19 +69,29 @@ def configure_logging(level):
 
 def list_samples(file=None):
     """
-    Return a list of CQGC ID for samples from `file`.
+    Return a list of CQGC ID for samples from `file`. If file is None, get list
+    from Nanuq directly.
     - file (str): Nanuq's "SampleNames.txt" or a one-column list of CQGC IDs.
     """
+    samples = []
     if file is None:
-        pass # Get list of files directly from Nnauq
-    else:
-        try:
-            with open(file, 'r') as fh:
-                lines = fh.readlines()
-        except FileNotFoundError as err:
-            logging.error(err)
+        samplenames = nq.get_samplenames(args.run)
+        if not samplenames.text.startswith("##20"):
+            sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
         else:
-            lines
+            logging.info("Retrieved samples conversion table from Nanuq")
+            fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
+            logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
+            lines = samplenames.text.splitlines()
+    else:
+        logging.info(f"Using list of samples from file {args.file} instead of Nanuq")
+        with open(file, 'r') as fh:
+            lines = fh.readlines()
+
+    for line in lines:
+        if not line.startswith('#'):
+            samples.append(line)
+    return(samples)
 
 
 def format_mrn_eid(ep, mrn):
@@ -340,7 +350,7 @@ def main(args):
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
     if args.file:
-        logging.info(f"Using list of samples from file {args.file} instead of Nanuq")
+        samples = list_samples(args.file)
     else:
         samplenames = nq.get_samplenames(args.run)
         if not samplenames.text.startswith("##20"):
