@@ -231,7 +231,7 @@ def df_to_manifest(df):
         'Sample Type': 'FASTQ',
         'BioSample Name': df['sample_name'],
         'Visualization Files': '',
-        'Storage Provider Id': 10123,
+        'Storage Provider Id': 10126, # =prod. 10123=eval
         'Default Project': '',
         'Execute_now':  'False',
         'Relation': df['relation'],
