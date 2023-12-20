@@ -28,6 +28,8 @@ import argparse
 import logging
 import subprocess
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 from glob import glob
 
 __version__ = 0.1
@@ -273,6 +275,99 @@ def get_coverage_metrics(sample, coverage_files=[]):
                                             'Mean/Median autosomal coverage ratio over genome'])
 
 
+def write_html_report(df, fc_short):
+    """
+    Write HTML report from data in `df`.
+    - `df`: Pandas DataFrame.
+    - Returns: HTML file.
+    """
+    fig1 = go.Figure(
+        data = [
+            go.Bar(name='NumOfCNVs',  x=df['Sample'], y=df['NumOfCNVs'], yaxis='y', offsetgroup=1),
+            go.Bar(name='NumOfSNPs',  x=df['Sample'], y=df['NumOfSNPs'], yaxis='y2', offsetgroup=2),
+            go.Bar(name='NumOfReads', x=df['Sample'], y=df['NumOfReads'], yaxis='y3', offsetgroup=3)
+        ],
+        layout={
+            'yaxis': {'title': 'NumOfCNVs'},
+            'yaxis2': {'title': 'NumOfSNPs',  'overlaying': 'y', 'side': 'right'},
+            'yaxis3': {'title': 'NumOfReads', 'overlaying': 'y', 'side': 'left'}
+        }
+    )
+    fig1.update_layout(barmode='group')
+
+    fig2 = px.violin(df, y="Coverage uniformity", x="Site",
+                     title="Coverage uniformity of CNVs per site",
+                     color="Site", box=True, points="all", hover_data=df.columns)
+
+    fig3 = px.scatter(df, x="Coverage uniformity", y="NumOfCNVs", 
+                      title="Number of CNVs vs Coverage uniformity",
+                      hover_data=['Sample', 'Coverage uniformity', 'Site'], color='Site')
+    fig3.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
+
+    fig4 = px.scatter(df, x="Uniformity of coverage (PCT > 0.4*mean) over genome", y="NumOfSNPs", 
+                      title="Number of SNPs and Uniformity of coverage",
+                      hover_data=['Sample', 'PCT coverage >20x', 'Uniformity of coverage (PCT > 0.4*mean) over genome', 'Site'], 
+                      color='Site')
+    fig4.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
+
+    fig5 = px.scatter(df, x="Average coverage", y="Coverage uniformity", 
+                      title="Coverage uniformity vs Average coverage",
+                      hover_data=['Sample', 'Coverage uniformity', 'Average coverage','Site'], 
+                      color='Site')             
+    fig5.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
+
+    css = """
+            html body {
+                background: #f8f9f9;
+                font-size: 11px;
+            }
+            table { 
+                background: white;
+                width: 100%;
+                max-width: 800px;
+                margin: 50px auto;
+                border-collapse: collapse; 
+                border-spacing: 1; 
+                border-radius: 6px;
+                overflow: hidden;
+                position: relative;
+                font-family: Arial;
+                font-size: 11px;
+            }
+            /* Zebra striping */
+            tr:nth-of-type(odd) { 
+                background: #eee; 
+            }
+            th { 
+                background: #3498db; 
+                color: white; 
+                font-weight: bold; 
+            }
+            td, th { 
+                padding: 10px; 
+                border: 1px solid #ccc; 
+                text-align: left; 
+                font-size: 18px;
+            }
+    """
+    out_html = f"{fc_short}_metrics.html"
+    title    = f"{fc_short} Samples Metrics"
+
+    with open(out_html, 'w') as fh:
+        fh.write('<!doctype html>\n<html>\n\t<head>\n')
+        fh.write(f'\t\t<title>{title}</title>\n\t\t<meta charset="UTF-8">\n')
+        fh.write(f'\t\t<style type="text/css">{css}\t\t</style>\n')
+        fh.write('\t</head>\n\t<body>\n')
+        fh.write(f'\t\t<h1>{fc_short}</h1>\n\t\t')
+        fh.write(df.to_html(index=False))
+        fh.write(fig1.to_html(full_html=False, include_plotlyjs='cdn'))
+        fh.write(fig2.to_html(full_html=False, include_plotlyjs='cdn'))
+        fh.write(fig3.to_html(full_html=False, include_plotlyjs='cdn'))
+        fh.write(fig4.to_html(full_html=False, include_plotlyjs='cdn'))
+        fh.write(fig5.to_html(full_html=False, include_plotlyjs='cdn'))
+        fh.write('\n\t</body>\n</html>')
+
+
 def main(args):
     """
     From a list of samples, retrieve several metrics.
@@ -280,7 +375,6 @@ def main(args):
     - Returns: A CSV file named `./archives_metrics.csv`.
     """
     configure_logging(args.level)
-    workdir = os.getcwd()
     logsdir = args.dir
     if os.path.isdir(logsdir):
         logging.info(f"Logs directory, '{logsdir}', already exists")
@@ -311,11 +405,9 @@ def main(args):
         df_coverages   = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_files=coverage_files)], ignore_index=True)
 
     df_metrics.drop_duplicates(inplace=True)
-    df_coverages.drop_duplicates(inplace=True)
-
     df_metrics.reset_index(inplace=True)
+    df_coverages.drop_duplicates(inplace=True)
     df_coverages.reset_index(inplace=True)
-
     df = df_metrics.merge(df_coverages, on='Sample', how='outer')
     df.drop(['index_x'], axis=1, inplace=True)
 
@@ -332,19 +424,13 @@ def main(args):
         'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability']] #, 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
-
-    #df1_csv = workdir + os.sep + 'archives_metrics.csv'
-    #df1.to_csv(df1_csv, index=None)
     logging.info(f"Current Metrics DataFrame:\n{df1}")
 
     # Combine dataframe with samples_list.csv and generate figures for the HTML report
     #
     df_samples = pd.read_csv('samples_list.csv', encoding="latin-1")
-    #df_samples['CQGC_ID'] = df_samples['CQGC_ID'].astype('str')
-    #df_samples['Sample']  = df_samples['Sample'].astype('str')
     df = df1.merge(df_samples, how='inner')
     df.to_csv(f'{args.run}_metrics.csv', index=None)
-
 
 
 def _test(args):
