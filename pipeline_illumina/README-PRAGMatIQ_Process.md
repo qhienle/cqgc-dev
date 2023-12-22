@@ -10,7 +10,7 @@ En résumé, voici les étapes à suivre:
     3. Se connecter à spxp-app02 `ssh ${USER}@10.128.80.26`
     4. Mettre en place l'environnement de travail `conda activate CQGC-utils`.
 1. Récupérer les informations sur les familles dans Nanuq `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`. Ce script génère le fichier CSV d'entrée emg_batch_manifest.csv, avec les chemins d'accès aux FASTQs sur BSSH.
-2. Créer les cas et lancer les analyses.
+2. Créer les cas sur Emedgene et lancer les analyses grâce au fichier CSV.
 3. (**TODO**) Ajouter les participants _via_ l'API
 4. Archiver les résultats
 
