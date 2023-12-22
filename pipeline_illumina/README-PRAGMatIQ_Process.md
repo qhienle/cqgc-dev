@@ -9,11 +9,10 @@ En résumé, voici les étapes à suivre:
     2. Créer un journal pour le suivi, nommé `README-${FC_SHORT}.ipynb`
     3. Se connecter à spxp-app02 `ssh ${USER}@10.128.80.26`
     4. Mettre en place l'environnement de travail `conda activate CQGC-utils`.
-1. Récupérer les informations sur les familles dans Nanuq `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py --run ${FC_SHORT}`. 
-2. Générer le fichier CSV d'entrée emg_batch_manifest.csv, avec les chemins d'accès aux FASTQs sur BSSH.
-3. (**TODO**) Créer les cas et lancer les analyses `python create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p 7TmbuM3TUCMwP -b`.
-4. (**TODO**) Ajouter les participants _via_ l'API
-5. Archiver les résultats
+1. Récupérer les informations sur les familles dans Nanuq `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`. Ce script génère le fichier CSV d'entrée emg_batch_manifest.csv, avec les chemins d'accès aux FASTQs sur BSSH.
+2. Créer les cas et lancer les analyses.
+3. (**TODO**) Ajouter les participants _via_ l'API
+4. Archiver les résultats
 
 Où ${FC_SHORT} est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", ${FC_SHORT} est "A00516_0441".
 
@@ -109,21 +108,26 @@ La commande ci-dessus devrait générer une sortie d'écran comme ceci:
 
 **_N.b._**: Les termes HPOs [Human Phenotype Ontology](https://hpo.jax.org/app/) sont contenus dans la base de données patients, Phenotips, et peuvent être consultées _via_ l'API avec un identifiant externe composé du "site + MRN" (ex. "CHUS1636084"). C'est ce que fait le script `emg_make_batch_from_nanuq.py` car l'identifiant primaire PhenotipsID (PID), n'est pas contenu dans Nanuq.
 
-Alternativement, les informations sur les familles pour la _Run_, incluant le PID, peuvent être récupérées à partir du fichier Excel partagé sur Teams/OneDrive "Étude PRAGMatIQ - Base de données.xlsx" (canal de l'équipe _CHUSJ - Étude PRAGMatIQ_ dans Teams ("Documents > Général")). Ceci peut s'avérer nécessaire dans l'éventualité où le script `emg_make_batch_from_nanuq.py` échoue. _C.f._ Annexe A (Rechercher les termes HPOs) plus bas.
+Alternativement, les informations sur les familles pour la _Run_, incluant le PID, peuvent être récupérées à partir du fichier Excel partagé sur "\\shsjcifs01\public crhsj\centre genomique\Projets\Pragmatiq\Étude PRAGMatIQ - Base de données.xlsx" ou sur Teams/OneDrive "Étude PRAGMatIQ - Base de données.xlsx" (canal de l'équipe _CHUSJ - Étude PRAGMatIQ_ dans Teams ("Documents > Général")). Ceci peut s'avérer nécessaire dans l'éventualité où le script `emg_make_batch_from_nanuq.py` échoue. _C.f._ Annexe A (Rechercher les termes HPOs) plus bas. En dernier recours, contacter Camille VARIN-TREMBLAY pour obtenir les informations manquantes.
 
 
-### 2. Générer le fichier d'entrée
+### 2. Créer les cas et lancer les analyses
 
-Le script Python `emg_make_batch_from_nanuq.py` génère automatiquement le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH.
+Le script Python `emg_make_batch_from_nanuq.py` génère automatiquement le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH. 
 
+`python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`
 
-### 3. (**TODO**) Créer les cas et lancer les analyses
-
-Créer les cas avec la commande `python create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p 7TmbuM3TUCMwP -b`.
+Pour plus d'information au sujet du fichier d'entrée pour la création des cas par lot, consulter les spécifications d'Emedgene [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements).
 
 Puis se connecter _via_ l'interface web à Emedgene pour lancer les analyses.
 
-Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload).
+1. Se connecter à [Emedgene](https://chusaintejustine.emedgene.com/) avec le compte cqgc.bioinfo.hsj@ssss.gouv.qc.ca.
+2. Cliquer sur "+ New Case", en haut de la page à droite
+3. Cliquer sur "Switch to batch"
+4. Glisser-déposer le fichier CSV manifest dans la boîte "Browse files from your computer or drag it here ('csv' | Maximum file size: 5 MB, 50 cases)"
+5. Cliquer sur "Launch Case".
+
+Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload). https://chusaintejustine.emedgene.com/v2/#/help/
 
 
 ### 4. (**TODO**) Ajouter les participants
@@ -157,7 +161,8 @@ done
 - [Phenotips](https://chusj-phenotips.us.auth0.com/)
 - [Phenotips API](https://docs.phenotips.com/reference/accessandauthentication)
 - [Human Phenotype Ontology (HPOs)](https://hpo.jax.org/app/)
-- [Batch case upload instructions by Emedgene](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload)
+- [Batch case upload instructions by Emedgene](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload) 
+- https://chusaintejustine.emedgene.com/v2/#/help/
 - [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements)
 - Old/Alternative method, using scripts:
     - "Case_creation_script_v2.docx"
@@ -209,6 +214,8 @@ def get_phenotips_hpos(phenotips_id):
 # Replace the PID in the function's argument
 get_phenotips_hpos(P0000134)
 ```
+
+Créer les cas avec la commande (ne fonctionne pas bien). Privilégier l'interface web "Switch to batch" pour y déposer le fichier manifeste. `python create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p 7TmbuM3TUCMwP -b`.
 
 
 ### B. Créer les cas par l'interface web
