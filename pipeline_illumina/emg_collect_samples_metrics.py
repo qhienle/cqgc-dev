@@ -290,10 +290,11 @@ def write_html_report(df, fc_short):
         layout={
             'yaxis': {'title': 'NumOfCNVs'},
             'yaxis2': {'title': 'NumOfSNPs',  'overlaying': 'y', 'side': 'right'},
-            'yaxis3': {'title': 'NumOfReads', 'overlaying': 'y', 'side': 'left'}
+            'yaxis3': {'title': 'NumOfReads', 'overlaying': 'y', 'side': 'left'},
+            'barmode': 'group'
         }
     )
-    fig1.update_layout(barmode='group')
+    #fig1.update_layout(barmode='group')
 
     fig2 = px.violin(df, y="Coverage uniformity", x="Site",
                      title="Coverage uniformity of CNVs per site",
