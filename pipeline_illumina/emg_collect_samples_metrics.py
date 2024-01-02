@@ -425,6 +425,18 @@ def main(args):
         'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability']] #, 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
+    df1 = df1.astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
+                    'Average coverage': 'Float64', 'Coverage uniformity': 'Float64',
+                    'CNV Number of amplifications': 'Int64', 'CNV Number of passing amplifications': 'Int64', 
+                    'CNV Number of deletions': 'Int64', 'CNV Number of passing deletions': 'Int64', 
+                    'PCT coverage >20x': 'Float64',
+                    'Uniformity of coverage (PCT > 0.2*mean) over genome': 'Float64', 
+                    'Uniformity of coverage (PCT > 0.4*mean) over genome': 'Float64', 
+                    'Mean/Median autosomal coverage ratio over genome': 'Float64',
+                    'Number of unique & mapped reads': 'Int64',
+                    'Number of unique & mapped reads PCT': 'Float64',
+                    'Number of duplicate marked reads PCT': 'Float64', 
+                    'Percent Autosome Callability': 'Float64'})
     logging.info(f"Current Metrics DataFrame:\n{df1}")
 
     # Combine dataframe with samples_list.csv and generate figures for the HTML report
