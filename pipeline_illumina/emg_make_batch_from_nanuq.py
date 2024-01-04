@@ -259,7 +259,8 @@ def df_to_manifest(df):
     df_manifest['Relation'].replace('PROBAND', 'proband', inplace=True)
     df_manifest['Relation'].replace('MTH', 'mother', inplace=True)
     df_manifest['Relation'].replace('FTH', 'father', inplace=True)
-    df_manifest['Relation'].replace('SIB', 'sibling', inplace=True) # TODO: Verify 'SIB'
+    df_manifest['Relation'].replace('BRO', 'sibling', inplace=True)
+    df_manifest['Relation'].replace('SIB', 'sibling', inplace=True) # TODO: Verify 'SIB', or SIS?
 
     df_manifest['Gender'].replace('FEMALE', 'F', inplace=True)
     df_manifest['Gender'].replace('MALE', 'M', inplace=True)
@@ -332,6 +333,8 @@ def main(args):
         3.2 Use case PID instead of surname to connect family members.
     4. Convert DataFrame into a CSV file (manifest) for EMG batch upload either
        using their script, or the UI;
+       TODO: Check how QUADs are handled 
+       TODO: Raise red flag when sibling or other family member is Affected 
     5. TODO: Add participants to cases
     6. TODO: Archive samples for this run
     """
