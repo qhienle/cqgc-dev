@@ -1,18 +1,19 @@
 # Procédure PRAGatIQ
 
-Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à analyser sur la plateforme d'[Emedgene (EMG)](https://chusaintejustine.emedgene.com/) une fois que les séquences des échantillons sont disponibles sur BaseSpace Sequence Hub (BSSH). La progression des opérations de séquençage puis de la déconvolution-conversion de la _Run_ peuvent être suivid sur BSSH sous l'onglet ["Run"](https://chusj.cac1.sh.basespace.illumina.com/runs/active) et ["Analyses"](https://chusj.cac1.sh.basespace.illumina.com/analyses/), respectivement.
+Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à analyser sur la plateforme d'[Emedgene (EMG)](https://chusaintejustine.emedgene.com/) une fois que les séquences des échantillons sont disponibles sur BaseSpace Sequence Hub (BSSH). La progression des opérations de séquençage puis de la déconvolution-conversion de la _Run_ peuvent être suivies sur BSSH sous l'onglet ["Run"](https://chusj.cac1.sh.basespace.illumina.com/runs/active) et ["Analyses"](https://chusj.cac1.sh.basespace.illumina.com/analyses/), respectivement.
 
 En résumé, voici les étapes à suivre:
 
 0. Préparer la création des analyses
     1. Obtenir les identifiants de connexion
-    2. Créer un journal pour le suivi, nommé `README-${FC_SHORT}.ipynb`
+    2. Créer un journal pour le suivi, par exemple `README-${FC_SHORT}.ipynb`
     3. Se connecter à spxp-app02 `ssh ${USER}@10.128.80.26`
     4. Mettre en place l'environnement de travail `conda activate CQGC-utils`.
-1. Récupérer les informations sur les familles dans Nanuq `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`. Ce script génère le fichier CSV d'entrée emg_batch_manifest.csv, avec les chemins d'accès aux FASTQs sur BSSH.
+1. Récupérer les informations sur les familles dans Nanuq `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`. Ce script génère le fichier CSV d'entrée `emg_batch_manifest.csv`, avec les chemins d'accès aux FASTQs sur BSSH.
 2. Créer les cas sur Emedgene et lancer les analyses grâce au fichier CSV.
 3. (**TODO**) Ajouter les participants _via_ l'API
-4. Archiver les résultats
+4. Collecter les métriques des analyses Emedgene `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_samples_metrics.py ${FC_SHORT}`
+5. Archiver les résultats
 
 Où ${FC_SHORT} est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", ${FC_SHORT} est "A00516_0441".
 
@@ -57,26 +58,28 @@ Un exemple de fichier est disponible sur [l'espace PrivateDoc dans GitHub](https
 
 #### 2. Créer un journal pour le suivi
 
-Créer un journal pour le suivi, nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (ex.: "230711_A00516_0433_BHKVMJDMXY") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel du laboratoire CQGC, mais peuvent aussi être récupérées depuis BSSH (sous l'onglet "_Runs_").
+Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel du laboratoire CQGC, mais peuvent aussi être récupérées depuis BSSH (sous l'onglet "_Runs_").
 
-Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir.
+**_N.B._** Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir.
+
 
 #### 3. Se connecter à spxp-app02 
 
 `ssh ${USER}@10.128.80.26`
 
+Au préalable, obtenir un jeton auprès du service informatique afin de pouvoir se connecter à distance _via_ le VPN du CHUSJ.
+
 #### 4. Mettre en place l'environnement de travail 
 
-`conda activate DEV-bcl_convert`.
-
-TODO: `conda activate CQGC-utils && conda update pandas`
-
+`conda activate CQGC-utils`
 
 ### 1. Récupérer les informations sur les familles
 
-Les informations sur la constitution des familles ("Case") sont centralisées dans Nanuq. La commande suivante permet de récupérer la liste des échantillons sur la _Run_ et de fournir les données nécessaires à la création de cas dans Emedgene, incluant les termes HPOs associées aux patients dans la base de données [Phenotips](https://chusj-phenotips.us.auth0.com/). 
+Les informations sur la constitution des familles ("Case") sont centralisées dans Nanuq. La commande suivante permet de récupérer la liste des échantillons sur la _Run_ et de fournir les données nécessaires à la création de cas dans Emedgene, incluant les termes HPOs associées aux patients dans la base de données [Phenotips](https://chusj.phenotips.com//). 
 
-`python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py --run ${FC_SHORT}`
+`python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`
+
+_E.g._ `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py A00516_0433`
 
 La commande ci-dessus devrait générer une sortie d'écran comme ceci:
 
@@ -113,13 +116,9 @@ Alternativement, les informations sur les familles pour la _Run_, incluant le PI
 
 ### 2. Créer les cas et lancer les analyses
 
-Le script Python `emg_make_batch_from_nanuq.py` génère automatiquement le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH. 
+Le script Python `emg_make_batch_from_nanuq.py` exécuté à l'étape précédente génère automatiquement le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH. Pour plus d'information au sujet du fichier d'entrée pour la création des cas par lot, consulter les spécifications d'Emedgene [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements).
 
-`python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`
-
-Pour plus d'information au sujet du fichier d'entrée pour la création des cas par lot, consulter les spécifications d'Emedgene [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements).
-
-Puis se connecter _via_ l'interface web à Emedgene pour lancer les analyses.
+Il faut à présent se connecter _via_ l'interface web à Emedgene pour téléverser le fichier manifestedécrivant les cas à l'étude, puis lancer les analyses.
 
 1. Se connecter à [Emedgene](https://chusaintejustine.emedgene.com/) avec le compte cqgc.bioinfo.hsj@ssss.gouv.qc.ca.
 2. Cliquer sur "+ New Case", en haut de la page à droite
@@ -130,8 +129,16 @@ Puis se connecter _via_ l'interface web à Emedgene pour lancer les analyses.
 Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload). https://chusaintejustine.emedgene.com/v2/#/help/
 
 
-### 4. (**TODO**) Ajouter les participants
+### 3. (**TODO**) Ajouter les participants
 
+
+### 4. Collecter les métriques des analyses Emedgene
+
+Une fois que les analyses Emedgene passeront au statut "Delivered", collecter les métriques pour les envoyer à René.
+
+`python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_samples_metrics.py ${FC_SHORT}`
+
+Ce script génère un fichier CSV avec les métriques, et un rapport en format HTML. Mettre ces deux fichiers en p.j. d'un courriel à emvoyer à René.
 
 ### 5. Archiver les résultats
 
@@ -158,7 +165,7 @@ done
 
 - [Production environment](https://chusaintejustine.emedgene.com)
 - [Eval environment](https://stejustine.emedgene.com/)
-- [Phenotips](https://chusj-phenotips.us.auth0.com/)
+- [Phenotips](https://chusj.phenotips.com/)
 - [Phenotips API](https://docs.phenotips.com/reference/accessandauthentication)
 - [Human Phenotype Ontology (HPOs)](https://hpo.jax.org/app/)
 - [Batch case upload instructions by Emedgene](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload) 
@@ -349,4 +356,4 @@ grep "uniformity" GM230424_vlocal_2023-02-28-07-04_sample.log
     11: {id: 14, name: "CHUS", used: false}
     12: {id: 15, name: "CHUSJ", used: false}
     13: {id: 16, name: "CHUQ", used: false}
-    14: {id: 17, name: "MUHC", used: false}
+        14: {id: 17, name: "MUHC", used: false}
