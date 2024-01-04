@@ -1,4 +1,4 @@
-# Procédure PRAGatIQ
+# Procédure PRAGMatIQ
 
 Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à analyser sur la plateforme d'[Emedgene (EMG)](https://chusaintejustine.emedgene.com/) une fois que les séquences des échantillons sont disponibles sur BaseSpace Sequence Hub (BSSH). La progression des opérations de séquençage puis de la déconvolution-conversion de la _Run_ peuvent être suivies sur BSSH sous l'onglet ["Run"](https://chusj.cac1.sh.basespace.illumina.com/runs/active) et ["Analyses"](https://chusj.cac1.sh.basespace.illumina.com/analyses/), respectivement.
 
