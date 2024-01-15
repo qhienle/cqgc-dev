@@ -166,16 +166,18 @@ class Phenotips:
         return(self.parse_hpo(patient))
 
 
-    def get_hpo_old(self, pid, db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json'):
+    # def get_hpo_old(self, pid, db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json'):
+    def get_hpo_old(self, pid, db='pheno_json'):
         """
         Get HPO terms observed for this Phenotips ID (`pid`, must be a `str`),
         from the backup of the old Phenotips system.
         - `pid`: `str` of the following format e.g.: P0000001).
         - `db` : Old database backup, a folder containing all the patients
-          record files (as JSON). Default location is 
-          spxp-app02://staging2/data/Illumina/TSS/2021-03-08/json/pheno_json
+          record files (as JSON). Default location is "./pheno_json". The 
+          original copy this folder can be found at
+          spxp-app02://staging2/data/Illumina/TSS/2021-03-08/json/pheno_json.tar.gz
         - Returns: List of dicts for HPO terms that are 'observed'='yes'
-          Returns an empty list if something went wrong.
+          Returns an empty list if none found, or if something went wrong.
         """
         # Collect HPO terms that are marked 'yes' for 'observed'.
         #
@@ -183,9 +185,9 @@ class Phenotips:
         
         # Use os.path.isfile() to find the json file to `pid` in `db`.
         # File-naming convention under the `db` folder is "phenotipsid.json",
-        # e.g. './db/P0000808.json'.
+        # e.g. './pheno_json/P0000808.json'.
         #
-        filename = db + os.sep + pid + '.json'
+        filename = os.path.dirname(os.path.realpath(__file__)) + os.sep + db + os.sep + pid + '.json'
         if os.path.isfile(filename):
             with open(filename, 'rb') as fh:
                 patient = json.load(fh)
@@ -195,7 +197,7 @@ class Phenotips:
                 if feature['observed'] == 'yes':
                     hpos.append({'id': feature['id'], 'label': feature['label']})
         else:
-            pass
+            print(f"WARNING: '{filename}' is not a file {filename}")
         return(hpos)
 
 
@@ -382,6 +384,7 @@ class TSS:
         """
         pass
 
+
 class BSSH:
     """
     Return a BSSH object for interacting with Illumina BaseSpace Sequence Hub,
@@ -477,19 +480,18 @@ class BSSH:
         return(fastqs)
     
 
+
 def test():
     """
     Quick and dirty testing
     """
-    tss = TSS()
+    pho = Phenotips()
+    pho.get_hpo_old('P0000808')
 
-    # Create, search and delete a Case from JSON file
-    with open('tests/test_case_mono.json', 'r') as mono:
-        mono_json = json.load(mono)
-    tss.create_case()
 
 def main():
     print("\nDone.\n")
+
 
 if __name__ == '__main__':
     test()
