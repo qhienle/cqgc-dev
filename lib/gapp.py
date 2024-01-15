@@ -166,16 +166,14 @@ class Phenotips:
         return(self.parse_hpo(patient))
 
 
-    # def get_hpo_old(self, pid, db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json'):
-    def get_hpo_old(self, pid, db='pheno_json'):
+    def get_hpo_old(self, pid, db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json'):
         """
         Get HPO terms observed for this Phenotips ID (`pid`, must be a `str`),
         from the backup of the old Phenotips system.
         - `pid`: `str` of the following format e.g.: P0000001).
         - `db` : Old database backup, a folder containing all the patients
-          record files (as JSON). Default location is "./pheno_json". The 
-          original copy this folder can be found at
-          spxp-app02://staging2/data/Illumina/TSS/2021-03-08/json/pheno_json.tar.gz
+          record files (as JSON). Default location is 
+          spxp-app02://staging2/data/Illumina/TSS/2021-03-08/json/pheno_json/
         - Returns: List of dicts for HPO terms that are 'observed'='yes'
           Returns an empty list if none found, or if something went wrong.
         """
@@ -187,7 +185,7 @@ class Phenotips:
         # File-naming convention under the `db` folder is "phenotipsid.json",
         # e.g. './pheno_json/P0000808.json'.
         #
-        filename = os.path.dirname(os.path.realpath(__file__)) + os.sep + db + os.sep + pid + '.json'
+        filename = db + os.sep + pid + '.json'
         if os.path.isfile(filename):
             with open(filename, 'rb') as fh:
                 patient = json.load(fh)

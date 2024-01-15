@@ -20,6 +20,10 @@ class TestPhenotips(unittest.TestCase):
         self.assertIsNotNone(self.pho.headers['X-Gene42-Secret'])
 
 
+    def test_get_hpo_old(self):
+        pass
+
+
     def tearDown(self):
         pass
 
