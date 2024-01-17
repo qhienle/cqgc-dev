@@ -72,9 +72,17 @@ def main():
     pho  = Phenotips()
     try:
         hpos = pho.get_hpo(args.pid)
+    except TypeError as err:
+        logging.error(f"TypeError raised for {args.pid}: {err}")
     except Exception as err:
-        logging.error(err)
-    print(hpos)
+        logging.error(f"Oops, something went wrong: {err}")
+    else:
+        ids = []
+        for hpo in hpos:
+            ids.append(hpo['id'])
+            print(f"{hpo['id']}\t{hpo['label']}")
+        print(f"\nFormat for Emedgene's WebUI:\n{','.join(ids)}")
+        print(f"\nFormat for Emedgene's batch:\n{';'.join(ids)}\n")
 
 
 if __name__ == '__main__':
