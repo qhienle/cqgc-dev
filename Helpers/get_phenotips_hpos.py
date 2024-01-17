@@ -26,6 +26,7 @@ Phenotips credentials can be saved to a file named '~/.illumina/gapp_conf.json':
 
 import os, sys
 import argparse
+import logging
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,16 +42,41 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description="Get HPO terms from Phenotips for PID")
     parser.add_argument('pid', help="Phenotips ID, ex.: P0000808")
+    parser.add_argument('--logging-level', '-l', dest='level', default='info',
+                        help="Logging level: 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
 
 
-def main(pid):
+def configure_logging(level):
+    """
+    Set logging level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
+    """
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
+
+
+def main():
     """
     Main stuff
     """
+    args = parse_args()
+    configure_logging(args.level)
+    pho  = Phenotips()
+    try:
+        hpos = pho.get_hpo(args.pid)
+    except Exception as err:
+        logging.error(err)
+    print(hpos)
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(args.pid)
-    print("\nDone.\n")
+    main()
+    logging.debug("Done.\n")
