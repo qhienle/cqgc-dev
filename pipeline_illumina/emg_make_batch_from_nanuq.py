@@ -367,7 +367,8 @@ def main(args):
     # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
     # (returned as a string by requests.text) and parse sample infos. 
     # SampleNames lines are tab-delimitted. Comment lines begin with "#".
-    # Results are stored in `cases` and printed to STDOUT at the end.
+    # Results are stored in `cases`, a list of list that will be loaded as a
+    # pandas DataFrame and printed to STDOUT at the end.
     # 
     cases = []
     for line in samplenames.text.splitlines():
@@ -385,19 +386,27 @@ def main(args):
             logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
             if len(data) != 1:
                 logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
-            sample_infos = [
-                data[0]["ldmSampleId"],
-                data[0]["labAliquotId"],
-                data[0]["patient"]["familyMember"],
-                data[0]["patient"]["sex"],
-                data[0]["patient"]["ep"],
-                data[0]["patient"]["mrn"],
-                data[0]["patient"]["designFamily"],
-                data[0]["patient"]["birthDate"],
-                data[0]["patient"]["status"],
-                data[0]["patient"].get("familyId", "-")
-            ]
-
+            try:
+                data[0]["patient"]["mrn"]
+            except Exception as err:
+                logging.warning(f"Could not find MRN for patient {cqgc} ({sample}: {err})")
+                data[0]["patient"]["mrn"] = '0000000'
+            else:
+                pass
+            finally:
+                sample_infos = [
+                    data[0]["ldmSampleId"],
+                    data[0]["labAliquotId"],
+                    data[0]["patient"]["familyMember"],
+                    data[0]["patient"]["sex"],
+                    data[0]["patient"]["ep"],
+                    data[0]["patient"]["mrn"],
+                    data[0]["patient"]["designFamily"],
+                    data[0]["patient"]["birthDate"],
+                    data[0]["patient"]["status"],
+                    data[0]["patient"].get("familyId", "-")
+                ]
+            #logging.warning(f"Something went wrong while parsing JSON for {cqgc} ({sample})")
             # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers for
             # the proband. Lookup this information in Phenotips, using EP+MRN
             # Ex: CHUSJ123456
@@ -460,7 +469,6 @@ def tests():
 if __name__ == '__main__':
     args = parse_args()
     configure_logging(args.level)
-
     main(args)
     #tests()
 
