@@ -353,7 +353,7 @@ def main(args):
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
     if args.file:
-        samples = list_samples(args.file)
+        samplenames = list_samples(args.file)
     else:
         samplenames = nq.get_samplenames(args.run)
         if not samplenames.text.startswith("##20"):
