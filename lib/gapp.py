@@ -166,7 +166,7 @@ class Phenotips:
         return(self.parse_hpo(patient))
 
 
-    def get_hpo_old(self, pid, db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json'):
+    def get_hpo_old_from_db_folder(self, pid, db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json'):
         """
         Get HPO terms observed for this Phenotips ID (`pid`, must be a `str`),
         from the backup of the old Phenotips system.
@@ -197,6 +197,48 @@ class Phenotips:
         else:
             print(f"WARNING: '{filename}' is not a file {filename}")
         return(hpos)
+
+
+    def load_old_pids_to_dict(self, db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json', outfile=None):
+        """
+        Load as dict all the old PID entries from `db` backup. Do this once.
+        - `db` : [str] Old database backup folder containing all the patients
+          record files (as JSON). Default location is 
+          spxp-app02://staging2/data/Illumina/TSS/2021-03-08/json/pheno_json/
+        - `outfile`: [str] Filename to JSON output. Default=None (not saved).
+          Backup as 'old_phenotips_extracted_hpos.json'
+        - Returns: a dict for HPO terms that are 'observed'='yes'
+          {"PID": {'id': [hpo1,hpo2,...], 'label': [label1,label2,...], },...}
+        """
+        pids = {}
+        pid_files = os.listdir(db)
+        for pid_file in pid_files:
+            pid = os.path.splitext(pid_file)[0]
+            pids[pid] = self.get_hpo_old_from_db_folder(pid, db=db)
+
+        if outfile is not None:
+            with open(outfile, 'w') as fh:
+                fh.write(json.dumps(pids))
+
+        return(pids)
+
+
+    def get_hpo_old(self, pid, db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json.json'):
+        """
+        Get HPO terms for PID from the file 'old_phenotips_extracted_hpos.json'
+        which contains the old data extracted from the backup using 
+        `self.load_old_pids_to_dict(
+            db='/staging2/data/Illumina/TSS/2021-03-08/json/pheno_json', 
+            outfile='old_phenotips_extracted_hpos.json')`
+        - `pid`: `str` of the following format e.g.: P0000001).
+        - `db` : JSON file with PID and HPOs extracted from the old Phenotips. 
+          spxp-app02://staging2/data/Illumina/TSS/2021-03-08/json/pheno_json/
+        - Returns: List of HPO terms that are 'observed'='yes' for PID.
+          Returns an empty list if none found, or if something went wrong.
+        """
+        with open(db) as fh:
+            pids = json.loads(fh.read())
+        return(pids[pid])
 
 
 class TSS:
