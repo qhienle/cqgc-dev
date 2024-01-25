@@ -219,7 +219,7 @@ class Phenotips:
 
         if outfile is not None:
             with open(outfile, 'w') as fh:
-                fh.write(json.dumps(pids))
+                fh.write(json.dumps(pids, indent=2))
 
         return(pids)
 
