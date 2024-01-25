@@ -1,0 +1,6103 @@
+{
+  "P0000348": [
+    {
+      "id": "HP:0000300",
+      "label": "Oval face"
+    },
+    {
+      "id": "HP:0000368",
+      "label": "Low-set, posteriorly rotated ears"
+    },
+    {
+      "id": "HP:0000473",
+      "label": "Torticollis"
+    },
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0000577",
+      "label": "Exotropia"
+    },
+    {
+      "id": "HP:0001601",
+      "label": "Laryngomalacia"
+    },
+    {
+      "id": "HP:0001762",
+      "label": "Talipes equinovarus"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0002020",
+      "label": "Gastroesophageal reflux"
+    },
+    {
+      "id": "HP:0002457",
+      "label": "Abnormal head movements"
+    },
+    {
+      "id": "HP:0002705",
+      "label": "High, narrow palate"
+    },
+    {
+      "id": "HP:0003270",
+      "label": "Abdominal distention"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0005105",
+      "label": "Abnormal nasal morphology"
+    },
+    {
+      "id": "HP:0007941",
+      "label": "Limited extraocular movements"
+    },
+    {
+      "id": "HP:0008780",
+      "label": "Congenital bilateral hip dislocation"
+    },
+    {
+      "id": "HP:0009062",
+      "label": "Infantile axial hypotonia"
+    },
+    {
+      "id": "HP:0100022",
+      "label": "Abnormality of movement"
+    },
+    {
+      "id": "HP:0001562",
+      "label": "Oligohydramnios"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0011410",
+      "label": "Caesarian section"
+    }
+  ],
+  "P0000361": [
+    {
+      "id": "HP:0001644",
+      "label": "Dilated cardiomyopathy"
+    },
+    {
+      "id": "HP:0001653",
+      "label": "Mitral regurgitation"
+    }
+  ],
+  "P0000333": [
+    {
+      "id": "HP:0000098",
+      "label": "Tall stature"
+    },
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    }
+  ],
+  "P0000368": [
+    {
+      "id": "HP:0001644",
+      "label": "Dilated cardiomyopathy"
+    }
+  ],
+  "P0000372": [
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    }
+  ],
+  "P0000373": [
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    }
+  ],
+  "P0000374": [
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0011451",
+      "label": "Congenital microcephaly"
+    },
+    {
+      "id": "HP:0011451",
+      "label": "Congenital microcephaly"
+    }
+  ],
+  "P0000362": [
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001276",
+      "label": "Hypertonia"
+    },
+    {
+      "id": "HP:0001328",
+      "label": "Specific learning disability"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0002474",
+      "label": "Expressive language delay"
+    },
+    {
+      "id": "HP:0006863",
+      "label": "Severe expressive language delay"
+    },
+    {
+      "id": "HP:0007728",
+      "label": "Congenital miosis"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0025335",
+      "label": "Delayed ability to stand"
+    },
+    {
+      "id": "HP:0025336",
+      "label": "Delayed ability to sit"
+    }
+  ],
+  "P0000364": [
+    {
+      "id": "HP:0001513",
+      "label": "Obesity"
+    },
+    {
+      "id": "HP:0004324",
+      "label": "Increased body weight"
+    },
+    {
+      "id": "HP:0001319",
+      "label": "Neonatal hypotonia"
+    }
+  ],
+  "P0000338": [
+    {
+      "id": "HP:0000286",
+      "label": "Epicanthus"
+    },
+    {
+      "id": "HP:0000411",
+      "label": "Protruding ear"
+    },
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0000508",
+      "label": "Ptosis"
+    },
+    {
+      "id": "HP:0001763",
+      "label": "Pes planus"
+    },
+    {
+      "id": "HP:0001822",
+      "label": "Hallux valgus"
+    },
+    {
+      "id": "HP:0003070",
+      "label": "Elbow ankylosis"
+    },
+    {
+      "id": "HP:0004209",
+      "label": "Clinodactyly of the 5th finger"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0005620",
+      "label": "Hypermobility of interphalangeal joints"
+    },
+    {
+      "id": "HP:0008081",
+      "label": "Pes valgus"
+    }
+  ],
+  "P0000380": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0003561",
+      "label": "Birth length less than 3rd percentile"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0011097",
+      "label": "Epileptic spasms"
+    },
+    {
+      "id": "HP:0011145",
+      "label": "Symptomatic seizures"
+    },
+    {
+      "id": "HP:0031165",
+      "label": "Multifocal seizures"
+    },
+    {
+      "id": "HP:0045082",
+      "label": "Decreased body mass index"
+    },
+    {
+      "id": "HP:0200134",
+      "label": "Epileptic encephalopathy"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001562",
+      "label": "Oligohydramnios"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0001787",
+      "label": "Abnormal delivery"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0003561",
+      "label": "Birth length less than 3rd percentile"
+    },
+    {
+      "id": "HP:0011408",
+      "label": "Moderate intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0011410",
+      "label": "Caesarian section"
+    },
+    {
+      "id": "HP:0025116",
+      "label": "Fetal distress"
+    },
+    {
+      "id": "HP:0030363",
+      "label": "Primary Caesarian section"
+    }
+  ],
+  "P0000365": [
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    }
+  ],
+  "P0000392": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0000609",
+      "label": "Optic nerve hypoplasia"
+    },
+    {
+      "id": "HP:0000639",
+      "label": "Nystagmus"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001371",
+      "label": "Flexion contracture"
+    },
+    {
+      "id": "HP:0001508",
+      "label": "Failure to thrive"
+    },
+    {
+      "id": "HP:0002020",
+      "label": "Gastroesophageal reflux"
+    },
+    {
+      "id": "HP:0002901",
+      "label": "Hypocalcemia"
+    },
+    {
+      "id": "HP:0002917",
+      "label": "Hypomagnesemia"
+    },
+    {
+      "id": "HP:0003701",
+      "label": "Proximal muscle weakness"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004415",
+      "label": "Pulmonary artery stenosis"
+    },
+    {
+      "id": "HP:0004736",
+      "label": "Crossed fused renal ectopia"
+    },
+    {
+      "id": "HP:0005180",
+      "label": "Tricuspid regurgitation"
+    },
+    {
+      "id": "HP:0005495",
+      "label": "Metopic suture patent to nasal root"
+    },
+    {
+      "id": "HP:0006127",
+      "label": "Long proximal phalanx of finger"
+    },
+    {
+      "id": "HP:0007165",
+      "label": "Periventricular gray matter heterotopia"
+    },
+    {
+      "id": "HP:0008059",
+      "label": "Aplasia/Hypoplasia of the macula"
+    },
+    {
+      "id": "HP:0008544",
+      "label": "Abnormally folded helix"
+    },
+    {
+      "id": "HP:0011608",
+      "label": "Type II truncus arteriosus"
+    },
+    {
+      "id": "HP:0012745",
+      "label": "Short palpebral fissure"
+    },
+    {
+      "id": "HP:0100807",
+      "label": "Long fingers"
+    }
+  ],
+  "P0000398": [
+    {
+      "id": "HP:0000175",
+      "label": "Cleft palate"
+    },
+    {
+      "id": "HP:0000776",
+      "label": "Congenital diaphragmatic hernia"
+    },
+    {
+      "id": "HP:0001320",
+      "label": "Cerebellar vermis hypoplasia"
+    },
+    {
+      "id": "HP:0002079",
+      "label": "Hypoplasia of the corpus callosum"
+    },
+    {
+      "id": "HP:0008386",
+      "label": "Aplasia/Hypoplasia of the nails"
+    },
+    {
+      "id": "HP:0011669",
+      "label": "Left superior vena cava draining directly to the left atrium"
+    }
+  ],
+  "P0000382": [
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0000577",
+      "label": "Exotropia"
+    },
+    {
+      "id": "HP:0000646",
+      "label": "Amblyopia"
+    },
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0002011",
+      "label": "Morphological abnormality of the central nervous system"
+    },
+    {
+      "id": "HP:0002197",
+      "label": "Generalized seizures"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0007068",
+      "label": "Inferior vermis hypoplasia"
+    },
+    {
+      "id": "HP:0010818",
+      "label": "Generalized tonic seizures"
+    },
+    {
+      "id": "HP:0010819",
+      "label": "Atonic seizures"
+    },
+    {
+      "id": "HP:0011282",
+      "label": "Abnormality of hindbrain morphology"
+    },
+    {
+      "id": "HP:0012443",
+      "label": "Abnormality of brain morphology"
+    },
+    {
+      "id": "HP:0002904",
+      "label": "Hyperbilirubinemia"
+    }
+  ],
+  "P0000383": [
+    {
+      "id": "HP:0000479",
+      "label": "Abnormality of the retina"
+    },
+    {
+      "id": "HP:0000532",
+      "label": "Chorioretinal abnormality"
+    },
+    {
+      "id": "HP:0001107",
+      "label": "Ocular albinism"
+    },
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001338",
+      "label": "Partial agenesis of the corpus callosum"
+    },
+    {
+      "id": "HP:0002011",
+      "label": "Morphological abnormality of the central nervous system"
+    },
+    {
+      "id": "HP:0002269",
+      "label": "Abnormality of neuronal migration"
+    },
+    {
+      "id": "HP:0002408",
+      "label": "Cerebral arteriovenous malformation"
+    },
+    {
+      "id": "HP:0007359",
+      "label": "Focal seizures"
+    },
+    {
+      "id": "HP:0007703",
+      "label": "Abnormality of retinal pigmentation"
+    },
+    {
+      "id": "HP:0007858",
+      "label": "Chorioretinal lacunae"
+    },
+    {
+      "id": "HP:0030724",
+      "label": "Central nervous system cyst"
+    }
+  ],
+  "P0000400": [
+    {
+      "id": "HP:0001513",
+      "label": "Obesity"
+    }
+  ],
+  "P0000401": [
+    {
+      "id": "HP:0000445",
+      "label": "Wide nose"
+    },
+    {
+      "id": "HP:0001638",
+      "label": "Cardiomyopathy"
+    },
+    {
+      "id": "HP:0001644",
+      "label": "Dilated cardiomyopathy"
+    }
+  ],
+  "P0000402": [
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0002069",
+      "label": "Generalized tonic-clonic seizures"
+    },
+    {
+      "id": "HP:0002123",
+      "label": "Generalized myoclonic seizures"
+    },
+    {
+      "id": "HP:0002197",
+      "label": "Generalized seizures"
+    }
+  ],
+  "P0000403": [
+    {
+      "id": "HP:0000414",
+      "label": "Bulbous nose"
+    },
+    {
+      "id": "HP:0000582",
+      "label": "Upslanted palpebral fissure"
+    },
+    {
+      "id": "HP:0000708",
+      "label": "Behavioral abnormality"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000735",
+      "label": "Impaired social interactions"
+    },
+    {
+      "id": "HP:0000736",
+      "label": "Short attention span"
+    },
+    {
+      "id": "HP:0000738",
+      "label": "Hallucinations"
+    },
+    {
+      "id": "HP:0000751",
+      "label": "Personality changes"
+    },
+    {
+      "id": "HP:0001254",
+      "label": "Lethargy"
+    },
+    {
+      "id": "HP:0002332",
+      "label": "Lack of peer relationships"
+    },
+    {
+      "id": "HP:0002376",
+      "label": "Developmental regression"
+    },
+    {
+      "id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder"
+    },
+    {
+      "id": "HP:0008763",
+      "label": "No social interaction"
+    },
+    {
+      "id": "HP:0008765",
+      "label": "Auditory hallucinations"
+    },
+    {
+      "id": "HP:0010529",
+      "label": "Echolalia"
+    },
+    {
+      "id": "HP:0010763",
+      "label": "Low insertion of columella"
+    },
+    {
+      "id": "HP:0012368",
+      "label": "Flat face"
+    },
+    {
+      "id": "HP:0012433",
+      "label": "Abnormal social behavior"
+    },
+    {
+      "id": "HP:0025331",
+      "label": "Upgaze palsy"
+    },
+    {
+      "id": "HP:0030223",
+      "label": "Perseveration"
+    },
+    {
+      "id": "HP:0100277",
+      "label": "Periauricular skin pits"
+    },
+    {
+      "id": "HP:0100543",
+      "label": "Cognitive impairment"
+    },
+    {
+      "id": "HP:0000952",
+      "label": "Jaundice"
+    }
+  ],
+  "P0000407": [
+    {
+      "id": "HP:0001010",
+      "label": "Hypopigmentation of the skin"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    }
+  ],
+  "P0000396": [
+    {
+      "id": "HP:0001520",
+      "label": "Large for gestational age"
+    },
+    {
+      "id": "HP:0003517",
+      "label": "Birth length greater than 97th percentile"
+    }
+  ],
+  "P0000409": [
+    {
+      "id": "HP:0000086",
+      "label": "Ectopic kidney"
+    },
+    {
+      "id": "HP:0000125",
+      "label": "Pelvic kidney"
+    },
+    {
+      "id": "HP:0000248",
+      "label": "Brachycephaly"
+    },
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0000368",
+      "label": "Low-set, posteriorly rotated ears"
+    },
+    {
+      "id": "HP:0000384",
+      "label": "Preauricular skin tag"
+    },
+    {
+      "id": "HP:0000494",
+      "label": "Downslanted palpebral fissures"
+    },
+    {
+      "id": "HP:0000776",
+      "label": "Congenital diaphragmatic hernia"
+    },
+    {
+      "id": "HP:0000925",
+      "label": "Abnormality of the vertebral column"
+    },
+    {
+      "id": "HP:0001631",
+      "label": "Atrial septal defect"
+    },
+    {
+      "id": "HP:0001684",
+      "label": "Secundum atrial septal defect"
+    },
+    {
+      "id": "HP:0002003",
+      "label": "Large forehead"
+    },
+    {
+      "id": "HP:0002007",
+      "label": "Frontal bossing"
+    },
+    {
+      "id": "HP:0002023",
+      "label": "Anal atresia"
+    },
+    {
+      "id": "HP:0003312",
+      "label": "Abnormal form of the vertebral bodies"
+    },
+    {
+      "id": "HP:0003468",
+      "label": "Abnormality of the vertebrae"
+    },
+    {
+      "id": "HP:0004792",
+      "label": "Rectoperineal fistula"
+    },
+    {
+      "id": "HP:0009890",
+      "label": "High anterior hairline"
+    },
+    {
+      "id": "HP:0011398",
+      "label": "Central hypotonia"
+    },
+    {
+      "id": "HP:0000776",
+      "label": "Congenital diaphragmatic hernia"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    }
+  ],
+  "P0000422": [
+    {
+      "id": "HP:0005112",
+      "label": "Dilatation of the abdominal aorta"
+    }
+  ],
+  "P0000423": [
+    {
+      "id": "HP:0002119",
+      "label": "Ventriculomegaly"
+    },
+    {
+      "id": "HP:0004755",
+      "label": "Supraventricular tachycardia"
+    },
+    {
+      "id": "HP:0004756",
+      "label": "Ventricular tachycardia"
+    },
+    {
+      "id": "HP:0006670",
+      "label": "Impaired myocardial contractility"
+    },
+    {
+      "id": "HP:0011663",
+      "label": "Right ventricular cardiomyopathy"
+    },
+    {
+      "id": "HP:0011675",
+      "label": "Arrhythmia"
+    },
+    {
+      "id": "HP:0000474",
+      "label": "Thickened nuchal skin fold"
+    },
+    {
+      "id": "HP:0002119",
+      "label": "Ventriculomegaly"
+    }
+  ],
+  "P0000426": [
+    {
+      "id": "HP:0000047",
+      "label": "Hypospadias"
+    },
+    {
+      "id": "HP:0001274",
+      "label": "Agenesis of corpus callosum"
+    },
+    {
+      "id": "HP:0001629",
+      "label": "Ventricular septal defect"
+    },
+    {
+      "id": "HP:0001838",
+      "label": "Rocker bottom foot"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0011400",
+      "label": "Abnormal CNS myelination"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    }
+  ],
+  "P0000424": [
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    }
+  ],
+  "P0000408": [
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0001272",
+      "label": "Cerebellar atrophy"
+    },
+    {
+      "id": "HP:0100277",
+      "label": "Periauricular skin pits"
+    },
+    {
+      "id": "HP:0001520",
+      "label": "Large for gestational age"
+    },
+    {
+      "id": "HP:0001623",
+      "label": "Breech presentation"
+    },
+    {
+      "id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice"
+    }
+  ],
+  "P0000415": [
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0006986",
+      "label": "Upper limb spasticity"
+    },
+    {
+      "id": "HP:0003517",
+      "label": "Birth length greater than 97th percentile"
+    }
+  ],
+  "P0000420": [
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0000639",
+      "label": "Nystagmus"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0006934",
+      "label": "Congenital nystagmus"
+    },
+    {
+      "id": "HP:0008050",
+      "label": "Abnormality of the palpebral fissures"
+    },
+    {
+      "id": "HP:0200005",
+      "label": "Abnormal shape of the palpebral fissure"
+    }
+  ],
+  "P0000429": [],
+  "P0000385": [
+    {
+      "id": "HP:0100622",
+      "label": "Maternal seizures"
+    }
+  ],
+  "P0000522": [
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    }
+  ],
+  "P0000431": [],
+  "P0000428": [],
+  "P0000483": [
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    }
+  ],
+  "P0000503": [
+    {
+      "id": "HP:0000089",
+      "label": "Renal hypoplasia"
+    },
+    {
+      "id": "HP:0000175",
+      "label": "Cleft palate"
+    },
+    {
+      "id": "HP:0000308",
+      "label": "Microretrognathia"
+    },
+    {
+      "id": "HP:0001631",
+      "label": "Atrial septal defect"
+    },
+    {
+      "id": "HP:0001638",
+      "label": "Cardiomyopathy"
+    },
+    {
+      "id": "HP:0001639",
+      "label": "Hypertrophic cardiomyopathy"
+    },
+    {
+      "id": "HP:0001643",
+      "label": "Patent ductus arteriosus"
+    },
+    {
+      "id": "HP:0001647",
+      "label": "Bicuspid aortic valve"
+    },
+    {
+      "id": "HP:0001650",
+      "label": "Aortic valve stenosis"
+    },
+    {
+      "id": "HP:0001712",
+      "label": "Left ventricular hypertrophy"
+    },
+    {
+      "id": "HP:0002240",
+      "label": "Hepatomegaly"
+    },
+    {
+      "id": "HP:0004762",
+      "label": "Hypoplasia of right ventricle"
+    },
+    {
+      "id": "HP:0004970",
+      "label": "Ascending aortic dilation"
+    },
+    {
+      "id": "HP:0005176",
+      "label": "Dysplastic aortic valve"
+    },
+    {
+      "id": "HP:0007676",
+      "label": "Hypoplasia of the iris"
+    },
+    {
+      "id": "HP:0008386",
+      "label": "Aplasia/Hypoplasia of the nails"
+    },
+    {
+      "id": "HP:0009371",
+      "label": "Type A1 brachydactyly"
+    },
+    {
+      "id": "HP:0010882",
+      "label": "Pulmonary valve atresia"
+    },
+    {
+      "id": "HP:0011573",
+      "label": "Hypoplastic tricuspid valve"
+    },
+    {
+      "id": "HP:0012448",
+      "label": "Delayed myelination"
+    },
+    {
+      "id": "HP:0025426",
+      "label": "Abnormal bronchus morphology"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0011438",
+      "label": "Maternal teratogenic exposure"
+    },
+    {
+      "id": "HP:0012768",
+      "label": "Neonatal asphyxia"
+    }
+  ],
+  "P0000595": [
+    {
+      "id": "HP:0000601",
+      "label": "Hypotelorism"
+    },
+    {
+      "id": "HP:0000952",
+      "label": "Jaundice"
+    },
+    {
+      "id": "HP:0001254",
+      "label": "Lethargy"
+    },
+    {
+      "id": "HP:0001396",
+      "label": "Cholestasis"
+    },
+    {
+      "id": "HP:0001399",
+      "label": "Hepatic failure"
+    },
+    {
+      "id": "HP:0001748",
+      "label": "Polysplenia"
+    },
+    {
+      "id": "HP:0001987",
+      "label": "Hyperammonemia"
+    },
+    {
+      "id": "HP:0002020",
+      "label": "Gastroesophageal reflux"
+    },
+    {
+      "id": "HP:0002151",
+      "label": "Increased serum lactate"
+    },
+    {
+      "id": "HP:0002240",
+      "label": "Hepatomegaly"
+    },
+    {
+      "id": "HP:0002611",
+      "label": "Cholestatic liver disease"
+    },
+    {
+      "id": "HP:0002910",
+      "label": "Elevated hepatic transaminases"
+    },
+    {
+      "id": "HP:0005306",
+      "label": "Capillary hemangiomas"
+    },
+    {
+      "id": "HP:0006566",
+      "label": "Neonatal cholestatic liver disease"
+    },
+    {
+      "id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice"
+    },
+    {
+      "id": "HP:0011671",
+      "label": "Interrupted inferior vena cava with azygous continuation"
+    },
+    {
+      "id": "HP:0100800",
+      "label": "Aplasia/Hypoplasia of the pancreas"
+    },
+    {
+      "id": "HP:0100802",
+      "label": "Malposition of the stomach"
+    },
+    {
+      "id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice"
+    }
+  ],
+  "P0000448": [
+    {
+      "id": "HP:0000098",
+      "label": "Tall stature"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0004324",
+      "label": "Increased body weight"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    }
+  ],
+  "P0000460": [
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001285",
+      "label": "Spastic tetraparesis"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002011",
+      "label": "Morphological abnormality of the central nervous system"
+    },
+    {
+      "id": "HP:0002188",
+      "label": "Delayed CNS myelination"
+    },
+    {
+      "id": "HP:0003429",
+      "label": "CNS hypomyelination"
+    },
+    {
+      "id": "HP:0011400",
+      "label": "Abnormal CNS myelination"
+    },
+    {
+      "id": "HP:0001561",
+      "label": "Polyhydramnios"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0030244",
+      "label": "Maternal fever in pregnancy"
+    }
+  ],
+  "P0000535": [
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001518",
+      "label": "Small for gestational age"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    }
+  ],
+  "P0000537": [],
+  "P0000597": [
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0002133",
+      "label": "Status epilepticus"
+    },
+    {
+      "id": "HP:0002266",
+      "label": "Focal clonic seizures"
+    },
+    {
+      "id": "HP:0002384",
+      "label": "Focal seizures with impairment of consciousness or awareness"
+    },
+    {
+      "id": "HP:0006813",
+      "label": "Hemiclonic seizures"
+    },
+    {
+      "id": "HP:0007359",
+      "label": "Focal seizures"
+    },
+    {
+      "id": "HP:0011153",
+      "label": "Focal motor seizures"
+    }
+  ],
+  "P0000601": [
+    {
+      "id": "HP:0000238",
+      "label": "Hydrocephalus"
+    },
+    {
+      "id": "HP:0000239",
+      "label": "Large fontanelles"
+    },
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0000324",
+      "label": "Facial asymmetry"
+    },
+    {
+      "id": "HP:0000952",
+      "label": "Jaundice"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001873",
+      "label": "Thrombocytopenia"
+    },
+    {
+      "id": "HP:0002079",
+      "label": "Hypoplasia of the corpus callosum"
+    },
+    {
+      "id": "HP:0010636",
+      "label": "Schizencephaly"
+    },
+    {
+      "id": "HP:0031063",
+      "label": "Impaired feeding ability"
+    },
+    {
+      "id": "HP:0100842",
+      "label": "Septo-optic dysplasia"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001787",
+      "label": "Abnormal delivery"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0012768",
+      "label": "Neonatal asphyxia"
+    }
+  ],
+  "P0000596": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002072",
+      "label": "Chorea"
+    },
+    {
+      "id": "HP:0002266",
+      "label": "Focal clonic seizures"
+    },
+    {
+      "id": "HP:0002384",
+      "label": "Focal seizures with impairment of consciousness or awareness"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0007359",
+      "label": "Focal seizures"
+    },
+    {
+      "id": "HP:0011146",
+      "label": "Dialeptic seizures"
+    },
+    {
+      "id": "HP:0011153",
+      "label": "Focal motor seizures"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    },
+    {
+      "id": "HP:0031165",
+      "label": "Multifocal seizures"
+    },
+    {
+      "id": "HP:0008071",
+      "label": "Maternal hypertension"
+    }
+  ],
+  "P0000604": [
+    {
+      "id": "HP:0001942",
+      "label": "Metabolic acidosis"
+    },
+    {
+      "id": "HP:0004900",
+      "label": "Severe lactic acidosis"
+    },
+    {
+      "id": "HP:0008281",
+      "label": "Acute hyperammonemia"
+    },
+    {
+      "id": "HP:0030149",
+      "label": "Cardiogenic shock"
+    }
+  ],
+  "P0000603": [],
+  "P0000605": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001643",
+      "label": "Patent ductus arteriosus"
+    },
+    {
+      "id": "HP:0001669",
+      "label": "Transposition of the great arteries"
+    },
+    {
+      "id": "HP:0001684",
+      "label": "Secundum atrial septal defect"
+    },
+    {
+      "id": "HP:0001762",
+      "label": "Talipes equinovarus"
+    },
+    {
+      "id": "HP:0005248",
+      "label": "Intrahepatic biliary atresia"
+    },
+    {
+      "id": "HP:0009803",
+      "label": "Short phalanx of finger"
+    },
+    {
+      "id": "HP:0010490",
+      "label": "Abnormality of the palmar creases"
+    },
+    {
+      "id": "HP:0011623",
+      "label": "Muscular ventricular septal defect"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001562",
+      "label": "Oligohydramnios"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    }
+  ],
+  "P0000384": [
+    {
+      "id": "HP:0000280",
+      "label": "Coarse facial features"
+    },
+    {
+      "id": "HP:0000325",
+      "label": "Triangular face"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    },
+    {
+      "id": "HP:0430026",
+      "label": "Abnormality of the shape of the midface"
+    },
+    {
+      "id": "HP:0001195",
+      "label": "Single umbilical artery"
+    },
+    {
+      "id": "HP:0011438",
+      "label": "Maternal teratogenic exposure"
+    },
+    {
+      "id": "HP:0012498",
+      "label": "Nuchal cord"
+    }
+  ],
+  "P0000438": [
+    {
+      "id": "HP:0000098",
+      "label": "Tall stature"
+    },
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0001513",
+      "label": "Obesity"
+    },
+    {
+      "id": "HP:0004324",
+      "label": "Increased body weight"
+    }
+  ],
+  "P0000451": [
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    }
+  ],
+  "P0000363": [
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0000565",
+      "label": "Esotropia"
+    },
+    {
+      "id": "HP:0001631",
+      "label": "Atrial septal defect"
+    },
+    {
+      "id": "HP:0001684",
+      "label": "Secundum atrial septal defect"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001562",
+      "label": "Oligohydramnios"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0011408",
+      "label": "Moderate intrauterine growth retardation"
+    }
+  ],
+  "P0000599": [
+    {
+      "id": "HP:0000407",
+      "label": "Sensorineural hearing impairment"
+    },
+    {
+      "id": "HP:0000408",
+      "label": "Progressive sensorineural hearing impairment"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0011474",
+      "label": "Childhood onset sensorineural hearing impairment"
+    },
+    {
+      "id": "HP:0012188",
+      "label": "Hyperemesis gravidarum"
+    }
+  ],
+  "P0000377": [
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    }
+  ],
+  "P0000600": [],
+  "P0000609": [
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001276",
+      "label": "Hypertonia"
+    },
+    {
+      "id": "HP:0001337",
+      "label": "Tremor"
+    },
+    {
+      "id": "HP:0001347",
+      "label": "Hyperreflexia"
+    },
+    {
+      "id": "HP:0001537",
+      "label": "Umbilical hernia"
+    },
+    {
+      "id": "HP:0002061",
+      "label": "Lower limb spasticity"
+    },
+    {
+      "id": "HP:0002544",
+      "label": "Retrocollis"
+    },
+    {
+      "id": "HP:0006511",
+      "label": "Laryngeal stridor"
+    },
+    {
+      "id": "HP:0006986",
+      "label": "Upper limb spasticity"
+    },
+    {
+      "id": "HP:0012027",
+      "label": "Laryngeal edema"
+    },
+    {
+      "id": "HP:0004875",
+      "label": "Neonatal inspiratory stridor"
+    }
+  ],
+  "P0000598": [
+    {
+      "id": "HP:0000708",
+      "label": "Behavioral abnormality"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0007359",
+      "label": "Focal seizures"
+    },
+    {
+      "id": "HP:0011342",
+      "label": "Mild global developmental delay"
+    }
+  ],
+  "P0000614": [
+    {
+      "id": "HP:0000878",
+      "label": "11 pairs of ribs"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0001561",
+      "label": "Polyhydramnios"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0012768",
+      "label": "Neonatal asphyxia"
+    },
+    {
+      "id": "HP:0040187",
+      "label": "Neonatal sepsis"
+    }
+  ],
+  "P0000613": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001545",
+      "label": "Anteriorly placed anus"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0010447",
+      "label": "Anal fistula"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0001510",
+      "label": "Growth delay"
+    }
+  ],
+  "P0000497": [
+    {
+      "id": "HP:0007930",
+      "label": "Prominent epicanthal folds"
+    }
+  ],
+  "P0000573": [],
+  "P0000395": [
+    {
+      "id": "HP:0000069",
+      "label": "Abnormality of the ureter"
+    },
+    {
+      "id": "HP:0000072",
+      "label": "Hydroureter"
+    },
+    {
+      "id": "HP:0000073",
+      "label": "Ureteral duplication"
+    },
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0001090",
+      "label": "Large eyes"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0002265",
+      "label": "Large fleshy ears"
+    },
+    {
+      "id": "HP:0002342",
+      "label": "Intellectual disability, moderate"
+    },
+    {
+      "id": "HP:0005617",
+      "label": "Bilateral camptodactyly"
+    },
+    {
+      "id": "HP:0009185",
+      "label": "Contracture of the proximal interphalangeal joint of the 5th finger"
+    },
+    {
+      "id": "HP:0009276",
+      "label": "Contracture of the proximal interphalangeal joint of the 4th finger"
+    },
+    {
+      "id": "HP:0009748",
+      "label": "Large earlobe"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0025335",
+      "label": "Delayed ability to stand"
+    },
+    {
+      "id": "HP:0025336",
+      "label": "Delayed ability to sit"
+    },
+    {
+      "id": "HP:0100490",
+      "label": "Camptodactyly of finger"
+    }
+  ],
+  "P0000574": [],
+  "P0000607": [
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0002827",
+      "label": "Hip dislocation"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    },
+    {
+      "id": "HP:0011342",
+      "label": "Mild global developmental delay"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0001787",
+      "label": "Abnormal delivery"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    },
+    {
+      "id": "HP:0030369",
+      "label": "Induced vaginal delivery"
+    }
+  ],
+  "P0000516": [],
+  "P0000610": [
+    {
+      "id": "HP:0000286",
+      "label": "Epicanthus"
+    },
+    {
+      "id": "HP:0000356",
+      "label": "Abnormality of the outer ear"
+    },
+    {
+      "id": "HP:0000357",
+      "label": "Abnormal location of ears"
+    },
+    {
+      "id": "HP:0000358",
+      "label": "Posteriorly rotated ears"
+    },
+    {
+      "id": "HP:0000494",
+      "label": "Downslanted palpebral fissures"
+    },
+    {
+      "id": "HP:0000954",
+      "label": "Single transverse palmar crease"
+    },
+    {
+      "id": "HP:0001629",
+      "label": "Ventricular septal defect"
+    },
+    {
+      "id": "HP:0001631",
+      "label": "Atrial septal defect"
+    },
+    {
+      "id": "HP:0001633",
+      "label": "Abnormality of the mitral valve"
+    },
+    {
+      "id": "HP:0001639",
+      "label": "Hypertrophic cardiomyopathy"
+    },
+    {
+      "id": "HP:0001684",
+      "label": "Secundum atrial septal defect"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0006610",
+      "label": "Wide intermamillary distance"
+    },
+    {
+      "id": "HP:0011623",
+      "label": "Muscular ventricular septal defect"
+    },
+    {
+      "id": "HP:0001561",
+      "label": "Polyhydramnios"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    }
+  ],
+  "P0000616": [
+    {
+      "id": "HP:0000325",
+      "label": "Triangular face"
+    },
+    {
+      "id": "HP:0001090",
+      "label": "Large eyes"
+    },
+    {
+      "id": "HP:0001638",
+      "label": "Cardiomyopathy"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    }
+  ],
+  "P0000617": [
+    {
+      "id": "HP:0004392",
+      "label": "Prune belly"
+    }
+  ],
+  "P0000621": [
+    {
+      "id": "HP:0001276",
+      "label": "Hypertonia"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0005162",
+      "label": "Left ventricular failure"
+    }
+  ],
+  "P0000622": [
+    {
+      "id": "HP:0001539",
+      "label": "Omphalocele"
+    },
+    {
+      "id": "HP:0001539",
+      "label": "Omphalocele"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0004388",
+      "label": "Microcolon"
+    },
+    {
+      "id": "HP:0005100",
+      "label": "Premature birth following premature rupture of fetal membranes"
+    },
+    {
+      "id": "HP:0005235",
+      "label": "Jejunal atresia"
+    },
+    {
+      "id": "HP:0009062",
+      "label": "Infantile axial hypotonia"
+    }
+  ],
+  "P0000625": [
+    {
+      "id": "HP:0001252",
+      "label": "Muscular hypotonia"
+    },
+    {
+      "id": "HP:0006895",
+      "label": "Lower limb hypertonia"
+    },
+    {
+      "id": "HP:0011327",
+      "label": "Posterior plagiocephaly"
+    }
+  ],
+  "P0000628": [],
+  "P0000627": [
+    {
+      "id": "HP:0008071",
+      "label": "Maternal hypertension"
+    }
+  ],
+  "P0000611": [
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    }
+  ],
+  "P0000635": [
+    {
+      "id": "HP:0000214",
+      "label": "Lip telangiectasia"
+    },
+    {
+      "id": "HP:0001342",
+      "label": "Cerebral hemorrhage"
+    },
+    {
+      "id": "HP:0002251",
+      "label": "Aganglionic megacolon"
+    },
+    {
+      "id": "HP:0100869",
+      "label": "Palmar telangiectasia"
+    }
+  ],
+  "P0000612": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001513",
+      "label": "Obesity"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0012768",
+      "label": "Neonatal asphyxia"
+    }
+  ],
+  "P0000645": [
+    {
+      "id": "HP:0000358",
+      "label": "Posteriorly rotated ears"
+    },
+    {
+      "id": "HP:0000494",
+      "label": "Downslanted palpebral fissures"
+    },
+    {
+      "id": "HP:0000520",
+      "label": "Proptosis"
+    },
+    {
+      "id": "HP:0001601",
+      "label": "Laryngomalacia"
+    },
+    {
+      "id": "HP:0002079",
+      "label": "Hypoplasia of the corpus callosum"
+    },
+    {
+      "id": "HP:0002126",
+      "label": "Polymicrogyria"
+    },
+    {
+      "id": "HP:0002705",
+      "label": "High, narrow palate"
+    },
+    {
+      "id": "HP:0002835",
+      "label": "Aspiration"
+    },
+    {
+      "id": "HP:0005280",
+      "label": "Depressed nasal bridge"
+    },
+    {
+      "id": "HP:0011327",
+      "label": "Posterior plagiocephaly"
+    },
+    {
+      "id": "HP:0011398",
+      "label": "Central hypotonia"
+    },
+    {
+      "id": "HP:0011800",
+      "label": "Midface retrusion"
+    },
+    {
+      "id": "HP:0011968",
+      "label": "Feeding difficulties"
+    },
+    {
+      "id": "HP:0001319",
+      "label": "Neonatal hypotonia"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0005180",
+      "label": "Tricuspid regurgitation"
+    },
+    {
+      "id": "HP:0010880",
+      "label": "Increased nuchal translucency"
+    }
+  ],
+  "P0000541": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000268",
+      "label": "Dolichocephaly"
+    },
+    {
+      "id": "HP:0000286",
+      "label": "Epicanthus"
+    },
+    {
+      "id": "HP:0000965",
+      "label": "Cutis marmorata"
+    },
+    {
+      "id": "HP:0001090",
+      "label": "Large eyes"
+    },
+    {
+      "id": "HP:0002705",
+      "label": "High, narrow palate"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0011358",
+      "label": "Generalized hypopigmentation of hair"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0012420",
+      "label": "Meconium stained amniotic fluid"
+    }
+  ],
+  "P0000646": [
+    {
+      "id": "HP:0000391",
+      "label": "Thickened helices"
+    },
+    {
+      "id": "HP:0001508",
+      "label": "Failure to thrive"
+    },
+    {
+      "id": "HP:0001525",
+      "label": "Severe failure to thrive"
+    },
+    {
+      "id": "HP:0001642",
+      "label": "Pulmonic stenosis"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0005932",
+      "label": "Abnormal renal corticomedullary differentiation"
+    },
+    {
+      "id": "HP:0012622",
+      "label": "Chronic kidney disease"
+    }
+  ],
+  "P0000642": [],
+  "P0000648": [
+    {
+      "id": "HP:0002383",
+      "label": "Encephalitis"
+    }
+  ],
+  "P0000649": [
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001638",
+      "label": "Cardiomyopathy"
+    },
+    {
+      "id": "HP:0001639",
+      "label": "Hypertrophic cardiomyopathy"
+    },
+    {
+      "id": "HP:0001836",
+      "label": "Camptodactyly of toe"
+    },
+    {
+      "id": "HP:0002098",
+      "label": "Respiratory distress"
+    },
+    {
+      "id": "HP:0100348",
+      "label": "Contracture of the proximal interphalangeal joint of the 2nd toe"
+    },
+    {
+      "id": "HP:0100349",
+      "label": "Contracture of the proximal interphalangeal joint of the 3rd toe"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    }
+  ],
+  "P0000637": [
+    {
+      "id": "HP:0000708",
+      "label": "Behavioral abnormality"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0000954",
+      "label": "Single transverse palmar crease"
+    },
+    {
+      "id": "HP:0007429",
+      "label": "Few cafe-au-lait spots"
+    }
+  ],
+  "P0000638": [
+    {
+      "id": "HP:0011413",
+      "label": "Shoulder dystocia"
+    }
+  ],
+  "P0000656": [
+    {
+      "id": "HP:0000033",
+      "label": "Ambiguous genitalia, male"
+    },
+    {
+      "id": "HP:0000051",
+      "label": "Perineal hypospadias"
+    },
+    {
+      "id": "HP:0001182",
+      "label": "Tapered finger"
+    },
+    {
+      "id": "HP:0001510",
+      "label": "Growth delay"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    },
+    {
+      "id": "HP:0006610",
+      "label": "Wide intermamillary distance"
+    },
+    {
+      "id": "HP:0008163",
+      "label": "Decreased circulating cortisol level"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    }
+  ],
+  "P0000639": [],
+  "P0000660": [
+    {
+      "id": "HP:0000160",
+      "label": "Narrow mouth"
+    },
+    {
+      "id": "HP:0000218",
+      "label": "High palate"
+    },
+    {
+      "id": "HP:0000239",
+      "label": "Large fontanelles"
+    },
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000262",
+      "label": "Turricephaly"
+    },
+    {
+      "id": "HP:0000268",
+      "label": "Dolichocephaly"
+    },
+    {
+      "id": "HP:0000337",
+      "label": "Broad forehead"
+    },
+    {
+      "id": "HP:0000348",
+      "label": "High forehead"
+    },
+    {
+      "id": "HP:0000368",
+      "label": "Low-set, posteriorly rotated ears"
+    },
+    {
+      "id": "HP:0000396",
+      "label": "Overfolded helix"
+    },
+    {
+      "id": "HP:0000431",
+      "label": "Wide nasal bridge"
+    },
+    {
+      "id": "HP:0000453",
+      "label": "Choanal atresia"
+    },
+    {
+      "id": "HP:0001510",
+      "label": "Growth delay"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001660",
+      "label": "Truncus arteriosus"
+    },
+    {
+      "id": "HP:0002562",
+      "label": "Low-set nipples"
+    },
+    {
+      "id": "HP:0002983",
+      "label": "Micromelia"
+    },
+    {
+      "id": "HP:0003186",
+      "label": "Inverted nipples"
+    },
+    {
+      "id": "HP:0003196",
+      "label": "Short nose"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0004704",
+      "label": "Short fifth metatarsal"
+    },
+    {
+      "id": "HP:0005280",
+      "label": "Depressed nasal bridge"
+    },
+    {
+      "id": "HP:0008577",
+      "label": "Underfolded helix"
+    },
+    {
+      "id": "HP:0009062",
+      "label": "Infantile axial hypotonia"
+    },
+    {
+      "id": "HP:0011800",
+      "label": "Midface retrusion"
+    },
+    {
+      "id": "HP:0012745",
+      "label": "Short palpebral fissure"
+    },
+    {
+      "id": "HP:0030021",
+      "label": "Auricular tag"
+    },
+    {
+      "id": "HP:0200128",
+      "label": "Biventricular hypertrophy"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001562",
+      "label": "Oligohydramnios"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0005268",
+      "label": "Spontaneous abortion"
+    },
+    {
+      "id": "HP:0005301",
+      "label": "Persistent left superior vena cava"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    },
+    {
+      "id": "HP:0011408",
+      "label": "Moderate intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0100602",
+      "label": "Preeclampsia"
+    }
+  ],
+  "P0000661": [
+    {
+      "id": "HP:0001321",
+      "label": "Cerebellar hypoplasia"
+    },
+    {
+      "id": "HP:0002119",
+      "label": "Ventriculomegaly"
+    },
+    {
+      "id": "HP:0002126",
+      "label": "Polymicrogyria"
+    },
+    {
+      "id": "HP:0002190",
+      "label": "Choroid plexus cyst"
+    },
+    {
+      "id": "HP:0002536",
+      "label": "Abnormal cortical gyration"
+    },
+    {
+      "id": "HP:0006817",
+      "label": "Aplasia/Hypoplasia of the cerebellar vermis"
+    },
+    {
+      "id": "HP:0012110",
+      "label": "Hypoplasia of the pons"
+    },
+    {
+      "id": "HP:0002119",
+      "label": "Ventriculomegaly"
+    },
+    {
+      "id": "HP:0002536",
+      "label": "Abnormal cortical gyration"
+    }
+  ],
+  "P0000444": [
+    {
+      "id": "HP:0000964",
+      "label": "Eczema"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001508",
+      "label": "Failure to thrive"
+    },
+    {
+      "id": "HP:0001525",
+      "label": "Severe failure to thrive"
+    },
+    {
+      "id": "HP:0001596",
+      "label": "Alopecia"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0045082",
+      "label": "Decreased body mass index"
+    }
+  ],
+  "P0000619": [
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0002342",
+      "label": "Intellectual disability, moderate"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    }
+  ],
+  "P0000640": [],
+  "P0000643": [],
+  "P0000666": [
+    {
+      "id": "HP:0000047",
+      "label": "Hypospadias"
+    },
+    {
+      "id": "HP:0001276",
+      "label": "Hypertonia"
+    },
+    {
+      "id": "HP:0003422",
+      "label": "Vertebral segmentation defect"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0008386",
+      "label": "Aplasia/Hypoplasia of the nails"
+    },
+    {
+      "id": "HP:0008551",
+      "label": "Microtia"
+    },
+    {
+      "id": "HP:0009729",
+      "label": "Cardiac rhabdomyoma"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0003422",
+      "label": "Vertebral segmentation defect"
+    }
+  ],
+  "P0000667": [
+    {
+      "id": "HP:0000567",
+      "label": "Chorioretinal coloboma"
+    },
+    {
+      "id": "HP:0001682",
+      "label": "Subaortic stenosis"
+    },
+    {
+      "id": "HP:0002901",
+      "label": "Hypocalcemia"
+    },
+    {
+      "id": "HP:0004209",
+      "label": "Clinodactyly of the 5th finger"
+    },
+    {
+      "id": "HP:0005176",
+      "label": "Dysplastic aortic valve"
+    },
+    {
+      "id": "HP:0007875",
+      "label": "Congenital blindness"
+    },
+    {
+      "id": "HP:0009906",
+      "label": "Aplasia/Hypoplasia of the earlobes"
+    },
+    {
+      "id": "HP:0011598",
+      "label": "Right aortic arch with retroesophageal left subclavian artery"
+    },
+    {
+      "id": "HP:0011640",
+      "label": "Single coronary artery origin"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0031348",
+      "label": "Dextrotransposition of the great arteries"
+    },
+    {
+      "id": "HP:0001629",
+      "label": "Ventricular septal defect"
+    }
+  ],
+  "P0000671": [
+    {
+      "id": "HP:0000368",
+      "label": "Low-set, posteriorly rotated ears"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002615",
+      "label": "Hypotension"
+    },
+    {
+      "id": "HP:0002902",
+      "label": "Hyponatremia"
+    },
+    {
+      "id": "HP:0003256",
+      "label": "Abnormality of the coagulation cascade"
+    },
+    {
+      "id": "HP:0005967",
+      "label": "Mixed respiratory and metabolic acidosis"
+    },
+    {
+      "id": "HP:0008551",
+      "label": "Microtia"
+    },
+    {
+      "id": "HP:0010310",
+      "label": "Chylothorax"
+    },
+    {
+      "id": "HP:0012050",
+      "label": "Anasarca"
+    },
+    {
+      "id": "HP:0030084",
+      "label": "Clinodactyly"
+    },
+    {
+      "id": "HP:0000821",
+      "label": "Hypothyroidism"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001561",
+      "label": "Polyhydramnios"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0002202",
+      "label": "Pleural effusion"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0004876",
+      "label": "Spontaneous neonatal pneumothorax"
+    },
+    {
+      "id": "HP:0004887",
+      "label": "Respiratory failure requiring assisted ventilation"
+    },
+    {
+      "id": "HP:0010310",
+      "label": "Chylothorax"
+    },
+    {
+      "id": "HP:0011410",
+      "label": "Caesarian section"
+    }
+  ],
+  "P0000644": [],
+  "P0000647": [],
+  "P0000657": [
+    {
+      "id": "HP:0001537",
+      "label": "Umbilical hernia"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0031165",
+      "label": "Multifocal seizures"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    }
+  ],
+  "P0000665": [
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0001010",
+      "label": "Hypopigmentation of the skin"
+    },
+    {
+      "id": "HP:0002020",
+      "label": "Gastroesophageal reflux"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0004488",
+      "label": "Macrocephaly at birth"
+    },
+    {
+      "id": "HP:0025336",
+      "label": "Delayed ability to sit"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0004488",
+      "label": "Macrocephaly at birth"
+    },
+    {
+      "id": "HP:0012768",
+      "label": "Neonatal asphyxia"
+    }
+  ],
+  "P0000668": [
+    {
+      "id": "HP:0000028",
+      "label": "Cryptorchidism"
+    },
+    {
+      "id": "HP:0000175",
+      "label": "Cleft palate"
+    },
+    {
+      "id": "HP:0000193",
+      "label": "Bifid uvula"
+    },
+    {
+      "id": "HP:0000201",
+      "label": "Pierre-Robin sequence"
+    },
+    {
+      "id": "HP:0000405",
+      "label": "Conductive hearing impairment"
+    },
+    {
+      "id": "HP:0000649",
+      "label": "Abnormality of visual evoked potentials"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0001508",
+      "label": "Failure to thrive"
+    },
+    {
+      "id": "HP:0001629",
+      "label": "Ventricular septal defect"
+    },
+    {
+      "id": "HP:0001631",
+      "label": "Atrial septal defect"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0002578",
+      "label": "Gastroparesis"
+    },
+    {
+      "id": "HP:0002750",
+      "label": "Delayed skeletal maturation"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0008598",
+      "label": "Mild conductive hearing impairment"
+    },
+    {
+      "id": "HP:0008689",
+      "label": "Bilateral cryptorchidism"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0011675",
+      "label": "Arrhythmia"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    },
+    {
+      "id": "HP:0025335",
+      "label": "Delayed ability to stand"
+    },
+    {
+      "id": "HP:0025336",
+      "label": "Delayed ability to sit"
+    },
+    {
+      "id": "HP:0410031",
+      "label": "Submucous cleft of soft and hard palate"
+    },
+    {
+      "id": "HP:0001319",
+      "label": "Neonatal hypotonia"
+    },
+    {
+      "id": "HP:0001561",
+      "label": "Polyhydramnios"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    }
+  ],
+  "P0000672": [
+    {
+      "id": "HP:0000280",
+      "label": "Coarse facial features"
+    },
+    {
+      "id": "HP:0009719",
+      "label": "Hypomelanotic macule"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    },
+    {
+      "id": "HP:0011169",
+      "label": "Generalized clonic seizures"
+    }
+  ],
+  "P0000680": [
+    {
+      "id": "HP:0000278",
+      "label": "Retrognathia"
+    },
+    {
+      "id": "HP:0000347",
+      "label": "Micrognathia"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002058",
+      "label": "Myopathic facies"
+    },
+    {
+      "id": "HP:0007874",
+      "label": "Almond-shaped palpebral fissure"
+    },
+    {
+      "id": "HP:0011968",
+      "label": "Feeding difficulties"
+    }
+  ],
+  "P0000676": [
+    {
+      "id": "HP:0000003",
+      "label": "Multicystic kidney dysplasia"
+    },
+    {
+      "id": "HP:0000105",
+      "label": "Enlarged kidney"
+    },
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0000378",
+      "label": "Cupped ear"
+    },
+    {
+      "id": "HP:0000422",
+      "label": "Abnormality of the nasal bridge"
+    },
+    {
+      "id": "HP:0000463",
+      "label": "Anteverted nares"
+    },
+    {
+      "id": "HP:0001520",
+      "label": "Large for gestational age"
+    },
+    {
+      "id": "HP:0001684",
+      "label": "Secundum atrial septal defect"
+    },
+    {
+      "id": "HP:0002089",
+      "label": "Pulmonary hypoplasia"
+    },
+    {
+      "id": "HP:0002092",
+      "label": "Pulmonary arterial hypertension"
+    },
+    {
+      "id": "HP:0002562",
+      "label": "Low-set nipples"
+    },
+    {
+      "id": "HP:0011675",
+      "label": "Arrhythmia"
+    },
+    {
+      "id": "HP:0012050",
+      "label": "Anasarca"
+    },
+    {
+      "id": "HP:0030084",
+      "label": "Clinodactyly"
+    },
+    {
+      "id": "HP:0000105",
+      "label": "Enlarged kidney"
+    },
+    {
+      "id": "HP:0000774",
+      "label": "Narrow chest"
+    },
+    {
+      "id": "HP:0001520",
+      "label": "Large for gestational age"
+    },
+    {
+      "id": "HP:0001562",
+      "label": "Oligohydramnios"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0001640",
+      "label": "Cardiomegaly"
+    },
+    {
+      "id": "HP:0002089",
+      "label": "Pulmonary hypoplasia"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0004719",
+      "label": "Hyperechogenic kidneys"
+    },
+    {
+      "id": "HP:0004876",
+      "label": "Spontaneous neonatal pneumothorax"
+    },
+    {
+      "id": "HP:0004887",
+      "label": "Respiratory failure requiring assisted ventilation"
+    },
+    {
+      "id": "HP:0008659",
+      "label": "Multiple small medullary renal cysts"
+    },
+    {
+      "id": "HP:0011413",
+      "label": "Shoulder dystocia"
+    },
+    {
+      "id": "HP:0012587",
+      "label": "Macroscopic hematuria"
+    },
+    {
+      "id": "HP:0100817",
+      "label": "Renovascular hypertension"
+    }
+  ],
+  "P0000673": [
+    {
+      "id": "HP:0000708",
+      "label": "Behavioral abnormality"
+    },
+    {
+      "id": "HP:0000711",
+      "label": "Restlessness"
+    },
+    {
+      "id": "HP:0000713",
+      "label": "Agitation"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000719",
+      "label": "Inappropriate behavior"
+    },
+    {
+      "id": "HP:0000729",
+      "label": "Autistic behavior"
+    },
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001508",
+      "label": "Failure to thrive"
+    },
+    {
+      "id": "HP:0002360",
+      "label": "Sleep disturbance"
+    },
+    {
+      "id": "HP:0007359",
+      "label": "Focal seizures"
+    },
+    {
+      "id": "HP:0010529",
+      "label": "Echolalia"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    },
+    {
+      "id": "HP:0011099",
+      "label": "Spastic hemiparesis"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0012433",
+      "label": "Abnormal social behavior"
+    },
+    {
+      "id": "HP:0025160",
+      "label": "Abnormal temper tantrums"
+    },
+    {
+      "id": "HP:0030223",
+      "label": "Perseveration"
+    },
+    {
+      "id": "HP:0100851",
+      "label": "Abnormal emotion/affect behavior"
+    }
+  ],
+  "P0000687": [
+    {
+      "id": "HP:0000421",
+      "label": "Epistaxis"
+    },
+    {
+      "id": "HP:0001396",
+      "label": "Cholestasis"
+    },
+    {
+      "id": "HP:0001399",
+      "label": "Hepatic failure"
+    },
+    {
+      "id": "HP:0001433",
+      "label": "Hepatosplenomegaly"
+    },
+    {
+      "id": "HP:0001878",
+      "label": "Hemolytic anemia"
+    },
+    {
+      "id": "HP:0002169",
+      "label": "Clonus"
+    },
+    {
+      "id": "HP:0002395",
+      "label": "Lower limb hyperreflexia"
+    },
+    {
+      "id": "HP:0002910",
+      "label": "Elevated hepatic transaminases"
+    },
+    {
+      "id": "HP:0030148",
+      "label": "Heart murmur"
+    }
+  ],
+  "P0000674": [
+    {
+      "id": "HP:0000508",
+      "label": "Ptosis"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0011398",
+      "label": "Central hypotonia"
+    }
+  ],
+  "P0000536": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000639",
+      "label": "Nystagmus"
+    },
+    {
+      "id": "HP:0006934",
+      "label": "Congenital nystagmus"
+    },
+    {
+      "id": "HP:0007811",
+      "label": "Horizontal pendular nystagmus"
+    },
+    {
+      "id": "HP:0011451",
+      "label": "Congenital microcephaly"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0011451",
+      "label": "Congenital microcephaly"
+    }
+  ],
+  "P0000544": [],
+  "P0000620": [
+    {
+      "id": "HP:0000400",
+      "label": "Macrotia"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0011081",
+      "label": "Incisor macrodontia"
+    },
+    {
+      "id": "HP:0012584",
+      "label": "Bilateral renal hypoplasia"
+    },
+    {
+      "id": "HP:0100611",
+      "label": "Multiple glomerular cysts"
+    }
+  ],
+  "P0000626": [
+    {
+      "id": "HP:0000243",
+      "label": "Trigonocephaly"
+    },
+    {
+      "id": "HP:0001363",
+      "label": "Craniosynostosis"
+    }
+  ],
+  "P0000677": [],
+  "P0000413": [
+    {
+      "id": "HP:0001513",
+      "label": "Obesity"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    }
+  ],
+  "P0000690": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000348",
+      "label": "High forehead"
+    },
+    {
+      "id": "HP:0001396",
+      "label": "Cholestasis"
+    },
+    {
+      "id": "HP:0005233",
+      "label": "Hypoplasia of the gallbladder"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0012188",
+      "label": "Hyperemesis gravidarum"
+    }
+  ],
+  "P0000624": [
+    {
+      "id": "HP:0000494",
+      "label": "Downslanted palpebral fissures"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0002003",
+      "label": "Large forehead"
+    },
+    {
+      "id": "HP:0011343",
+      "label": "Moderate global developmental delay"
+    }
+  ],
+  "P0000693": [
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    }
+  ],
+  "P0000696": [
+    {
+      "id": "HP:0000100",
+      "label": "Nephrotic syndrome"
+    },
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001629",
+      "label": "Ventricular septal defect"
+    },
+    {
+      "id": "HP:0001631",
+      "label": "Atrial septal defect"
+    },
+    {
+      "id": "HP:0001655",
+      "label": "Patent foramen ovale"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0011623",
+      "label": "Muscular ventricular septal defect"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0005100",
+      "label": "Premature birth following premature rupture of fetal membranes"
+    }
+  ],
+  "P0000669": [],
+  "P0000698": [],
+  "P0000692": [],
+  "P0000681": [
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice"
+    }
+  ],
+  "P0000682": [
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0002230",
+      "label": "Generalized hirsutism"
+    },
+    {
+      "id": "HP:0002705",
+      "label": "High, narrow palate"
+    },
+    {
+      "id": "HP:0006986",
+      "label": "Upper limb spasticity"
+    }
+  ],
+  "P0000662": [
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0004324",
+      "label": "Increased body weight"
+    }
+  ],
+  "P0000623": [],
+  "P0000697": [],
+  "P0000688": [
+    {
+      "id": "HP:0000046",
+      "label": "Scrotal hypoplasia"
+    },
+    {
+      "id": "HP:0000107",
+      "label": "Renal cyst"
+    },
+    {
+      "id": "HP:0000684",
+      "label": "Delayed eruption of teeth"
+    },
+    {
+      "id": "HP:0000807",
+      "label": "Glandular hypospadias"
+    },
+    {
+      "id": "HP:0001076",
+      "label": "Glabellar hemangioma"
+    },
+    {
+      "id": "HP:0001156",
+      "label": "Brachydactyly"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0002015",
+      "label": "Dysphagia"
+    },
+    {
+      "id": "HP:0012583",
+      "label": "Unilateral renal hypoplasia"
+    },
+    {
+      "id": "HP:0000107",
+      "label": "Renal cyst"
+    },
+    {
+      "id": "HP:0001195",
+      "label": "Single umbilical artery"
+    },
+    {
+      "id": "HP:0011129",
+      "label": "Bilateral fetal pyelectasis"
+    }
+  ],
+  "P0000702": [
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0100622",
+      "label": "Maternal seizures"
+    }
+  ],
+  "P0000703": [
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0001513",
+      "label": "Obesity"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0004324",
+      "label": "Increased body weight"
+    }
+  ],
+  "P0000704": [
+    {
+      "id": "HP:0000529",
+      "label": "Progressive visual loss"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0002383",
+      "label": "Encephalitis"
+    }
+  ],
+  "P0000686": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002061",
+      "label": "Lower limb spasticity"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0007108",
+      "label": "Demyelinating peripheral neuropathy"
+    }
+  ],
+  "P0000705": [
+    {
+      "id": "HP:0000795",
+      "label": "Abnormality of the urethra"
+    },
+    {
+      "id": "HP:0000796",
+      "label": "Urethral obstruction"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    }
+  ],
+  "P0000709": [
+    {
+      "id": "HP:0001638",
+      "label": "Cardiomyopathy"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0001635",
+      "label": "Congestive heart failure"
+    },
+    {
+      "id": "HP:0001638",
+      "label": "Cardiomyopathy"
+    },
+    {
+      "id": "HP:0001790",
+      "label": "Nonimmune hydrops fetalis"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    }
+  ],
+  "P0000711": [
+    {
+      "id": "HP:0011620",
+      "label": "Abnormality of abdominal situs"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    }
+  ],
+  "P0000685": [
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002126",
+      "label": "Polymicrogyria"
+    },
+    {
+      "id": "HP:0002650",
+      "label": "Scoliosis"
+    },
+    {
+      "id": "HP:0003312",
+      "label": "Abnormal form of the vertebral bodies"
+    },
+    {
+      "id": "HP:0003316",
+      "label": "Butterfly vertebrae"
+    },
+    {
+      "id": "HP:0006657",
+      "label": "Hypoplasia of first ribs"
+    },
+    {
+      "id": "HP:0007165",
+      "label": "Periventricular gray matter heterotopia"
+    },
+    {
+      "id": "HP:0007687",
+      "label": "Unilateral ptosis"
+    },
+    {
+      "id": "HP:0011316",
+      "label": "Left unicoronal synostosis"
+    },
+    {
+      "id": "HP:0011321",
+      "label": "Left unilambdoid synostosis"
+    },
+    {
+      "id": "HP:0000508",
+      "label": "Ptosis"
+    },
+    {
+      "id": "HP:0001269",
+      "label": "Hemiparesis"
+    },
+    {
+      "id": "HP:0002190",
+      "label": "Choroid plexus cyst"
+    },
+    {
+      "id": "HP:0005988",
+      "label": "Congenital muscular torticollis"
+    }
+  ],
+  "P0000708": [],
+  "P0000710": [
+    {
+      "id": "HP:0000003",
+      "label": "Multicystic kidney dysplasia"
+    },
+    {
+      "id": "HP:0000902",
+      "label": "Rib fusion"
+    },
+    {
+      "id": "HP:0001651",
+      "label": "Dextrocardia"
+    },
+    {
+      "id": "HP:0002575",
+      "label": "Tracheoesophageal fistula"
+    },
+    {
+      "id": "HP:0008467",
+      "label": "Thoracic hemivertebrae"
+    },
+    {
+      "id": "HP:0011617",
+      "label": "Pulmonary situs ambiguus"
+    },
+    {
+      "id": "HP:0030021",
+      "label": "Auricular tag"
+    }
+  ],
+  "P0000715": [
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    }
+  ],
+  "P0000691": [
+    {
+      "id": "HP:0001256",
+      "label": "Intellectual disability, mild"
+    }
+  ],
+  "P0000716": [
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0002138",
+      "label": "Subarachnoid hemorrhage"
+    },
+    {
+      "id": "HP:0002637",
+      "label": "Cerebral ischemia"
+    },
+    {
+      "id": "HP:0012520",
+      "label": "Perivascular spaces"
+    },
+    {
+      "id": "HP:0100309",
+      "label": "Subdural hemorrhage"
+    }
+  ],
+  "P0000695": [
+    {
+      "id": "HP:0000483",
+      "label": "Astigmatism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0002910",
+      "label": "Elevated hepatic transaminases"
+    },
+    {
+      "id": "HP:0007239",
+      "label": "Congenital encephalopathy"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    },
+    {
+      "id": "HP:0012847",
+      "label": "Epilepsia partialis continua"
+    },
+    {
+      "id": "HP:0200134",
+      "label": "Epileptic encephalopathy"
+    }
+  ],
+  "P0000721": [
+    {
+      "id": "HP:0001406",
+      "label": "Intrahepatic cholestasis"
+    },
+    {
+      "id": "HP:0001988",
+      "label": "Recurrent hypoglycemia"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0004448",
+      "label": "Fulminant hepatic failure"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    }
+  ],
+  "P0000724": [
+    {
+      "id": "HP:0000964",
+      "label": "Eczema"
+    },
+    {
+      "id": "HP:0001095",
+      "label": "Hypertensive retinopathy"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    }
+  ],
+  "P0000725": [
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0012469",
+      "label": "Infantile spasms"
+    },
+    {
+      "id": "HP:0100704",
+      "label": "Cortical visual impairment"
+    }
+  ],
+  "P0000633": [
+    {
+      "id": "HP:0000218",
+      "label": "High palate"
+    },
+    {
+      "id": "HP:0000617",
+      "label": "Abnormality of ocular smooth pursuit"
+    },
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001285",
+      "label": "Spastic tetraparesis"
+    },
+    {
+      "id": "HP:0002075",
+      "label": "Dysdiadochokinesis"
+    },
+    {
+      "id": "HP:0002715",
+      "label": "Abnormality of the immune system"
+    },
+    {
+      "id": "HP:0003202",
+      "label": "Skeletal muscle atrophy"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    },
+    {
+      "id": "HP:0011343",
+      "label": "Moderate global developmental delay"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0010519",
+      "label": "Increased fetal movement"
+    },
+    {
+      "id": "HP:0100602",
+      "label": "Preeclampsia"
+    }
+  ],
+  "P0000678": [
+    {
+      "id": "HP:0000356",
+      "label": "Abnormality of the outer ear"
+    },
+    {
+      "id": "HP:0000708",
+      "label": "Behavioral abnormality"
+    },
+    {
+      "id": "HP:0000739",
+      "label": "Anxiety"
+    },
+    {
+      "id": "HP:0001256",
+      "label": "Intellectual disability, mild"
+    },
+    {
+      "id": "HP:0001328",
+      "label": "Specific learning disability"
+    },
+    {
+      "id": "HP:0005484",
+      "label": "Postnatal microcephaly"
+    },
+    {
+      "id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder"
+    },
+    {
+      "id": "HP:0008605",
+      "label": "Unilateral external ear deformity"
+    },
+    {
+      "id": "HP:0010865",
+      "label": "Oppositional defiant disorder"
+    }
+  ],
+  "P0000450": [
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0002342",
+      "label": "Intellectual disability, moderate"
+    }
+  ],
+  "P0000727": [
+    {
+      "id": "HP:0000176",
+      "label": "Submucous cleft hard palate"
+    },
+    {
+      "id": "HP:0000193",
+      "label": "Bifid uvula"
+    },
+    {
+      "id": "HP:0000219",
+      "label": "Thin upper lip vermilion"
+    },
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0000308",
+      "label": "Microretrognathia"
+    },
+    {
+      "id": "HP:0000368",
+      "label": "Low-set, posteriorly rotated ears"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001520",
+      "label": "Large for gestational age"
+    },
+    {
+      "id": "HP:0004488",
+      "label": "Macrocephaly at birth"
+    },
+    {
+      "id": "HP:0001520",
+      "label": "Large for gestational age"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    },
+    {
+      "id": "HP:0002190",
+      "label": "Choroid plexus cyst"
+    },
+    {
+      "id": "HP:0004488",
+      "label": "Macrocephaly at birth"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    }
+  ],
+  "P0000689": [
+    {
+      "id": "HP:0000639",
+      "label": "Nystagmus"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0000953",
+      "label": "Hyperpigmentation of the skin"
+    },
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001488",
+      "label": "Bilateral ptosis"
+    },
+    {
+      "id": "HP:0001513",
+      "label": "Obesity"
+    },
+    {
+      "id": "HP:0002061",
+      "label": "Lower limb spasticity"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0002474",
+      "label": "Expressive language delay"
+    },
+    {
+      "id": "HP:0003487",
+      "label": "Babinski sign"
+    },
+    {
+      "id": "HP:0005103",
+      "label": "Calcification of the auricular cartilage"
+    },
+    {
+      "id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder"
+    },
+    {
+      "id": "HP:0010544",
+      "label": "Vertical nystagmus"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0010863",
+      "label": "Receptive language delay"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    },
+    {
+      "id": "HP:0011343",
+      "label": "Moderate global developmental delay"
+    },
+    {
+      "id": "HP:0012043",
+      "label": "Pendular nystagmus"
+    },
+    {
+      "id": "HP:0001787",
+      "label": "Abnormal delivery"
+    },
+    {
+      "id": "HP:0011410",
+      "label": "Caesarian section"
+    },
+    {
+      "id": "HP:0030363",
+      "label": "Primary Caesarian section"
+    }
+  ],
+  "P0000729": [
+    {
+      "id": "HP:0000237",
+      "label": "Small anterior fontanelle"
+    },
+    {
+      "id": "HP:0000426",
+      "label": "Prominent nasal bridge"
+    },
+    {
+      "id": "HP:0000954",
+      "label": "Single transverse palmar crease"
+    },
+    {
+      "id": "HP:0001265",
+      "label": "Hyporeflexia"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0008935",
+      "label": "Generalized neonatal hypotonia"
+    },
+    {
+      "id": "HP:0011968",
+      "label": "Feeding difficulties"
+    },
+    {
+      "id": "HP:0100807",
+      "label": "Long fingers"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    }
+  ],
+  "P0000714": [
+    {
+      "id": "HP:0000321",
+      "label": "Square face"
+    },
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0000582",
+      "label": "Upslanted palpebral fissure"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    }
+  ],
+  "P0000734": [
+    {
+      "id": "HP:0001256",
+      "label": "Intellectual disability, mild"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001328",
+      "label": "Specific learning disability"
+    },
+    {
+      "id": "HP:0002072",
+      "label": "Chorea"
+    }
+  ],
+  "P0000735": [
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002072",
+      "label": "Chorea"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice"
+    },
+    {
+      "id": "HP:0040187",
+      "label": "Neonatal sepsis"
+    }
+  ],
+  "P0000733": [],
+  "P0000739": [],
+  "P0000741": [],
+  "P0000732": [
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    }
+  ],
+  "P0000706": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000268",
+      "label": "Dolichocephaly"
+    },
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    }
+  ],
+  "P0000712": [
+    {
+      "id": "HP:0000248",
+      "label": "Brachycephaly"
+    },
+    {
+      "id": "HP:0000260",
+      "label": "Wide anterior fontanel"
+    },
+    {
+      "id": "HP:0000493",
+      "label": "Abnormality of the fovea"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001274",
+      "label": "Agenesis of corpus callosum"
+    },
+    {
+      "id": "HP:0001357",
+      "label": "Plagiocephaly"
+    },
+    {
+      "id": "HP:0001601",
+      "label": "Laryngomalacia"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0012469",
+      "label": "Infantile spasms"
+    }
+  ],
+  "P0000744": [
+    {
+      "id": "HP:0000248",
+      "label": "Brachycephaly"
+    },
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000463",
+      "label": "Anteverted nares"
+    },
+    {
+      "id": "HP:0000939",
+      "label": "Osteoporosis"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001684",
+      "label": "Secundum atrial septal defect"
+    },
+    {
+      "id": "HP:0002072",
+      "label": "Chorea"
+    },
+    {
+      "id": "HP:0002079",
+      "label": "Hypoplasia of the corpus callosum"
+    },
+    {
+      "id": "HP:0002395",
+      "label": "Lower limb hyperreflexia"
+    },
+    {
+      "id": "HP:0002506",
+      "label": "Diffuse cerebral atrophy"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    },
+    {
+      "id": "HP:0200006",
+      "label": "Slanting of the palpebral fissure"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001562",
+      "label": "Oligohydramnios"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0100602",
+      "label": "Preeclampsia"
+    }
+  ],
+  "P0000720": [
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0002121",
+      "label": "Absence seizures"
+    },
+    {
+      "id": "HP:0002197",
+      "label": "Generalized seizures"
+    },
+    {
+      "id": "HP:0002384",
+      "label": "Focal seizures with impairment of consciousness or awareness"
+    },
+    {
+      "id": "HP:0007359",
+      "label": "Focal seizures"
+    }
+  ],
+  "P0000577": [
+    {
+      "id": "HP:0006978",
+      "label": "Dysmyelinating leukodystrophy"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    }
+  ],
+  "P0000641": [],
+  "P0000726": [
+    {
+      "id": "HP:0000343",
+      "label": "Long philtrum"
+    },
+    {
+      "id": "HP:0000581",
+      "label": "Blepharophimosis"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    }
+  ],
+  "P0000738": [
+    {
+      "id": "HP:0000175",
+      "label": "Cleft palate"
+    },
+    {
+      "id": "HP:0000176",
+      "label": "Submucous cleft hard palate"
+    },
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0000405",
+      "label": "Conductive hearing impairment"
+    },
+    {
+      "id": "HP:0000996",
+      "label": "Facial capillary hemangioma"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001508",
+      "label": "Failure to thrive"
+    },
+    {
+      "id": "HP:0001525",
+      "label": "Severe failure to thrive"
+    },
+    {
+      "id": "HP:0001631",
+      "label": "Atrial septal defect"
+    },
+    {
+      "id": "HP:0001684",
+      "label": "Secundum atrial septal defect"
+    },
+    {
+      "id": "HP:0002015",
+      "label": "Dysphagia"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0005306",
+      "label": "Capillary hemangiomas"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0012716",
+      "label": "Moderate conductive hearing impairment"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    },
+    {
+      "id": "HP:0410031",
+      "label": "Submucous cleft of soft and hard palate"
+    },
+    {
+      "id": "HP:0001195",
+      "label": "Single umbilical artery"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0011408",
+      "label": "Moderate intrauterine growth retardation"
+    }
+  ],
+  "P0000753": [
+    {
+      "id": "HP:0000431",
+      "label": "Wide nasal bridge"
+    },
+    {
+      "id": "HP:0001543",
+      "label": "Gastroschisis"
+    },
+    {
+      "id": "HP:0002126",
+      "label": "Polymicrogyria"
+    },
+    {
+      "id": "HP:0010448",
+      "label": "Colonic atresia"
+    }
+  ],
+  "P0000750": [
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001562",
+      "label": "Oligohydramnios"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    }
+  ],
+  "P0000615": [],
+  "P0000370": [
+    {
+      "id": "HP:0012469",
+      "label": "Infantile spasms"
+    },
+    {
+      "id": "HP:0040168",
+      "label": "Focal seizures, afebril"
+    }
+  ],
+  "P0000694": [
+    {
+      "id": "HP:0000049",
+      "label": "Shawl scrotum"
+    },
+    {
+      "id": "HP:0001022",
+      "label": "Albinism"
+    },
+    {
+      "id": "HP:0001107",
+      "label": "Ocular albinism"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002123",
+      "label": "Generalized myoclonic seizures"
+    },
+    {
+      "id": "HP:0002719",
+      "label": "Recurrent infections"
+    }
+  ],
+  "P0000737": [
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0002123",
+      "label": "Generalized myoclonic seizures"
+    },
+    {
+      "id": "HP:0002197",
+      "label": "Generalized seizures"
+    },
+    {
+      "id": "HP:0010818",
+      "label": "Generalized tonic seizures"
+    },
+    {
+      "id": "HP:0011342",
+      "label": "Mild global developmental delay"
+    }
+  ],
+  "P0000740": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0011451",
+      "label": "Congenital microcephaly"
+    },
+    {
+      "id": "HP:0011451",
+      "label": "Congenital microcephaly"
+    }
+  ],
+  "P0000754": [
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    },
+    {
+      "id": "HP:0002151",
+      "label": "Increased serum lactate"
+    },
+    {
+      "id": "HP:0002490",
+      "label": "Increased CSF lactate"
+    },
+    {
+      "id": "HP:0008064",
+      "label": "Ichthyosis"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    },
+    {
+      "id": "HP:0008071",
+      "label": "Maternal hypertension"
+    }
+  ],
+  "P0000742": [],
+  "P0000747": [
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0011097",
+      "label": "Epileptic spasms"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    }
+  ],
+  "P0000743": [
+    {
+      "id": "HP:0000407",
+      "label": "Sensorineural hearing impairment"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001162",
+      "label": "Postaxial hand polydactyly"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    },
+    {
+      "id": "HP:0011097",
+      "label": "Epileptic spasms"
+    },
+    {
+      "id": "HP:0011344",
+      "label": "Severe global developmental delay"
+    },
+    {
+      "id": "HP:0100259",
+      "label": "Postaxial polydactyly"
+    }
+  ],
+  "P0000699": [
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0025335",
+      "label": "Delayed ability to stand"
+    },
+    {
+      "id": "HP:0025336",
+      "label": "Delayed ability to sit"
+    }
+  ],
+  "P0000748": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    }
+  ],
+  "P0000760": [
+    {
+      "id": "HP:0000126",
+      "label": "Hydronephrosis"
+    },
+    {
+      "id": "HP:0000480",
+      "label": "Retinal coloboma"
+    },
+    {
+      "id": "HP:0001629",
+      "label": "Ventricular septal defect"
+    },
+    {
+      "id": "HP:0001642",
+      "label": "Pulmonic stenosis"
+    },
+    {
+      "id": "HP:0001684",
+      "label": "Secundum atrial septal defect"
+    },
+    {
+      "id": "HP:0000077",
+      "label": "Abnormality of the kidney"
+    },
+    {
+      "id": "HP:0001561",
+      "label": "Polyhydramnios"
+    },
+    {
+      "id": "HP:0002240",
+      "label": "Hepatomegaly"
+    },
+    {
+      "id": "HP:0008221",
+      "label": "Adrenal hyperplasia"
+    },
+    {
+      "id": "HP:0012765",
+      "label": "Widened cerebellar subarachnoid space"
+    }
+  ],
+  "P0000761": [
+    {
+      "id": "HP:0000023",
+      "label": "Inguinal hernia"
+    },
+    {
+      "id": "HP:0000316",
+      "label": "Hypertelorism"
+    },
+    {
+      "id": "HP:0001034",
+      "label": "Hypermelanotic macule"
+    },
+    {
+      "id": "HP:0001537",
+      "label": "Umbilical hernia"
+    },
+    {
+      "id": "HP:0002680",
+      "label": "J-shaped sella turcica"
+    },
+    {
+      "id": "HP:0009062",
+      "label": "Infantile axial hypotonia"
+    }
+  ],
+  "P0000763": [
+    {
+      "id": "HP:0001396",
+      "label": "Cholestasis"
+    },
+    {
+      "id": "HP:0002138",
+      "label": "Subarachnoid hemorrhage"
+    },
+    {
+      "id": "HP:0002637",
+      "label": "Cerebral ischemia"
+    },
+    {
+      "id": "HP:0040168",
+      "label": "Focal seizures, afebril"
+    },
+    {
+      "id": "HP:0001396",
+      "label": "Cholestasis"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    }
+  ],
+  "P0000758": [
+    {
+      "id": "HP:0000003",
+      "label": "Multicystic kidney dysplasia"
+    },
+    {
+      "id": "HP:0002023",
+      "label": "Anal atresia"
+    },
+    {
+      "id": "HP:0002650",
+      "label": "Scoliosis"
+    },
+    {
+      "id": "HP:0008439",
+      "label": "Lumbar hemivertebrae"
+    },
+    {
+      "id": "HP:0000003",
+      "label": "Multicystic kidney dysplasia"
+    },
+    {
+      "id": "HP:0002650",
+      "label": "Scoliosis"
+    }
+  ],
+  "P0000770": [],
+  "P0000749": [
+    {
+      "id": "HP:0001513",
+      "label": "Obesity"
+    },
+    {
+      "id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice"
+    }
+  ],
+  "P0000606": [
+    {
+      "id": "HP:0000356",
+      "label": "Abnormality of the outer ear"
+    },
+    {
+      "id": "HP:0000689",
+      "label": "Dental malocclusion"
+    },
+    {
+      "id": "HP:0001256",
+      "label": "Intellectual disability, mild"
+    },
+    {
+      "id": "HP:0001274",
+      "label": "Agenesis of corpus callosum"
+    },
+    {
+      "id": "HP:0002011",
+      "label": "Morphological abnormality of the central nervous system"
+    },
+    {
+      "id": "HP:0002174",
+      "label": "Postural tremor"
+    },
+    {
+      "id": "HP:0002650",
+      "label": "Scoliosis"
+    },
+    {
+      "id": "HP:0002944",
+      "label": "Thoracolumbar scoliosis"
+    }
+  ],
+  "P0000764": [],
+  "P0000772": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0002011",
+      "label": "Morphological abnormality of the central nervous system"
+    },
+    {
+      "id": "HP:0004324",
+      "label": "Increased body weight"
+    },
+    {
+      "id": "HP:0012110",
+      "label": "Hypoplasia of the pons"
+    },
+    {
+      "id": "HP:0200011",
+      "label": "Abnormal length of corpus callosum"
+    }
+  ],
+  "P0000782": [
+    {
+      "id": "HP:0008071",
+      "label": "Maternal hypertension"
+    }
+  ],
+  "P0000785": [],
+  "P0000786": [],
+  "P0000679": [
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002070",
+      "label": "Limb ataxia"
+    }
+  ],
+  "P0000762": [
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0000431",
+      "label": "Wide nasal bridge"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001763",
+      "label": "Pes planus"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0002474",
+      "label": "Expressive language delay"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0025335",
+      "label": "Delayed ability to stand"
+    },
+    {
+      "id": "HP:0001319",
+      "label": "Neonatal hypotonia"
+    },
+    {
+      "id": "HP:0001558",
+      "label": "Decreased fetal movement"
+    },
+    {
+      "id": "HP:0001561",
+      "label": "Polyhydramnios"
+    },
+    {
+      "id": "HP:0001623",
+      "label": "Breech presentation"
+    },
+    {
+      "id": "HP:0001787",
+      "label": "Abnormal delivery"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0011410",
+      "label": "Caesarian section"
+    }
+  ],
+  "P0000779": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000260",
+      "label": "Wide anterior fontanel"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    }
+  ],
+  "P0000793": [
+    {
+      "id": "HP:0000286",
+      "label": "Epicanthus"
+    },
+    {
+      "id": "HP:0000369",
+      "label": "Low-set ears"
+    },
+    {
+      "id": "HP:0000431",
+      "label": "Wide nasal bridge"
+    },
+    {
+      "id": "HP:0000506",
+      "label": "Telecanthus"
+    },
+    {
+      "id": "HP:0000878",
+      "label": "11 pairs of ribs"
+    },
+    {
+      "id": "HP:0001093",
+      "label": "Optic nerve dysplasia"
+    },
+    {
+      "id": "HP:0001655",
+      "label": "Patent foramen ovale"
+    },
+    {
+      "id": "HP:0002023",
+      "label": "Anal atresia"
+    },
+    {
+      "id": "HP:0004719",
+      "label": "Hyperechogenic kidneys"
+    },
+    {
+      "id": "HP:0030084",
+      "label": "Clinodactyly"
+    }
+  ],
+  "P0000803": [
+    {
+      "id": "HP:0002617",
+      "label": "Dilatation"
+    }
+  ],
+  "P0000802": [
+    {
+      "id": "HP:0000028",
+      "label": "Cryptorchidism"
+    },
+    {
+      "id": "HP:0001545",
+      "label": "Anteriorly placed anus"
+    },
+    {
+      "id": "HP:0002025",
+      "label": "Anal stenosis"
+    },
+    {
+      "id": "HP:0003244",
+      "label": "Penile hypospadias"
+    },
+    {
+      "id": "HP:0011304",
+      "label": "Broad thumb"
+    },
+    {
+      "id": "HP:0011670",
+      "label": "Left superior vena cava draining to coronary sinus"
+    },
+    {
+      "id": "HP:0011682",
+      "label": "Perimembranous ventricular septal defect"
+    },
+    {
+      "id": "HP:0001195",
+      "label": "Single umbilical artery"
+    },
+    {
+      "id": "HP:0006267",
+      "label": "Large placenta"
+    }
+  ],
+  "P0000799": [
+    {
+      "id": "HP:0000708",
+      "label": "Behavioral abnormality"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0002342",
+      "label": "Intellectual disability, moderate"
+    },
+    {
+      "id": "HP:0002360",
+      "label": "Sleep disturbance"
+    },
+    {
+      "id": "HP:0002474",
+      "label": "Expressive language delay"
+    },
+    {
+      "id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder"
+    },
+    {
+      "id": "HP:0010864",
+      "label": "Intellectual disability, severe"
+    }
+  ],
+  "P0000775": [
+    {
+      "id": "HP:0002342",
+      "label": "Intellectual disability, moderate"
+    },
+    {
+      "id": "HP:0007018",
+      "label": "Attention deficit hyperactivity disorder"
+    }
+  ],
+  "P0000776": [
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0002342",
+      "label": "Intellectual disability, moderate"
+    },
+    {
+      "id": "HP:0012444",
+      "label": "Brain atrophy"
+    }
+  ],
+  "P0000347": [
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0002088",
+      "label": "Abnormality of lung morphology"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0011343",
+      "label": "Moderate global developmental delay"
+    },
+    {
+      "id": "HP:0025335",
+      "label": "Delayed ability to stand"
+    },
+    {
+      "id": "HP:0010959",
+      "label": "Congenital cystic adenomatoid malformation of the lung"
+    }
+  ],
+  "P0000701": [
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001363",
+      "label": "Craniosynostosis"
+    },
+    {
+      "id": "HP:0002342",
+      "label": "Intellectual disability, moderate"
+    },
+    {
+      "id": "HP:0002575",
+      "label": "Tracheoesophageal fistula"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    },
+    {
+      "id": "HP:0003561",
+      "label": "Birth length less than 3rd percentile"
+    },
+    {
+      "id": "HP:0011436",
+      "label": "Abnormal maternal serum screening"
+    }
+  ],
+  "P0000798": [],
+  "P0000713": [
+    {
+      "id": "HP:0000256",
+      "label": "Macrocephaly"
+    },
+    {
+      "id": "HP:0000483",
+      "label": "Astigmatism"
+    },
+    {
+      "id": "HP:0000486",
+      "label": "Strabismus"
+    },
+    {
+      "id": "HP:0000540",
+      "label": "Hypermetropia"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001010",
+      "label": "Hypopigmentation of the skin"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001999",
+      "label": "Abnormal facial shape"
+    },
+    {
+      "id": "HP:0002015",
+      "label": "Dysphagia"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0030187",
+      "label": "Titubation"
+    },
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    },
+    {
+      "id": "HP:0100767",
+      "label": "Abnormality of the placenta"
+    }
+  ],
+  "P0000717": [
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    }
+  ],
+  "P0000805": [],
+  "P0000792": [
+    {
+      "id": "HP:0000260",
+      "label": "Wide anterior fontanel"
+    },
+    {
+      "id": "HP:0000842",
+      "label": "Hyperinsulinemia"
+    },
+    {
+      "id": "HP:0001508",
+      "label": "Failure to thrive"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0001655",
+      "label": "Patent foramen ovale"
+    },
+    {
+      "id": "HP:0001903",
+      "label": "Anemia"
+    },
+    {
+      "id": "HP:0001988",
+      "label": "Recurrent hypoglycemia"
+    },
+    {
+      "id": "HP:0003231",
+      "label": "Hypertyrosinemia"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    }
+  ],
+  "P0000041": [
+    {
+      "id": "HP:0000286",
+      "label": "Epicanthus"
+    },
+    {
+      "id": "HP:0000463",
+      "label": "Anteverted nares"
+    },
+    {
+      "id": "HP:0000494",
+      "label": "Downslanted palpebral fissures"
+    },
+    {
+      "id": "HP:0000961",
+      "label": "Cyanosis"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001357",
+      "label": "Plagiocephaly"
+    },
+    {
+      "id": "HP:0002015",
+      "label": "Dysphagia"
+    },
+    {
+      "id": "HP:0002020",
+      "label": "Gastroesophageal reflux"
+    },
+    {
+      "id": "HP:0002500",
+      "label": "Abnormality of the cerebral white matter"
+    },
+    {
+      "id": "HP:0002509",
+      "label": "Limb hypertonia"
+    },
+    {
+      "id": "HP:0003196",
+      "label": "Short nose"
+    },
+    {
+      "id": "HP:0009062",
+      "label": "Infantile axial hypotonia"
+    },
+    {
+      "id": "HP:0012368",
+      "label": "Flat face"
+    },
+    {
+      "id": "HP:0012448",
+      "label": "Delayed myelination"
+    }
+  ],
+  "P0000765": [],
+  "P0000719": [
+    {
+      "id": "HP:0000020",
+      "label": "Urinary incontinence"
+    },
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    }
+  ],
+  "P0000381": [
+    {
+      "id": "HP:0009800",
+      "label": "Maternal diabetes"
+    }
+  ],
+  "P0000736": [
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002072",
+      "label": "Chorea"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    },
+    {
+      "id": "HP:0006579",
+      "label": "Prolonged neonatal jaundice"
+    },
+    {
+      "id": "HP:0040187",
+      "label": "Neonatal sepsis"
+    }
+  ],
+  "P0000789": [
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0002011",
+      "label": "Morphological abnormality of the central nervous system"
+    },
+    {
+      "id": "HP:0002118",
+      "label": "Abnormality of the cerebral ventricles"
+    },
+    {
+      "id": "HP:0002363",
+      "label": "Abnormality of brainstem morphology"
+    },
+    {
+      "id": "HP:0002508",
+      "label": "Brainstem dysplasia"
+    },
+    {
+      "id": "HP:0002977",
+      "label": "Aplasia/Hypoplasia involving the central nervous system"
+    },
+    {
+      "id": "HP:0007366",
+      "label": "Atrophy/Degeneration affecting the brainstem"
+    },
+    {
+      "id": "HP:0007367",
+      "label": "Atrophy/Degeneration affecting the central nervous system"
+    },
+    {
+      "id": "HP:0012443",
+      "label": "Abnormality of brain morphology"
+    },
+    {
+      "id": "HP:0001838",
+      "label": "Rocker bottom foot"
+    },
+    {
+      "id": "HP:0001998",
+      "label": "Neonatal hypoglycemia"
+    },
+    {
+      "id": "HP:0002033",
+      "label": "Poor suck"
+    }
+  ],
+  "P0000730": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    }
+  ],
+  "P0000788": [],
+  "P0000446": [
+    {
+      "id": "HP:0000028",
+      "label": "Cryptorchidism"
+    },
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0000368",
+      "label": "Low-set, posteriorly rotated ears"
+    },
+    {
+      "id": "HP:0000565",
+      "label": "Esotropia"
+    },
+    {
+      "id": "HP:0000646",
+      "label": "Amblyopia"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001285",
+      "label": "Spastic tetraparesis"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0001508",
+      "label": "Failure to thrive"
+    },
+    {
+      "id": "HP:0001525",
+      "label": "Severe failure to thrive"
+    },
+    {
+      "id": "HP:0001647",
+      "label": "Bicuspid aortic valve"
+    },
+    {
+      "id": "HP:0001680",
+      "label": "Coarctation of aorta"
+    },
+    {
+      "id": "HP:0002011",
+      "label": "Morphological abnormality of the central nervous system"
+    },
+    {
+      "id": "HP:0002015",
+      "label": "Dysphagia"
+    },
+    {
+      "id": "HP:0002194",
+      "label": "Delayed gross motor development"
+    },
+    {
+      "id": "HP:0004322",
+      "label": "Short stature"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0005484",
+      "label": "Postnatal microcephaly"
+    },
+    {
+      "id": "HP:0006970",
+      "label": "Periventricular leukomalacia"
+    },
+    {
+      "id": "HP:0008689",
+      "label": "Bilateral cryptorchidism"
+    },
+    {
+      "id": "HP:0010665",
+      "label": "Bilateral coxa valga"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    },
+    {
+      "id": "HP:0011342",
+      "label": "Mild global developmental delay"
+    },
+    {
+      "id": "HP:0025335",
+      "label": "Delayed ability to stand"
+    },
+    {
+      "id": "HP:0025336",
+      "label": "Delayed ability to sit"
+    },
+    {
+      "id": "HP:0030043",
+      "label": "Hip subluxation"
+    },
+    {
+      "id": "HP:0001622",
+      "label": "Premature birth"
+    },
+    {
+      "id": "HP:0005100",
+      "label": "Premature birth following premature rupture of fetal membranes"
+    }
+  ],
+  "P0000675": [
+    {
+      "id": "HP:0000252",
+      "label": "Microcephaly"
+    },
+    {
+      "id": "HP:0001762",
+      "label": "Talipes equinovarus"
+    },
+    {
+      "id": "HP:0011171",
+      "label": "Simple febrile seizures"
+    },
+    {
+      "id": "HP:0011207",
+      "label": "EEG with generalized slow activity grade 2"
+    },
+    {
+      "id": "HP:0001511",
+      "label": "Intrauterine growth retardation"
+    },
+    {
+      "id": "HP:0008883",
+      "label": "Mild intrauterine growth retardation"
+    }
+  ],
+  "P0000791": [
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0001250",
+      "label": "Seizures"
+    },
+    {
+      "id": "HP:0001873",
+      "label": "Thrombocytopenia"
+    },
+    {
+      "id": "HP:0001903",
+      "label": "Anemia"
+    },
+    {
+      "id": "HP:0002187",
+      "label": "Intellectual disability, profound"
+    },
+    {
+      "id": "HP:0007069",
+      "label": "Profound static encephalopathy"
+    },
+    {
+      "id": "HP:0040160",
+      "label": "Generalized osteoporosis"
+    }
+  ],
+  "P0000442": [
+    {
+      "id": "HP:0001256",
+      "label": "Intellectual disability, mild"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001328",
+      "label": "Specific learning disability"
+    },
+    {
+      "id": "HP:0002066",
+      "label": "Gait ataxia"
+    },
+    {
+      "id": "HP:0011342",
+      "label": "Mild global developmental delay"
+    }
+  ],
+  "P0000797": [
+    {
+      "id": "HP:0000717",
+      "label": "Autism"
+    },
+    {
+      "id": "HP:0000750",
+      "label": "Delayed speech and language development"
+    },
+    {
+      "id": "HP:0001256",
+      "label": "Intellectual disability, mild"
+    },
+    {
+      "id": "HP:0001344",
+      "label": "Absent speech"
+    },
+    {
+      "id": "HP:0010862",
+      "label": "Delayed fine motor development"
+    }
+  ],
+  "P0000801": [],
+  "P0000756": [
+    {
+      "id": "HP:0001257",
+      "label": "Spasticity"
+    },
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0002015",
+      "label": "Dysphagia"
+    },
+    {
+      "id": "HP:0002061",
+      "label": "Lower limb spasticity"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0005484",
+      "label": "Postnatal microcephaly"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    }
+  ],
+  "P0000324": [
+    {
+      "id": "HP:0001263",
+      "label": "Global developmental delay"
+    },
+    {
+      "id": "HP:0001290",
+      "label": "Generalized hypotonia"
+    },
+    {
+      "id": "HP:0004325",
+      "label": "Decreased body weight"
+    },
+    {
+      "id": "HP:0012736",
+      "label": "Profound global developmental delay"
+    }
+  ],
+  "P0000808": [],
+  "P0000814": [],
+  "P0000667.bak": [
+    {
+      "id": "HP:0000567",
+      "label": "Chorioretinal coloboma"
+    },
+    {
+      "id": "HP:0001682",
+      "label": "Subaortic stenosis"
+    },
+    {
+      "id": "HP:0002901",
+      "label": "Hypocalcemia"
+    },
+    {
+      "id": "HP:0004209",
+      "label": "Clinodactyly of the 5th finger"
+    },
+    {
+      "id": "HP:0005176",
+      "label": "Dysplastic aortic valve"
+    },
+    {
+      "id": "HP:0007875",
+      "label": "Congenital blindness"
+    },
+    {
+      "id": "HP:0009906",
+      "label": "Aplasia/Hypoplasia of the earlobes"
+    },
+    {
+      "id": "HP:0011598",
+      "label": "Right aortic arch with retroesophageal left subclavian artery"
+    },
+    {
+      "id": "HP:0011607",
+      "label": "Transposition of the great arteries with ventricular septal defect"
+    },
+    {
+      "id": "HP:0011640",
+      "label": "Single coronary artery origin"
+    },
+    {
+      "id": "HP:0002643",
+      "label": "Neonatal respiratory distress"
+    }
+  ]
+}
