@@ -154,6 +154,7 @@ class Phenotips:
                 hpos.append({'id': feature['id'], 'label': feature['label']})
         return(hpos)
 
+
     def get_hpo(self, pid):
         """
         Get HPO terms observed for this Phenotips ID (`pid`, must be a `str`).
@@ -206,7 +207,7 @@ class Phenotips:
           record files (as JSON). Default location is 
           spxp-app02://staging2/data/Illumina/TSS/2021-03-08/json/pheno_json/
         - `outfile`: [str] Filename to JSON output. Default=None (not saved).
-          Backup as 'old_phenotips_extracted_hpos.json'
+          Backup as 'pheno_json-extracted_hpos.json'
         - Returns: a dict for HPO terms that are 'observed'='yes'
           {"PID": {'id': [hpo1,hpo2,...], 'label': [label1,label2,...], },...}
         """
