@@ -464,7 +464,7 @@ class BSSH:
         response.raise_for_status
         # TODO: Warn if response.json().get('Paging')["TotalCount"] != 1
         return(response.json().get('Items')[0]['Id'])
-    
+
 
     def get_dataset_id(self, biosampleid):
         """
@@ -488,7 +488,7 @@ class BSSH:
             return(datasets)
         else:
             return(None)
-    
+
 
     def get_sequenced_files(self, biosample):
         """
@@ -519,7 +519,6 @@ class BSSH:
                 #fastqs.append(item['HrefContent'])
 
         return(fastqs)
-    
 
 
 def test():
