@@ -424,8 +424,13 @@ def main(args):
 
             # 2.3 Add paths to fastq on BaseSpace
             #
-            fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
-            sample_infos.append(';'.join(fastqs))
+            try:
+                fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
+            except Exception as err:
+                logging.info(f"Could not retrieve FASTQs paths for {cqgc}: {err}")
+                fastqs = []
+            else:
+                sample_infos.append(';'.join(fastqs))
 
             cases.append(sample_infos)
     
@@ -446,7 +451,7 @@ def main(args):
     # Print to STDOUT case by case, with HPO terms. Easier reading, when 
     # creating cases manually using Emedgene's web UI
     #
-    logging.info(f"\nCases for {args.run}:\n")
+    logging.info(f"Cases for {args.run}:\n")
     df1 = df.drop(['phenotypes', 'filenames'], axis=1)
     print_case_by_case(df1)
 
