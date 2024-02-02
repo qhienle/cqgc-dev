@@ -474,7 +474,12 @@ class BSSH:
         """
         endpoint = '/v2/datasets/'
         url = self.server + endpoint
-        payload = {'inputbiosamples': {biosampleid}, 'datasettypes': 'common.fastq'}
+
+        # FastQ files uploaded using CLI has the DatasetTypes.ID 'illumina.fastq.v1.8' 
+        # while the ones created by BCL Convert have the type 'common.fastq'.
+        #
+        # payload = {'inputbiosamples': {biosampleid}, 'datasettypes': 'common.fastq'}
+        payload = {'inputbiosamples': {biosampleid}}
         response = requests.get(url, headers=self.headers, params=payload)
         response.raise_for_status
 
