@@ -24,6 +24,7 @@ import os, sys
 import argparse
 import logging
 import json
+import re
 import pandas as pd
 
 # Set source path to CQGC-utils so that we can use relative imports
@@ -59,6 +60,35 @@ def configure_logging(level):
     logging.basicConfig(level=level_name, 
                         format='[%(asctime)s] %(levelname)s: %(message)s', 
                         datefmt='%Y-%m-%d@%H:%M:%S')
+
+
+def list_samples_from_samplenames(run, file=None):
+    """
+    Get list of samples, either directly from Nanuq (default) or from the Nanuq
+    file, "SampleNames.txt"
+    - db: [str] Path to JSON file containing PID to HPO information
+    - Returns: List of samples from Nanuq (CQGC IDs, referred to by 
+               Illumina as 'biosamples')
+    """
+    biosamples = []
+    nq = Nanuq()
+    if file is not None:
+        with open(file, 'r') as fh:
+            content = fh.read().splitlines()
+        logging.info("Listing samples... Retrieved samples conversion table from file {file}.")
+    else:
+        content = nq.get_samplenames(run).text.splitlines()
+        logging.info("Listing samples... Retrieved samples conversion table from Nanuq.")
+
+    for line in content:
+        logging.debug(f"Parsing SampleNames...")
+        if line.startswith("#"):
+            if line.startswith("##20"):
+                fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', line).group(1)
+        else:
+            cqgc_id, sample_name = line.split("\t")
+            biosamples.append(cqgc_id)
+    return biosamples
 
 
 def get_hpos(pid, db='D:\\HSJ\\Workspace\\cqgc-dev\\lib\\pheno_json-extracted_hpos.json'):
