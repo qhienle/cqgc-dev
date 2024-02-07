@@ -38,6 +38,7 @@ __version__ = "0.2"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Create cases in Emedgene for <run> (ex.: "A00516_420").')
+    parser.add_argument('run', help="FC_SHORT Run ID, ex: 'A00516_339'")
     parser.add_argument('--file', '-f', help="List of samples", default='SampleNames.txt')
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
@@ -152,37 +153,11 @@ def main():
 
     args = parse_args()
     configure_logging(args.level)
-    db_xlsx = args.file
-    workdir = 'D:\HSJ\Projects\PRAGMatIQ\TSS Negatives AOH'
+    workdir = os.getcwd()
     os.chdir(workdir)
 
-    # 1. Get list of cases and family information as a pandas dataframe.
+    # 1. Get list of cases and family information from Nanuq or SampleNames.txt
     #
-    logging.debug(f"Reading file {db_xlsx}")
-    df_rapidomics0 = pd.read_excel(db_xlsx, sheet_name='Rapidomics_Samples', usecols='A:F,G,I')
-    df_rapidomics0.columns = ['sample_name', 'biosample', 'gender', 'pid', 'relation', 'design', 'family', 'run']
-    df_unsolved0   = pd.read_excel(db_xlsx, sheet_name='Unsolved', usecols='F')
-    df_unsolved0.columns = ['sample_name']
-
-    df = pd.merge(df_unsolved0, df_rapidomics0, how='inner', on=['sample_name'])
-
-    # 2. Add the Phenotips ID (PID) and the corresponding HPO Identifiers
-    # 
-    df['hpos'] = df['pid'].apply(get_hpos)
-
-    # 3. Connect to BaseSpace and re-construct the path to the FASTQ files
-    #
-    df['filenames'] = ''
-    print(f"Path to 13203 {bssh.get_sequenced_files('13203')}")    
-
-    # 4. Convert DataFrame into a CSV file (manifest) for EMG batch upload
-    #
-    df['label'] = 15 # LabelID=15 for CHUSJ, on eval
-    df['birthdate'] = df['biosample'].apply(get_birthdate)
-    df = df.sort_values(by=['family', 'relation'], ascending=[True, False])
-    print(df)
-    df_to_manifest(df)
-    logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
 
 
 if __name__ == '__main__':

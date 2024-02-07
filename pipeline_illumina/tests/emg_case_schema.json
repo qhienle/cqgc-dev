@@ -1,0 +1,171 @@
+{
+    "enrich_disease_phenotypes": false,
+    "include_incidental_parents": false,
+    "sharing_level": 0,
+    "should_upload": false,
+    "test_data": {
+        "analysis_type": "string",
+        "boostGenes": false,
+        "consanguinity": false,
+        "disease_penetrance": 0,
+        "disease_severity": "",
+        "diseases": [],
+        "due_date": "2000-01-31",
+        "extra_data": {},
+        "filename": "string",
+        "gene_list": {
+            "genes": [
+                {
+                    "id": "string",
+                    "match": "string",
+                    "name": "string",
+                    "ncbi_id": "string"
+                }
+            ],
+            "id": 0,
+            "name": "string",
+            "type": "new",
+            "visible": true
+        },
+        "gene_list_visible": true,
+        "incidental_findings": "Yes",
+        "indication_for_testing": "string",
+        "inheritance_modes": [],
+        "labels": [],
+        "notes": "string",
+        "patients": {
+            "father": {
+                "date_of_birth": "string",
+                "dead": true,
+                "detailed_ethnicity": {
+                    "maternal": [
+                        "Afghan Jews"
+                    ],
+                    "paternal": [
+                        "Afghan Jews"
+                    ]
+                },
+                "fastq_sample": "string",
+                "father": "string",
+                "gender": "string",
+                "healthy": true,
+                "id": "string",
+                "ignore": true,
+                "mother": "string",
+                "notes": "string",
+                "other_family_data_key": "string",
+                "other_family_data_sample": "string",
+                "pending_sample_name": "string",
+                "phenotypes": [
+                    {
+                        "diseasesIds": [
+                            "string"
+                        ],
+                        "id": "string",
+                        "name": "string",
+                        "related": true
+                    }
+                ],
+                "quality": "string",
+                "relationship": "string",
+                "zygosity": "string"
+            },
+            "mother": {
+                "date_of_birth": "string",
+                "dead": true,
+                "detailed_ethnicity": {
+                    "maternal": [
+                        "Afghan Jews"
+                    ],
+                    "paternal": [
+                        "Afghan Jews"
+                    ]
+                },
+                "fastq_sample": "string",
+                "father": "string",
+                "gender": "string",
+                "healthy": true,
+                "id": "string",
+                "ignore": true,
+                "mother": "string",
+                "notes": "string",
+                "other_family_data_key": "string",
+                "other_family_data_sample": "string",
+                "pending_sample_name": "string",
+                "phenotypes": [
+                    {
+                        "diseasesIds": [
+                            "string"
+                        ],
+                        "id": "string",
+                        "name": "string",
+                        "related": true
+                    }
+                ],
+                "quality": "string",
+                "relationship": "string",
+                "zygosity": "string"
+            },
+            "other": [],
+            "proband": {
+                "date_of_birth": "string",
+                "dead": true,
+                "detailed_ethnicity": {
+                    "maternal": [
+                        "Afghan Jews"
+                    ],
+                    "paternal": [
+                        "Afghan Jews"
+                    ]
+                },
+                "fastq_sample": "string",
+                "father": "string",
+                "gender": "string",
+                "healthy": true,
+                "id": "proband",
+                "ignore": true,
+                "mother": "string",
+                "notes": "string",
+                "other_family_data_key": "string",
+                "other_family_data_sample": "string",
+                "pending_sample_name": "string",
+                "phenotypes": [
+                    {
+                        "diseasesIds": [
+                            "string"
+                        ],
+                        "id": "string",
+                        "name": "string",
+                        "related": true
+                    }
+                ],
+                "quality": "string",
+                "relationship": "string",
+                "zygosity": "string"
+            }
+        },
+        "sample_type": "string",
+        "samples": [
+            {
+                "bam_location": "string",
+                "fastq": "string",
+                "id": 0,
+                "sampleFiles": [
+                    {
+                        "filename": "string",
+                        "path": "string",
+                        "size": 0,
+                        "status": "string",
+                        "storage_id": 0,
+                        "vcf_column_name": "string"
+                    }
+                ],
+                "status": "uploaded",
+                "storage_id": 0
+            }
+        ],
+        "selected_preset_set": "string",
+        "sequence_info": {},
+        "type": "string"
+    }
+}
