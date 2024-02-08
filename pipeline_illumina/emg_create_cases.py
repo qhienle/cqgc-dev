@@ -18,6 +18,9 @@ Replace USERNAME and PASSWORD with actual values.
 
 Tokens to connect with Phenotips and BaseSpace (BSSH) are expected to be found 
 in ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
+
+Example for joint-genotyping:
+/staging2/soft/CQGC-utils/Analysis.pipeline_exome/pipeline.exomes.DRAGEN.joint-genotyping.sh
 """
 
 import os, sys
@@ -62,28 +65,20 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def list_samples_from_samplenames(run, file=None):
+def list_samples_from_samplenames(content):
     """
-    Get list of samples, either directly from Nanuq (default) or from the Nanuq
-    file, "SampleNames.txt"
-    - db: [str] Path to JSON file containing PID to HPO information
-    - Returns: List of samples from Nanuq (CQGC IDs, referred to by 
+    Get list of samples from the content of Nanuq's "SampleNames.txt".
+    A one-column list of CQGC identifiers will also work.
+    - content: [str] File content of SampleNames.txt, as a single string.
+    - Returns: [list] of samples from Nanuq (CQGC IDs, referred to by 
                Illumina as 'biosamples')
     """
     biosamples = []
-    nq = Nanuq()
-    if file is not None:
-        with open(file, 'r') as fh:
-            content = fh.read().splitlines()
-        logging.info("Listing samples... Retrieved samples conversion table from file {file}.")
-    else:
-        content = nq.get_samplenames(run).text.splitlines()
-        logging.info("Listing samples... Retrieved samples conversion table from Nanuq.")
-
     for line in content:
         logging.debug(f"Parsing SampleNames...")
         if line.startswith("#"):
             if line.startswith("##20"):
+                # Is this still useful?
                 fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', line).group(1)
         else:
             try:
@@ -123,66 +118,16 @@ def get_birthdate(biosample):
     return(data[0]['patient']['birthDate'])
 
 
-def df_to_manifest(df):
-    """
-    From data in df, generate a manifest file for batch upload to Emedgene 
-    using the UI. For specifications of the manifest, see:
-    "https://help.emedgene.com/en/articles/7231644-csv-format-requirements"
-    - `df`: A Pandas DataFrame
-    - Returns: File 'emg_batch_manifest.csv' in current folder
-    """
-    df_manifest = pd.DataFrame({
-        'Family Id': df['family'],
-        'Case Type': 'Whole Genome',
-        'Files Names': df['filenames'],
-        'Sample Type': 'FASTQ',
-        'BioSample Name': df['sample_name'],
-        'Visualization Files': '',
-        'Storage Provider Id': 10123,
-        'Default Project': '',
-        'Execute_now':  'False',
-        'Relation': df['relation'],
-        'Gender': df['gender'],
-        'Phenotypes': 'Healthy',
-        'Phenotypes Id': df['hpos'],
-        'Date Of Birth': pd.to_datetime(df['birthdate'], format='%d/%m/%Y'),
-        'Boost Genes': '',
-        'Gene List Id': '',
-        'Kit Id': '',
-        'Selected Preset': 'Default',
-        'Label Id': df['label'],
-        'Clinical Notes': df['pid'],
-        'Due Date': '',
-        'Opt In': ''
-    })
-    # With the "Files Names"="auto" option, BSSH users can automatically locate
-    # FASTQ files based on the BioSample Name and Default Project provided.
-    # Unfortunately, this would mean that cases woul bear the lab's CQGC_ID.
-    #
-    df_manifest.loc[df_manifest['Relation'] == 'PROBAND', 'Phenotypes'] = ''
-    df_manifest['Default Project'] = 'Rapidomics'
-
-    df_manifest['Relation'].replace('PROBAND', 'proband', inplace=True)
-    df_manifest['Relation'].replace('MTH', 'mother', inplace=True)
-    df_manifest['Relation'].replace('FTH', 'father', inplace=True)
-    df_manifest['Relation'].replace('BRO', 'sibling', inplace=True)
-    df_manifest['Relation'].replace('SIB', 'sibling', inplace=True) # TODO: Verify 'SIB', or SIS?
-
-    df_manifest['Gender'].replace('FEMALE', 'F', inplace=True)
-    df_manifest['Gender'].replace('MALE', 'M', inplace=True)
-    df_manifest['Gender'].replace('', 'U', inplace=True) 
-
-    with open('emg_batch_manifest.csv', 'w') as fh:
-        fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
-        fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
-
-
 def main():
     """
-    1. Get list of cases and family information from Nanuq or SampleNames.txt;
-    2. Add the Phenotips ID (PID) and the corresponding HPO Identifiers;
-    3. Connect to BaseSpace and re-construct the path to the FASTQ files;
-    4. Convert DataFrame into a CSV file (manifest) for EMG batch upload.
+    1. Get list of samples and family information from Nanuq or SampleNames.txt
+       in order to construct cases;
+    2. Run joint joint variant calling for each case;
+    3. Upload the VCF output from joint genotyping to EMedgene AWS S3 bucket;
+    4. Write Emedgene case JSON;
+        4.1. Include paths to VCFs and HPO terms;
+        4.2. Add the Phenotips ID (PID) and the corresponding HPO Identifiers;
+    5. Create case on Emedgene
     """
 
     args = parse_args()
