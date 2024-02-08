@@ -86,8 +86,12 @@ def list_samples_from_samplenames(run, file=None):
             if line.startswith("##20"):
                 fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', line).group(1)
         else:
-            cqgc_id, sample_name = line.split("\t")
-            biosamples.append(cqgc_id)
+            try:
+                cqgc_id, sample_name = line.split("\t")
+            except ValueError as err:
+                logging.debug(f"While parsing {file}: {err}.")
+            else:
+                biosamples.append(cqgc_id)
     return biosamples
 
 
@@ -188,6 +192,8 @@ def main():
 
     # 1. Get list of cases and family information from Nanuq or SampleNames.txt
     #
+    biosamples = list_samples_from_samplenames(args.run, file=args.file)
+    logging.info(biosamples)
 
 
 if __name__ == '__main__':

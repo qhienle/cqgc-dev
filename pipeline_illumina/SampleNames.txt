@@ -1,0 +1,34 @@
+##2023-12-08
+##Centre for Pediatric Clinical Genomics
+##Flow Cell: 22GM55LT3
+##Principal Investigator: Dr Jean-François Soucy, Dr Mehdi Yeganeh, Dr Leora Witkowski
+##Nanuq References: LH00336_0006
+##Content: Internal_Sample_ID -> Client_Sample_Name Conversion grid
+##-------------------------------------------
+##Internal_Sample_ID	Client_Sample_Name
+##-------------------------------------------
+23399	GM232381_SV
+23402	GM232412_SV
+23404	GM232430_SV
+23405	GM232433_SV
+23406	GM232452_SV
+23408	GM232381_MAX
+23411	GM232412_MAX
+23413	GM232430_MAX
+23414	GM232433_MAX
+23415	GM232452_MAX
+23420	3113598374
+23421	3113595374
+23422	3113595384
+23423	3113605046
+23424	3113604793
+23425	3113604806
+23562	MO-23-014364
+23563	MO-23-014365
+##-------------------------------------------
+##Description of the conversion grid:
+##A "Client_Sample_Name" represents the name of a sequencing sample initially assigned by the client.
+##The "Internal_Sample_ID" is the internal identifier assigned by the Center for this sample.
+##Use of an "Internal_Sample_ID" ensures the traceability of this sample throughout the sequencing
+##process, but also the anonymization of the information generated and transferred in the
+##frame of this project.
