@@ -2,9 +2,8 @@
 """
 Create cases in Emedgene for <run> (ex.: "A00516_420").
 
-USAGE: emg_create_cases.py [-f] <run>
-       emg_create_cases.py A00516_420
-       emg_create_cases.py A00516_420 --file SampleNames.txt
+USAGE: emg_create_cases.py -r A00516_420
+       emg_create_cases.py -f SampleNames.txt
        emg_create_cases.py --help
 
 Create cases in Emedgene for samples listed for <run> (_e.g._ LH00336_0009).
@@ -42,11 +41,18 @@ __version__ = "0.2"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Create cases in Emedgene for <run> (ex.: "A00516_420").')
-    parser.add_argument('run', help="FC_SHORT Run ID, ex: 'A00516_339'")
-    parser.add_argument('--file', '-f', help="List of samples", default='SampleNames.txt')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--run',  '-r', help="FC_SHORT Run ID, ex: 'A00516_339'")
+    group.add_argument('--file', '-f', help="List of samples. Ex.:'SampleNames.txt'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
-    return(parser.parse_args())
+    args = parser.parse_args()
+    if args.run is None and args.file is None:
+        print(f"Please use either argument --run|-r or --file|-f. See --help.") 
+        # parser.print_help()
+        exit(1)
+    else:
+        return args
 
 
 def configure_logging(level):
@@ -76,11 +82,7 @@ def list_samples_from_samplenames(content):
     biosamples = []
     for line in content:
         logging.debug(f"Parsing SampleNames...")
-        if line.startswith("#"):
-            if line.startswith("##20"):
-                # Is this still useful?
-                fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', line).group(1)
-        else:
+        if not line.startswith("#"):
             try:
                 cqgc_id, sample_name = line.split("\t")
             except ValueError as err:
@@ -137,8 +139,12 @@ def main():
 
     # 1. Get list of cases and family information from Nanuq or SampleNames.txt
     #
-    biosamples = list_samples_from_samplenames(args.run, file=args.file)
-    logging.info(biosamples)
+    # biosamples = list_samples_from_samplenames(args.run, file=args.file)
+    # logging.info(biosamples)
+    if args.run:
+        logging.info(f"Listing samples from Nanuq for run {args.run}.")
+    elif args.file:
+        logging.info(f"Listing samples from file {args.file}.")
 
 
 if __name__ == '__main__':
