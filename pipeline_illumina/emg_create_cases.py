@@ -122,6 +122,7 @@ def get_birthdate(biosample):
 
 def main():
     """
+    0. Setup run and Quality Check
     1. Get list of samples from Nanuq or from file in order to construct cases.
        For each sample:
         1.1 Get family information from Nanuq
