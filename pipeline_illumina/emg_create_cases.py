@@ -132,10 +132,14 @@ def main():
     5. Create case on Emedgene
     """
 
+    # 0. Setup for run
+    #
     args = parse_args()
     configure_logging(args.level)
     workdir = os.getcwd()
     os.chdir(workdir)
+
+    nq = Nanuq()
 
     # 1. Get list of cases and family information from Nanuq or SampleNames.txt
     #
@@ -143,7 +147,6 @@ def main():
     # logging.info(biosamples)
     if args.run:
         logging.info(f"Listing samples from Nanuq for run {args.run}.")
-        nq = Nanuq()
         biosamples = list_samples_from_samplenames(nq.get_samplenames(args.run).text)
     elif args.file:
         logging.info(f"Listing samples from file {args.file}.")
@@ -155,6 +158,7 @@ def main():
     # structures in "cases", that can be loaded into a pandas DataFrame for
     # easier data wrangling.
     #
+
     cases = []
     for sample in biosamples:
         try:
@@ -187,21 +191,32 @@ def main():
                 data[0]["patient"].get("familyId", "-")
             ]
 
-        # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers for
+        # 1.2 Add Phenotips ID (`pid`) and patients' HPO identifiers for
         # the proband. Lookup this information in Phenotips, using EP+MRN
         # Ex: CHUSJ123456
         #
         if data[0]["patient"]["familyMember"] == 'PROBAND':
-            pid, labels_str, ids_str = add_hpos(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
+            #pid, labels_str, ids_str = add_hpos(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
             logging.info(f"Got HPO terms from Phenotips for PID {pid}")
         else:
             pid, labels_str, ids_str = ('', '', '')
-            logging.debug(f'Not retrieving PID for {cqgc} ({data[0]["patient"]["familyMember"]})')
+            logging.debug(f'Not retrieving PID for {sample} ({data[0]["patient"]["familyMember"]})')
         sample_infos.append(pid)
         sample_infos.append(labels_str)
         sample_infos.append(ids_str)
         logging.debug(f"PID: {pid}; HPO ID: {ids_str}; Labels: {labels_str}\n")
 
+        cases.append(sample_infos)
+
+    # For each case, prepare the JSOn payload by replacing the template's info
+    # with samples data.
+    #
+    df = pd.DataFrame(cases)
+    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
+                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
+                  'Family Id', 'pid', 'phenotypes', 'hpos', 'filenames']
+    df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
+    print(df)
 
 if __name__ == '__main__':
     main()
