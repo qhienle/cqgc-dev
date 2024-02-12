@@ -1,32 +1,16 @@
 #!/usr/bin/env python3
 """
-Collect DRAGEN metrics for PRAGMatIQ samples.
+Collect DRAGEN metrics for PRAGMatIQ samples in a given Run.
 
-USAGE: emg_get_samples_metrics.py SAMPLES
-       emg_get_samples_metrics.py --help
+USAGE: emg_collect_dragen_metrics.py RUN
+       emg_collect_dragen_metrics.py --help
 
-Parse Emedgene's logs files to get analysis metrics for PRAGMatIQ samples 
-listed in file SAMPLES, a CSV file in which the names of samples are in the 1st
-column. Ex: `samples_list.csv` output from `emg_make_batch_from_nanuq.py`:
-
-    Sample,CQGC_ID,Site,Date
-    GM231651,22293,CHUSJ,2023-08-09
-    23-05982-T1,22282,CHUS,2023-08-09
-    3042652455,22256,CHUQ,2023-08-09
-    (...)
-
--d|--directory: Folder where log files are chached. If the folder is already
-present, log file therein are re-used, instead of downloading from AWS S3.
-Default folder is `emg_logs`.
-    
-Metrics collected are written to a CSV table and an HTML report file. 
-Log files are downloaded from EMG's S3 bucket using the CLI `aws` in a tmp dir.  
+Lorem ipsum
 """
 
 import os
 import argparse
 import logging
-import subprocess
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -39,16 +23,12 @@ def parse_args():
     """
     Parse command-line options
     """
-    parser = argparse.ArgumentParser(description="Collect metrics for PRAGMatIQ samples")
-    parser.add_argument('run', help="FC_SHORT Run ID, ex: 'A00516_339'")
-    parser.add_argument('-s', '--samples', default="samples_list.csv", 
-                        help="Filename to CSV list of samples. Default=`samples_list.csv` [str]")
+    parser = argparse.ArgumentParser(description="Collect DRAGEN metrics for PRAGMatIQ samples in a given Run.")
+    parser.add_argument('run', help="Run ID for flowcell, ex: '20240130_LH00336_0009_A22GNV2LT3'")
     parser.add_argument('-d', '--directory', dest='dir', default="emg_logs", 
-                        help="Directory containing EMG log files. Default='emg_logs' [str]")
+                        help="Directory containing Run. Default='emg_logs' [str]")
     parser.add_argument('-l', '--logging-level', dest='level', default='info',
                         help="Logging level, can be 'debug', 'info', 'warning'. Default='info' [str]")
-    parser.add_argument('-p', '--profile', default='emedgene',
-                        help="Emedgene profile, can be 'emedgene' or 'emedgene-eval'. Default='emedgene' [str]")
     return(parser.parse_args())
 
 
@@ -83,50 +63,6 @@ def get_samples_list(file):
     return samples
 
 
-def download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs'):
-    """
-    List files available on AWS bucket for Emedgene `profile` and download 
-    to logsdir three files for collecting dragen metrics of `sample`: 
-    '_sample.log', '.dragen.bed_coverage_metrics.csv' and '.dragen.cnv.vcf.gz'
-    - sample : Name of sample to retrive [str]
-    - profile: AWS credentials, either `emedgene` or `emedgene-eval` [str]
-    - returns: Downloaded files under folder `logsdir` [list]
-        NOTE: As there may be more than one of each "metrics" and "vcf" files.
-        these are tagged with the version hash of the subdir on s3.
-    """
-
-    os.mkdir(logsdir) if not os.path.isdir(logsdir) else None
-    site = 's3://cac1-prodca-emg-auto-results'
-    domains = {'emedgene': 'CHU_Sainte_Justine', 'emedgene-eval': 'Ste_Justine_eval'}
-    url = f"{site}/{domains[profile]}/{sample}"
-        
-    ls = subprocess.run(['aws', 's3', '--profile', profile, 'ls', '--recursive', url], capture_output=True, text=True)
-    files = []
-    for line in ls.stdout.splitlines():
-        s3_file    = line.split()[-1]
-        s3_url     = f"{site}/{s3_file}"
-        path_parts = s3_file.split('/')
-        file       = path_parts[-1]
-        if file.endswith("_sample.log"):
-            if not os.path.isfile(f"{logsdir}{os.sep}{file}"):
-                logging.info(f"Log file {logsdir}{os.sep}{file} not found. Downloading from S3...")
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, logsdir], check=True)
-            files.append(f"{logsdir}{os.sep}{file}")
-        elif file.endswith(".dragen.bed_coverage_metrics.csv"):
-            output = f"{logsdir}{os.sep}{sample}_{path_parts[4]}.dragen.bed_coverage_metrics.csv"
-            if not os.path.isfile(output):
-                logging.info(f"Log file {output} not found. Downloading from S3...")
-                subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, output], check=True)
-            files.append(output)
-        # elif file.endswith(".dragen.cnv.vcf.gz"):
-        #     output = f"{logsdir}{os.sep}{sample}_{path_parts[4]}.dragen.cnv.vcf.gz"
-        #     if not os.path.isfile(output):
-        #         logging.info(f"Log file {output} not found. Downloading from S3...")
-        #         subprocess.run(['aws', 's3', '--profile', profile, 'cp', s3_url, output], check=True)
-        #     files.append(output)
-    return files
-
-
 def glob_files(pattern):
     """
     Glob list of files from pattern and checks that list is not empty
@@ -137,142 +73,6 @@ def glob_files(pattern):
     elif len(files) == 0:
         logging.warning(f"No file found with pattern {pattern}")
     return files
-
-
-def get_metrics_from_log(sample, log_files=[]):
-    """
-    Get metrics from log file. Metrics for "Percent of genome coverage over 20x" 
-    and "Average coverage" are not consistently formatted. Get these infos from
-    file *.dragen.bed_coverage_metrics.csv
-    - `sample`: identifier for sample, ex: "GM231297"
-    - Returns : A DataFrame, with the following information per sample
-        - Number of reads
-        - SNPs
-        - Average coverage for CNV
-        - CNV CoverageUniformity
-        - Percent Autosome Callability
-    """
-    metrics = [] # [[Sample, Log filename, Number of reads, SNPs, CNV Average coverage, Coverage uniformity], [],...]
-    logging.debug(f"List of logfiles to parse: {log_files}")
-    for log in log_files:
-        logname = os.path.basename(log)
-        with open(log, "r") as fh:
-            lines = fh.readlines()
-        reads = ''
-        snps  = ''
-        amplifications      = ''
-        pass_amplifications = ''
-        deletions           = '' 
-        pass_deletions      = ''
-        coverage_uniformity = ''
-        callability         = ''
-        contamination       = '' 
-        mapped_reads        = '' 
-        mapped_reads_pct    = '' 
-        duplicate_reads_pct = '' 
-        for line in lines:
-            line_parts = line.rstrip().split()
-
-            # For some reason, there are often duplicate lines for these metrics in the log file, 
-            # but not in the original bed_coverage_metrics.csv file.
-            # The information is sometimes presented with the bytestring (b'blah...\n') symbols 
-            # and need to be reformatted.
-            #
-            if 'Number of reads:' in line:
-                reads = line_parts[-1].replace("\\n'", "")
-            # CNV?
-            # elif 'Average alignment coverage over genome' in line and 'COVERAGE SUMMARY' in line:
-            #     cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
-            elif 'Coverage uniformity' in line:
-                coverage_uniformity = line_parts[-1].replace("\\n'", "")
-            elif 'Number of amplifications' in line and 'CNV SUMMARY' in line:
-                amplifications = int(line_parts[-1].replace("\\n'", ""))
-            elif 'Number of passing amplifications' in line and 'CNV SUMMARY' in line:
-                pass_amplifications = int(line_parts[-2].replace("\\n'", ""))
-            elif 'Number of deletions' in line and 'CNV SUMMARY' in line:
-                deletions = int(line_parts[-1].replace("\\n'", ""))
-            elif 'Number of passing deletions' in line and 'CNV SUMMARY' in line:
-                pass_deletions = int(line_parts[-2].replace("\\n'", ""))
-            elif 'SNPs' in line and line_parts[11] == "SNPs":
-                snps = line_parts[12].replace("\\n'", "")
-            elif 'Percent Autosome Callability' in line:
-                callability = line_parts[14].replace("\\n'", "")
-            elif 'Number of unique & mapped reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
-                mapped_reads     = line_parts[-2]
-                mapped_reads_pct = line_parts[-1].replace("\\n'", "")
-            elif 'Number of duplicate marked reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
-                duplicate_reads_pct = line_parts[-1].replace("\\n'", "")
-            elif 'Estimated sample contamination' in line:
-                if line_parts[12] != 'standard':
-                    contamination = line_parts[12].replace("\\n'", "")
-        cnvs = amplifications + deletions
-        metrics.append([sample, logname, reads, snps, cnvs, coverage_uniformity, 
-                        amplifications, pass_amplifications, deletions, pass_deletions, 
-                        mapped_reads, mapped_reads_pct, duplicate_reads_pct,
-                        callability, contamination])
-    df = pd.DataFrame(metrics, columns = ["Sample", "Log filename", 
-                                            "NumOfReads", "NumOfSNPs", "NumOfCNVs",
-                                            "Coverage uniformity", 
-                                            "CNV Number of amplifications", 
-                                            "CNV Number of passing amplifications", 
-                                            "CNV Number of deletions", 
-                                            "CNV Number of passing deletions", 
-                                            'Number of unique & mapped reads',
-                                            'Number of unique & mapped reads PCT',
-                                            'Number of duplicate marked reads PCT', 
-                                            "Percent Autosome Callability", 
-                                            "Estimated sample contamination"])
-    return df
-
-
-def get_coverage_metrics(sample, coverage_files=[]):
-    """
-    Get coverage metrics for `sample`.
-    - `sample`: identifier for sample, ex: "GM231297"
-    - Returns : A DataFrame, with the following information per sample
-        - average coverage
-        - PCT coverage >20x
-        - Uniformity of coverage (PCT > 0.2*mean) over genome
-    """
-    coverages = []
-    logging.debug(f"List of logfiles to parse: {coverage_files}")
-
-    for file in coverage_files:
-        path_parts   = os.path.split(file)
-        version      = os.path.basename(path_parts[0])
-        avg_coverage = ''
-        coverage_20x = ''
-        uniformity_coverage_02 = ''
-        uniformity_coverage_04 = ''
-        autosomal_cover_ratio  = ''
-        with open(file, "r") as fh:
-            for line in fh:
-                cols = line.rstrip().split(',')
-                if cols[2].startswith('Average alignment coverage over genome'):
-                    avg_coverage = cols[3]
-                elif '20x: inf' in cols[2]:
-                    coverage_20x = cols[3]
-                    # NB: Different versions of DRAGEN can have more or less whitespaces
-                    # between the left bracket '[' and '20x'. For example:
-                    # v1.2.2_dragen3.9.5-hg38_2bd1884/GM230658.dragen.bed_coverage_metrics.csv: 
-                    # COVERAGE SUMMARY,,PCT of genome with coverage [ 20x: inf),92.17
-                    # v1.2.2_dragen4.0.3-hg38_0edf29a/GM230732.dragen.bed_coverage_metrics.csv:
-                    # COVERAGE SUMMARY,,PCT of genome with coverage [  20x: inf),80.13
-                elif 'Uniformity of coverage' in cols[2]:
-                    if '(PCT > 0.2*mean)' in cols[2]:
-                        uniformity_coverage_02 = cols[3]
-                    elif '(PCT > 0.4*mean)' in cols[2]:
-                        uniformity_coverage_04 = cols[3]
-                elif 'Mean/Median autosomal coverage ratio over genome' in cols[2]:
-                        autosomal_cover_ratio = cols[3]
-        coverages.append([sample, version, avg_coverage, coverage_20x, uniformity_coverage_02, uniformity_coverage_04, autosomal_cover_ratio])
-    return pd.DataFrame(coverages, columns=['Sample', 
-                                            'Log coverage', 
-                                            'Average coverage', 
-                                            'PCT coverage >20x', 
-                                            'Uniformity of coverage (PCT > 0.2*mean) over genome', 
-                                            'Uniformity of coverage (PCT > 0.4*mean) over genome',
-                                            'Mean/Median autosomal coverage ratio over genome'])
 
 
 def write_html_report(df, fc_short):
@@ -375,7 +175,6 @@ def main(args):
     - `args` : Command-line arguments, from `argparse`.1
     - Returns: A CSV file named `./archives_metrics.csv`.
     """
-    configure_logging(args.level)
     logsdir = args.dir
     if os.path.isdir(logsdir):
         logging.info(f"Logs directory, '{logsdir}', already exists")
@@ -447,12 +246,7 @@ def main(args):
     write_html_report(df, args.run)
 
 
-def _test(args):
-    samples = get_samples_list(args.samples)
-    print(samples)
-
-
 if __name__ == '__main__':
     args = parse_args()
+    configure_logging(args.level)
     main(args)
-    #_test(args)
