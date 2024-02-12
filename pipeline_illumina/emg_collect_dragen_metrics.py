@@ -179,7 +179,9 @@ def main(args):
     For each sample, collect metrics and generate a report
     - `args` : Command-line arguments, from `argparse`.1
     - Returns: A CSV file named `./archives_metrics.csv`.
-    """    
+    """
+    samples = list_dragengermline_samples()
+
     # Initialize empty Pandas DataFrames
     #
     df_metrics   = get_metrics_from_log(None)
