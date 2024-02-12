@@ -48,18 +48,22 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def get_samples_list(file):
+def list_dragengermline_samples(samplesheet='SampleSheet.csv'):
     """
-    Get list of samples to archive from a CSV `file`.
-    - `file`: [str] path to CSV file with list of sample names in 1st column.
+    Get list of samples from [DragenGermline] section in Nanuq a SampleSheet
+    - `samplesheet`: [str] path to file SampleSheet.csv.
     - Returns: [list] of samples
     """
     samples = []
-    with open(file, 'r') as fh:
-        next(fh) # Skip header
+    with open(samplesheet, 'r') as fh:
         for line in fh.readlines():
-            sample = line.split(',')[0]
-            samples.append(sample)
+            if line.startswith('['):
+                section = line
+            else:
+                if section.startswith('[DragenGermline_Data]'):
+                    cols = line.split(',')
+                    if not line.startswith('Sample_ID') and len(cols) > 1:
+                        samples.append(cols[0])
     return samples
 
 
@@ -171,19 +175,11 @@ def write_html_report(df, fc_short):
 
 def main(args):
     """
-    From a list of samples, retrieve several metrics.
+    Get list of samples from the SampleSheet.
+    For each sample, collect metrics and generate a report
     - `args` : Command-line arguments, from `argparse`.1
     - Returns: A CSV file named `./archives_metrics.csv`.
-    """
-    logsdir = args.dir
-    if os.path.isdir(logsdir):
-        logging.info(f"Logs directory, '{logsdir}', already exists")
-    else:
-        try: 
-            os.mkdir(logsdir)
-        except FileNotFoundError as e:
-            logging.error(f"{e}; logsdir={logsdir}")
-    
+    """    
     # Initialize empty Pandas DataFrames
     #
     df_metrics   = get_metrics_from_log(None)
