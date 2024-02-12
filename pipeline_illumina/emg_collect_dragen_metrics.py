@@ -180,8 +180,6 @@ def main(args):
     - `args` : Command-line arguments, from `argparse`.1
     - Returns: A CSV file named `./archives_metrics.csv`.
     """
-    samples = list_dragengermline_samples()
-
     # Initialize empty Pandas DataFrames
     #
     df_metrics   = get_metrics_from_log(None)
@@ -189,7 +187,7 @@ def main(args):
     
     # Process list of samples contained in samples_list file.
     #
-    samples = get_samples_list(args.samples)
+    samples = list_dragengermline_samples()
     total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
