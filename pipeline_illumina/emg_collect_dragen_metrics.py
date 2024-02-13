@@ -25,11 +25,11 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description="Collect DRAGEN metrics for PRAGMatIQ samples in a given Run.")
     parser.add_argument('run', help="Run ID for flowcell, ex: '20240130_LH00336_0009_A22GNV2LT3'")
-    parser.add_argument('-d', '--directory', dest='dir', default="emg_logs", 
-                        help="Directory containing Run. Default='emg_logs' [str]")
-    parser.add_argument('-l', '--logging-level', dest='level', default='info',
+    parser.add_argument('--data-dir', '-d', dest = 'data_dir', 
+                        help="Path to DragenGermline output. Ex: /staging/hiseq_raw/LH00336/20240130_LH00336_0009_A22GNV2LT3/Analysis/1/Data/DragenGermline")
+    parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level, can be 'debug', 'info', 'warning'. Default='info' [str]")
-    return(parser.parse_args())
+    return parser.parse_args()
 
 
 def configure_logging(level):
@@ -65,18 +65,6 @@ def list_dragengermline_samples(samplesheet='SampleSheet.csv'):
                     if not line.startswith('Sample_ID') and len(cols) > 1:
                         samples.append(cols[0])
     return samples
-
-
-def glob_files(pattern):
-    """
-    Glob list of files from pattern and checks that list is not empty
-    """
-    files = glob(pattern)
-    if len(files) == 0:
-        logging.debug(f"More than one log file found with pattern {pattern}")
-    elif len(files) == 0:
-        logging.warning(f"No file found with pattern {pattern}")
-    return files
 
 
 def write_html_report(df, fc_short):
@@ -180,24 +168,32 @@ def main(args):
     - `args` : Command-line arguments, from `argparse`.1
     - Returns: A CSV file named `./archives_metrics.csv`.
     """
+    # Setup environment for this run
+    #
+    date, instr, run_nb, flowcell = args.run.split('_')
+    fc_short = f"{instr}_{run_nb}"
+    work_dir = f"/staging2/dragen/{fc_short}"
+    if args.data_dir is not None:
+        data_dir = args.data_dir
+    else:
+        data_dir = f"/staging/hiseq_raw/{instr}/{args.run}/Analysis/1/Data/DragenGermline"
+    os.mkdir(work_dir)
+    os.chdir(work_dir)
+
+    # Process list of samples contained in samples_list file.
+    #
+    samples = list_dragengermline_samples()
+    total   = len(samples)
+
     # Initialize empty Pandas DataFrames
     #
     df_metrics   = get_metrics_from_log(None)
     df_coverages = get_coverage_metrics(None)
     
-    # Process list of samples contained in samples_list file.
-    #
-    samples = list_dragengermline_samples()
-    total   = len(samples)
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
-        logs = download_emg_s3_logs(sample, profile=args.profile, logsdir=logsdir)
-        logging.debug(f"S3 logfiles: {logs}")
 
-        log_files  = glob_files(f"{args.dir}/{sample}_v*_sample.log")
         df_metrics = pd.concat([df_metrics, get_metrics_from_log(sample, log_files=log_files)], ignore_index=True)
-
-        coverage_files = glob_files(f"{args.dir}/{sample}*.dragen.bed_coverage_metrics.csv")
         df_coverages   = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_files=coverage_files)], ignore_index=True)
 
     df_metrics.drop_duplicates(inplace=True)
