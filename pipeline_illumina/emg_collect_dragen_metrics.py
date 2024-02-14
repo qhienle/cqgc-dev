@@ -186,56 +186,11 @@ def main(args):
     total   = len(samples)
 
     # Initialize empty Pandas DataFrames
-    #
-    df_metrics   = get_metrics_from_log(None)
-    df_coverages = get_coverage_metrics(None)
     
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
 
-        df_metrics = pd.concat([df_metrics, get_metrics_from_log(sample, log_files=log_files)], ignore_index=True)
-        df_coverages   = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_files=coverage_files)], ignore_index=True)
-
-    df_metrics.drop_duplicates(inplace=True)
-    df_metrics.reset_index(inplace=True)
-    df_coverages.drop_duplicates(inplace=True)
-    df_coverages.reset_index(inplace=True)
-    df = df_metrics.merge(df_coverages, on='Sample', how='outer')
-    df.drop(['index_x'], axis=1, inplace=True)
-
-    df1 = df[['Sample', 'NumOfReads', 'NumOfSNPs', 'NumOfCNVs',
-        'Average coverage', 'Coverage uniformity',
-        'CNV Number of amplifications', 'CNV Number of passing amplifications', 
-        'CNV Number of deletions', 'CNV Number of passing deletions', 
-        'PCT coverage >20x',
-        'Uniformity of coverage (PCT > 0.2*mean) over genome', 
-        'Uniformity of coverage (PCT > 0.4*mean) over genome', 
-        'Mean/Median autosomal coverage ratio over genome',
-        'Number of unique & mapped reads',
-        'Number of unique & mapped reads PCT',
-        'Number of duplicate marked reads PCT', 
-        'Percent Autosome Callability']] #, 'Estimated sample contamination']]
-    df1.drop_duplicates(inplace=True)
-    df1 = df1.astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
-                    'Average coverage': 'Float64', 'Coverage uniformity': 'Float64',
-                    'CNV Number of amplifications': 'Int64', 'CNV Number of passing amplifications': 'Int64', 
-                    'CNV Number of deletions': 'Int64', 'CNV Number of passing deletions': 'Int64', 
-                    'PCT coverage >20x': 'Float64',
-                    'Uniformity of coverage (PCT > 0.2*mean) over genome': 'Float64', 
-                    'Uniformity of coverage (PCT > 0.4*mean) over genome': 'Float64', 
-                    'Mean/Median autosomal coverage ratio over genome': 'Float64',
-                    'Number of unique & mapped reads': 'Int64',
-                    'Number of unique & mapped reads PCT': 'Float64',
-                    'Number of duplicate marked reads PCT': 'Float64', 
-                    'Percent Autosome Callability': 'Float64'})
-    logging.info(f"Current Metrics DataFrame:\n{df1}")
-
     # Combine dataframe with samples_list.csv and generate figures for the HTML report
-    #
-    df_samples = pd.read_csv('samples_list.csv', encoding="latin-1")
-    df = df1.merge(df_samples, how='inner')
-    df.to_csv(f'{args.run}_metrics.csv', index=None)
-    write_html_report(df, args.run)
 
 
 if __name__ == '__main__':
