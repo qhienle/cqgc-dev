@@ -8,13 +8,19 @@ USAGE: emg_collect_dragen_metrics.py RUN
 Lorem ipsum
 """
 
-import os
+import os, sys
 import argparse
 import logging
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from glob import glob
+
+# Set source path to CQGC-utils so that we can use relative imports
+#
+src_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(src_path)
+from lib.nanuq import Nanuq
+
 
 __version__ = 0.1
 
@@ -48,15 +54,20 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def list_dragengermline_samples(samplesheet='SampleSheet.csv'):
+def list_dragengermline_samples(samplesheet):
     """
     Get list of samples from [DragenGermline] section in Nanuq a SampleSheet
     - `samplesheet`: [str] path to file SampleSheet.csv.
     - Returns: [list] of samples
     """
     samples = []
-    with open(samplesheet, 'r') as fh:
-        for line in fh.readlines():
+    try:
+        with open(samplesheet, 'r') as fh:
+            content = fh.read().splitlines()
+    except FileNotFoundError as err:
+        logging.error(f"Could not open {samplesheet}: {err}")
+    else:
+        for line in content:
             if line.startswith('['):
                 section = line
             else:
@@ -172,17 +183,21 @@ def main(args):
     #
     date, instr, run_nb, flowcell = args.run.split('_')
     fc_short = f"{instr}_{run_nb}"
+    base_dir = f"/staging/hiseq_raw/{instr}/{args.run}/"
     work_dir = f"/staging2/dragen/{fc_short}"
     if args.data_dir is not None:
         data_dir = args.data_dir
     else:
-        data_dir = f"/staging/hiseq_raw/{instr}/{args.run}/Analysis/1/Data/DragenGermline"
+        # If there is more than one dir under "./Analysis/", use --data-dir"
+        #
+        data_dir = f"{base_dir}/Analysis/1/Data/DragenGermline"
     os.mkdir(work_dir)
     os.chdir(work_dir)
 
-    # Process list of samples contained in samples_list file.
+    # Process samples in [DragenGermline_Data] section of SampleSheet.csv
+    # SampleSheet from Nanuq GET API doesn't have [DragenGermline_Data] section
     #
-    samples = list_dragengermline_samples()
+    samples = list_dragengermline_samples(f"{base_dir}/SampleSheet.csv")
     total   = len(samples)
 
     # Initialize empty Pandas DataFrames
