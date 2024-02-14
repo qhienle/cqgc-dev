@@ -183,21 +183,20 @@ def main(args):
     #
     date, instr, run_nb, flowcell = args.run.split('_')
     fc_short = f"{instr}_{run_nb}"
-    base_dir = f"/staging/hiseq_raw/{instr}/{args.run}/"
     work_dir = f"/staging2/dragen/{fc_short}"
     if args.data_dir is not None:
         data_dir = args.data_dir
     else:
         # If there is more than one dir under "./Analysis/", use --data-dir"
         #
-        data_dir = f"{base_dir}/Analysis/1/Data/DragenGermline"
+        data_dir = f"/staging/hiseq_raw/{instr}/{args.run}/Analysis/1/Data/DragenGermline"
     os.mkdir(work_dir)
     os.chdir(work_dir)
 
     # Process samples in [DragenGermline_Data] section of SampleSheet.csv
     # SampleSheet from Nanuq GET API doesn't have [DragenGermline_Data] section
     #
-    samples = list_dragengermline_samples(f"{base_dir}/SampleSheet.csv")
+    samples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
     total   = len(samples)
 
     # Initialize empty Pandas DataFrames
