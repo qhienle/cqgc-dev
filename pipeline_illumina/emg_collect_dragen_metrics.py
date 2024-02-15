@@ -78,6 +78,50 @@ def list_dragengermline_samples(samplesheet):
     return samples
 
 
+def get_coverage_metrics(sample, coverage_file):
+    """
+    Get coverage metrics for `sample`.
+    - `sample`: identifier for sample, ex: "21459"
+    - `coverage_file`: Path to DRAGEN output file "*.wgs_coverage_metrics.csv"
+    - Returns : A DataFrame, with the following information per sample
+        - average coverage
+        - PCT coverage >20x
+        - Uniformity of coverage (PCT > 0.2*mean) over genome
+    """
+    coverages = []
+    logging.debug(f"List of logfiles to parse: {coverage_file}")
+
+    avg_coverage = ''
+    coverage_20x = ''
+    uniformity_coverage_02 = ''
+    uniformity_coverage_04 = ''
+    autosomal_cover_ratio  = ''
+    with open(coverage_file, "r") as fh:
+        for line in fh:
+            cols = line.rstrip().split(',')
+            if cols[2].startswith('Average alignment coverage over genome'):
+                # COVERAGE SUMMARY,,Average alignment coverage over genome,38.61
+                avg_coverage = cols[3]
+            elif '20x: inf' in cols[2]:
+                # NB: Different versions of DRAGEN have +/- whitespaces after the '['.
+                # COVERAGE SUMMARY,,PCT of genome with coverage [  20x: inf),91.14
+                coverage_20x = cols[3]
+            elif 'Uniformity of coverage (PCT > 0.2*mean) over genome' in cols[2]:
+                uniformity_coverage_02 = cols[3]
+            elif 'Uniformity of coverage (PCT > 0.4*mean) over genome' in cols[2]:
+                uniformity_coverage_04 = cols[3]
+            elif 'Mean/Median autosomal coverage ratio over genome' in cols[2]:
+                autosomal_cover_ratio = cols[3]
+    coverages.append([sample, coverage_file, avg_coverage, coverage_20x, uniformity_coverage_02, uniformity_coverage_04, autosomal_cover_ratio])
+    return pd.DataFrame(coverages, columns=['Sample', 
+                                            'Log coverage', 
+                                            'Average coverage', 
+                                            'PCT coverage >20x', 
+                                            'Uniformity of coverage (PCT > 0.2*mean) over genome', 
+                                            'Uniformity of coverage (PCT > 0.4*mean) over genome',
+                                            'Mean/Median autosomal coverage ratio over genome'])
+
+
 def write_html_report(df, fc_short):
     """
     Write HTML report from data in `df`.
@@ -204,12 +248,18 @@ def main(args):
     total   = len(samples)
 
     # Initialize empty Pandas DataFrames
-    
+    #
+    df_coverages = get_coverage_metrics(None)
+
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
 
-    # Combine dataframe with samples_list.csv and generate figures for the HTML report
+        coverage_file = f"{data_dir}/{sample}/germline_seq/{sample}.wgs_coverage_metrics.csv"
+        df_coverages  = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_files=[coverage_file])], ignore_index=True)
 
+
+    # Combine dataframe with samples_list.csv and generate figures for the HTML report
+    print(f"\n{df_coverages}\n")
 
 if __name__ == '__main__':
     args = parse_args()
