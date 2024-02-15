@@ -78,7 +78,7 @@ def list_dragengermline_samples(samplesheet):
     return samples
 
 
-def get_coverage_metrics(sample, coverage_file=None):
+def get_coverage_metrics(sample=None, coverage_file=None):
     """
     Get coverage metrics for `sample`.
     - `sample`: identifier for sample, ex: "21459"
@@ -89,7 +89,15 @@ def get_coverage_metrics(sample, coverage_file=None):
         - Uniformity of coverage (PCT > 0.2*mean) over genome
     """
     coverages = []
-    logging.debug(f"List of logfiles to parse: {coverage_file}")
+    if sample is None:
+        return pd.DataFrame(coverages, columns=['Sample', 
+                                                'Log coverage', 
+                                                'Average coverage', 
+                                                'PCT coverage >20x', 
+                                                'Uniformity of coverage (PCT > 0.2*mean) over genome', 
+                                                'Uniformity of coverage (PCT > 0.4*mean) over genome',
+                                                'Mean/Median autosomal coverage ratio over genome'])
+    logging.debug(f"Logfiles to parse: {coverage_file}")
 
     avg_coverage = ''
     coverage_20x = ''
