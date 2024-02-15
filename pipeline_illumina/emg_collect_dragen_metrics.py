@@ -263,7 +263,7 @@ def main(args):
         logging.info(f"Processing {sample}, {count}/{total}")
 
         coverage_file = f"{data_dir}/{sample}/germline_seq/{sample}.wgs_coverage_metrics.csv"
-        df_coverages  = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_files=[coverage_file])], ignore_index=True)
+        df_coverages  = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_file=coverage_file)], ignore_index=True)
 
 
     # Combine dataframe with samples_list.csv and generate figures for the HTML report
