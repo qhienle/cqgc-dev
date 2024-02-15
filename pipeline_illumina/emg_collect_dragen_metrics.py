@@ -78,7 +78,7 @@ def list_dragengermline_samples(samplesheet):
     return samples
 
 
-def get_coverage_metrics(sample, coverage_file):
+def get_coverage_metrics(sample, coverage_file=None):
     """
     Get coverage metrics for `sample`.
     - `sample`: identifier for sample, ex: "21459"
