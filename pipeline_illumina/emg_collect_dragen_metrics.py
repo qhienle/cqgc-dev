@@ -11,6 +11,7 @@ Lorem ipsum
 import os, sys
 import argparse
 import logging
+import json
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -239,7 +240,6 @@ def main(args):
         data_dir = args.data_dir
     else:
         # If there is more than one dir under "./Analysis/", use --data-dir"
-        #
         data_dir = f"/staging/hiseq_raw/{instr}/{args.run}/Analysis/1/Data/DragenGermline"
     work_dir = f"/staging2/dragen/{fc_short}"
     try:
@@ -255,19 +255,25 @@ def main(args):
     samples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
     total   = len(samples)
 
-    # Initialize empty Pandas DataFrames
-    #
-    df_coverages = get_coverage_metrics(None)
-
+    samples_metrics = {} # {sample: {metric1: value, metric2: value2, ...}}
     for count, sample in enumerate(samples, start=1):
         logging.info(f"Processing {sample}, {count}/{total}")
 
-        coverage_file = f"{data_dir}/{sample}/germline_seq/{sample}.wgs_coverage_metrics.csv"
-        df_coverages  = pd.concat([df_coverages, get_coverage_metrics(sample, coverage_file=coverage_file)], ignore_index=True)
+        metrics_file = f"{data_dir}/{sample}/germline_seq/{sample}.metrics.json"
+        with open(metrics_file, 'r') as fh:
+            metrics = json.load(fh)['Attributes']['illumina_dragen_complete_v0_4']
+        samples_metrics[sample] = metrics
+    df_samples_metrics = pd.DataFrame.from_dict(samples_metrics, orient="index")
 
+    # Subset columns for report, rename columns for prettyness
+    #
+    subset_cols = ['aligned_reads', 'aligned_reads_in_genome_pct', 'cnv_coverage_uniformity']
+    df = df_samples_metrics[subset_cols]
+    #df.columns = []
+    # Get LabSampleNames from SampleNames.txt, merge with DataFrame and produce
+    # the report 
+    #write_html_report(df, fc_short)
 
-    # Combine dataframe with samples_list.csv and generate figures for the HTML report
-    print(f"\n{df_coverages}\n")
 
 if __name__ == '__main__':
     args = parse_args()
