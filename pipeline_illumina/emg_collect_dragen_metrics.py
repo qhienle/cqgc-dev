@@ -273,6 +273,7 @@ def main(args):
     # Get LabSampleNames from SampleNames.txt, merge with DataFrame and produce
     # the report 
     #write_html_report(df, fc_short)
+    print(df)
 
 
 if __name__ == '__main__':
