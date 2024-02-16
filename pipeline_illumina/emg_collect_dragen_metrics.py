@@ -86,56 +86,44 @@ def list_dragengermline_samples(samplesheet):
     return samples
 
 
-def get_coverage_metrics(sample=None, coverage_file=None):
+def get_nanuq_data(cqgc_id):
     """
-    Get coverage metrics for `sample`.
-    - `sample`: identifier for sample, ex: "21459"
-    - `coverage_file`: Path to DRAGEN output file "*.wgs_coverage_metrics.csv"
-    - Returns : A DataFrame, with the following information per sample
-        - average coverage
-        - PCT coverage >20x
-        - Uniformity of coverage (PCT > 0.2*mean) over genome
+    Get from Nanuq family information for biosample `cqgc_id`.
+    - `cqgc_id`: [str] sample identifier
+    - Return: [dict]
     """
-    coverages = []
-    if sample is None:
-        return pd.DataFrame(coverages, columns=['Sample', 
-                                                'Log coverage', 
-                                                'Average coverage', 
-                                                'PCT coverage >20x', 
-                                                'Uniformity of coverage (PCT > 0.2*mean) over genome', 
-                                                'Uniformity of coverage (PCT > 0.4*mean) over genome',
-                                                'Mean/Median autosomal coverage ratio over genome'])
-    logging.debug(f"Logfiles to parse: {coverage_file}")
-
-    avg_coverage = ''
-    coverage_20x = ''
-    uniformity_coverage_02 = ''
-    uniformity_coverage_04 = ''
-    autosomal_cover_ratio  = ''
-    with open(coverage_file, "r") as fh:
-        for line in fh:
-            cols = line.rstrip().split(',')
-            if cols[2].startswith('Average alignment coverage over genome'):
-                # COVERAGE SUMMARY,,Average alignment coverage over genome,38.61
-                avg_coverage = cols[3]
-            elif '20x: inf' in cols[2]:
-                # NB: Different versions of DRAGEN have +/- whitespaces after the '['.
-                # COVERAGE SUMMARY,,PCT of genome with coverage [  20x: inf),91.14
-                coverage_20x = cols[3]
-            elif 'Uniformity of coverage (PCT > 0.2*mean) over genome' in cols[2]:
-                uniformity_coverage_02 = cols[3]
-            elif 'Uniformity of coverage (PCT > 0.4*mean) over genome' in cols[2]:
-                uniformity_coverage_04 = cols[3]
-            elif 'Mean/Median autosomal coverage ratio over genome' in cols[2]:
-                autosomal_cover_ratio = cols[3]
-    coverages.append([sample, coverage_file, avg_coverage, coverage_20x, uniformity_coverage_02, uniformity_coverage_04, autosomal_cover_ratio])
-    return pd.DataFrame(coverages, columns=['Sample', 
-                                            'Log coverage', 
-                                            'Average coverage', 
-                                            'PCT coverage >20x', 
-                                            'Uniformity of coverage (PCT > 0.2*mean) over genome', 
-                                            'Uniformity of coverage (PCT > 0.4*mean) over genome',
-                                            'Mean/Median autosomal coverage ratio over genome'])
+    sample_infos = {}
+    nq = Nanuq()
+    try:
+        data = json.loads(nq.get_sample(cqgc_id))
+    except Exception as e:
+        logging.warning(f"JSONDecodeError {e} could not decode biosample {cqgc_id}")
+    else:
+        logging.info(f"Got information for biosample {cqgc_id}")
+    if len(data) != 1:
+        logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
+    try:
+        data[0]["patient"]["mrn"]
+    except Exception as err:
+        logging.warning(f"Could not find MRN for patient {cqgc_id}: {err}")
+        data[0]["patient"]["mrn"] = '0000000'
+    else:
+        pass
+    finally:
+        sample_infos = {
+            'sample_name': data[0]["ldmSampleId"],
+            'biosample'  : data[0]["labAliquotId"],
+            'relation'   : data[0]["patient"]["familyMember"],
+            'gender'     : data[0]["patient"]["sex"],
+            'label'      : data[0]["patient"]["ep"],
+            'mrn'        : data[0]["patient"]["mrn"],
+            'cohort_type': data[0]["patient"]["designFamily"],
+            'status'     : data[0]["patient"]["status"],
+            'Family Id'  : data[0]["patient"].get("familyId", "-"),
+            'date_of_birth(YYYY-MM-DD)': data[0]["patient"]["birthDate"]
+        }
+        #TODO: Add 'pid', 'phenotypes', 'hpos', 'filenames'
+    return sample_infos
 
 
 def write_html_report(df, fc_short):
@@ -146,9 +134,9 @@ def write_html_report(df, fc_short):
     """
     fig1 = go.Figure(
         data = [
-            go.Bar(name='Mapped Reads %', x=df['sample'], y=df['mapped_reads_pct'], yaxis='y', offsetgroup=1),
-            go.Bar(name='SNPs (pass) %',  x=df['sample'], y=df['variants_snps_pass_pct'], yaxis='y2', offsetgroup=2),
-            go.Bar(name='CNVs (amp+del)', x=df['sample'], y=df['cnvs_number'], yaxis='y3', offsetgroup=3)
+            go.Bar(name='Mapped Reads %', x=df['sample_name'], y=df['mapped_reads_pct'], yaxis='y', offsetgroup=1),
+            go.Bar(name='SNPs (pass) %',  x=df['sample_name'], y=df['variants_snps_pass_pct'], yaxis='y2', offsetgroup=2),
+            go.Bar(name='CNVs (amp+del)', x=df['sample_name'], y=df['cnvs_number'], yaxis='y3', offsetgroup=3)
         ],
         layout={
             'yaxis':  {'title': 'Percentage of mapped reads'},
@@ -159,25 +147,25 @@ def write_html_report(df, fc_short):
     )
     #fig1.update_layout(barmode='group')
 
-    fig2 = px.violin(df, y="cnv_coverage_uniformity", x="Site",
+    fig2 = px.violin(df, y="cnv_coverage_uniformity", x="label",
                      title="Coverage uniformity of CNVs per site",
-                     color="Site", box=True, points="all", hover_data=df.columns)
+                     color="label", box=True, points="all", hover_data=df.columns)
 
     fig3 = px.scatter(df, x="cnv_coverage_uniformity", y="cnvs_number", 
                       title="Number of CNVs vs Coverage uniformity",
-                      hover_data=['sample', 'cnv_coverage_uniformity', 'Site'], color='Site')
+                      hover_data=['sample_name', 'cnv_coverage_uniformity', 'label'], color='label')
     fig3.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
 
-    fig4 = px.scatter(df, x="Uniformity of coverage (PCT > 0.4*mean) over genome", y="NumOfSNPs", 
-                      title="Number of SNPs and Uniformity of coverage",
-                      hover_data=['Sample', 'PCT coverage >20x', 'Uniformity of coverage (PCT > 0.4*mean) over genome', 'Site'], 
-                      color='Site')
+    fig4 = px.scatter(df, x="uniformity_of_coverage_pct_gt_02mean_over_genome", y="variants_snps_pass_pct", 
+                      title="Number of variants passing filter and uniformity of coverage >0.2 mean over genome",
+                      hover_data=['sample_name', 'pct_of_genome_with_coverage_20x_inf', 'uniformity_of_coverage_pct_gt_02mean_over_genome', 'label'], 
+                      color='label')
     fig4.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
 
-    fig5 = px.scatter(df, x="Average coverage", y="Coverage uniformity", 
-                      title="Coverage uniformity vs Average coverage",
-                      hover_data=['Sample', 'Coverage uniformity', 'Average coverage','Site'], 
-                      color='Site')             
+    fig5 = px.scatter(df, x="average_alignment_coverage_over_genome", y="cnv_coverage_uniformity", 
+                      title="CNV coverage uniformity vs Average coverage",
+                      hover_data=['sample_name', 'cnv_coverage_uniformity', 'average_alignment_coverage_over_genome','label'], 
+                      color='label')             
     fig5.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
 
     css = """
@@ -263,21 +251,36 @@ def main(args):
     # [DragenGermline_Data] section.
     #
     biosamples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
-    total   = len(biosamples)
+    total      = len(biosamples)
 
-    samples_metrics = {} # {sample: {metric1: value, metric2: value2, ...}}
+    samples_metrics  = {} # {biosample: {metric1: value, metric2: value2, ...}}
+    samples_families = [] # [{sample: val, gender: val, relation: val,...}, {...},...]
+
     for count, biosample in enumerate(biosamples, start=1):
         logging.info(f"Processing {biosample}, {count}/{total}")
 
+        # Collect metrics for this biosample
+        #
         metrics_file = f"{data_dir}/{biosample}/germline_seq/{biosample}.metrics.json"
         with open(metrics_file, 'r') as fh:
             metrics = json.load(fh)['Attributes']['illumina_dragen_complete_v0_4']
         samples_metrics[biosample] = metrics
-    df_samples_metrics = pd.DataFrame.from_dict(samples_metrics, orient="index")
+        logging.info(f"Collected metrics for {biosample}")
+
+        # Collect family information from Nanuq for biosample (to build Case)
+        #
+        samples_families.append(get_nanuq_data(biosample))
+
+    # Build Pandas DataFrames from collected data for easier manipulations
+    #
+    df_samples_families = pd.DataFrame(samples_families)
+    df_samples_families = df_samples_families.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
+
+    df_samples_metrics  = pd.DataFrame.from_dict(samples_metrics, orient="index")
     df_samples_metrics['biosample'] = df_samples_metrics.index
     df_samples_metrics['cnvs_number'] = df_samples_metrics['cnv_number_of_amplifications'] + df_samples_metrics['cnv_number_of_deletions']
 
-    # Subset columns for report, rename columns for prettyness
+    # Subset columns for report, join infos for sample name and site label
     #
     subset_cols =  ['mapped_reads_pct', 
                    'average_alignment_coverage_over_genome',
@@ -295,11 +298,10 @@ def main(args):
                    'number_unique_mapped_reads_excl_duplicates_pct',
                    'number_of_duplicate_marked_reads'
                    ]
-    df = df_samples_metrics[subset_cols]
-    # Get LabSampleNames from SampleNames.txt, merge with DataFrame and produce
-    # the report 
-    #write_html_report(df, fc_short)
-    print(df)
+    df_subset_metrics = df_samples_metrics[subset_cols]
+    df_report = pd.merge(df_subset_metrics, df_samples_families[['biosample', 'sample_name', 'label']], on='biosample', how="outer")
+    print(df_report)
+    write_html_report(df_report, fc_short)
 
 
 if __name__ == '__main__':
