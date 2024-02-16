@@ -279,10 +279,12 @@ def main(args):
     df_samples_metrics  = pd.DataFrame.from_dict(samples_metrics, orient="index")
     df_samples_metrics['biosample'] = df_samples_metrics.index
     df_samples_metrics['cnvs_number'] = df_samples_metrics['cnv_number_of_amplifications'] + df_samples_metrics['cnv_number_of_deletions']
+    logging.info(f"Built DataFrames from metrics and family information")
 
     # Subset columns for report, join infos for sample name and site label
     #
-    subset_cols =  ['mapped_reads_pct', 
+    subset_cols =  ['biosample',
+                   'mapped_reads_pct', 
                    'average_alignment_coverage_over_genome',
                    'variants_snps_pass_pct',
                    'cnvs_number',
