@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
 """
-Collect DRAGEN metrics for PRAGMatIQ samples in a given Run.
+Collect DRAGEN metrics for samples in a given Run and generate reports in HTML
+and CSV format. Data is collected from the file "{sample}.metrics.json" output
+by DragenGermline (version 4+).
 
 USAGE: emg_collect_dragen_metrics.py RUN
+       emg_collect_dragen_metrics.py 20240130_LH00336_0009_A22GNV2LT3
        emg_collect_dragen_metrics.py --help
 
-Lorem ipsum
+Requires full name of the run as command-ilne argument.
+       
+Produces reports in .html and .csv file, in a folder named 
+{instrument}_{run_number} on `spxp-app02://staging2/dragen/`. For example:
+spxp-app02://staging2/dragen/LH00336_0009
 """
 
 import os, sys
@@ -227,12 +234,13 @@ def write_html_report(df, fc_short):
 
 def main(args):
     """
-    Get list of samples from the SampleSheet.
-    For each sample, collect metrics and generate a report
-    - `args` : Command-line arguments, from `argparse`.1
-    - Returns: A CSV file named `./archives_metrics.csv`.
+    For each sample listed in SampleSheet, collect metrics and generate reports
+    - `args` : Command-line arguments, from `argparse`.
+    - Returns: Two files named ./archives_metrics.csv and archives_metrics.html
     """
-    # Setup environment for this run
+    # Setup environment for this run. Results are written to folder, because
+    # some information collected here will be used for case creation later
+    # on Emedgene.
     #
     date, instr, run_nb, flowcell = args.run.split('_')
     fc_short = f"{instr}_{run_nb}"
@@ -249,8 +257,10 @@ def main(args):
     finally:
         os.chdir(work_dir)
 
-    # Process samples in [DragenGermline_Data] section of SampleSheet.csv
-    # SampleSheet from Nanuq GET API doesn't have [DragenGermline_Data] section
+    # Collect data from "*.metrics.json" for all the samples into a Pandas 
+    # DataFrame. List of samples is taken from [DragenGermline_Data] section of
+    # "SampleSheet.csv". NOTE: SampleSheet from Nanuq GET API doesn't yet have 
+    # [DragenGermline_Data] section.
     #
     samples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
     total   = len(samples)
@@ -264,10 +274,27 @@ def main(args):
             metrics = json.load(fh)['Attributes']['illumina_dragen_complete_v0_4']
         samples_metrics[sample] = metrics
     df_samples_metrics = pd.DataFrame.from_dict(samples_metrics, orient="index")
+    df_samples_metrics['cnvs_number'] = df_samples_metrics['cnv_number_of_amplifications'] + df_samples_metrics['cnv_number_of_deletions']
 
     # Subset columns for report, rename columns for prettyness
     #
-    subset_cols = ['aligned_reads', 'aligned_reads_in_genome_pct', 'cnv_coverage_uniformity']
+    subset_cols =  ['sample',
+                   'mapped_reads_pct', 
+                   'average_alignment_coverage_over_genome',
+                   'variants_snps_pass_pct',
+                   'cnvs_number',
+                   'cnv_number_of_amplifications', 
+                   'cnv_number_of_passing_amplifications',
+                   'cnv_number_of_deletions',
+                   'cnv_number_of_passing_deletions',
+                   'cnv_coverage_uniformity',
+                   'pct_of_genome_with_coverage_20x_inf',
+                   'uniformity_of_coverage_pct_gt_02mean_over_genome',
+                   'mean_median_autosomal_coverage_ratio_over_genome',
+                   'number_unique_mapped_reads_excl_duplicates',
+                   'number_unique_mapped_reads_excl_duplicates_pct',
+                   'number_of_duplicate_marked_reads'
+                   ]
     df = df_samples_metrics[subset_cols]
     #df.columns = []
     # Get LabSampleNames from SampleNames.txt, merge with DataFrame and produce
