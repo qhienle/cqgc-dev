@@ -278,8 +278,7 @@ def main(args):
 
     # Subset columns for report, rename columns for prettyness
     #
-    subset_cols =  ['sample',
-                   'mapped_reads_pct', 
+    subset_cols =  ['mapped_reads_pct', 
                    'average_alignment_coverage_over_genome',
                    'variants_snps_pass_pct',
                    'cnvs_number',
