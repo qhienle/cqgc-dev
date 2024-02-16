@@ -146,26 +146,26 @@ def write_html_report(df, fc_short):
     """
     fig1 = go.Figure(
         data = [
-            go.Bar(name='NumOfCNVs',  x=df['Sample'], y=df['NumOfCNVs'], yaxis='y', offsetgroup=1),
-            go.Bar(name='NumOfSNPs',  x=df['Sample'], y=df['NumOfSNPs'], yaxis='y2', offsetgroup=2),
-            go.Bar(name='NumOfReads', x=df['Sample'], y=df['NumOfReads'], yaxis='y3', offsetgroup=3)
+            go.Bar(name='Mapped Reads %', x=df['sample'], y=df['mapped_reads_pct'], yaxis='y', offsetgroup=1),
+            go.Bar(name='SNPs (pass) %',  x=df['sample'], y=df['variants_snps_pass_pct'], yaxis='y2', offsetgroup=2),
+            go.Bar(name='CNVs (amp+del)', x=df['sample'], y=df['cnvs_number'], yaxis='y3', offsetgroup=3)
         ],
         layout={
-            'yaxis': {'title': 'NumOfCNVs'},
-            'yaxis2': {'title': 'NumOfSNPs',  'overlaying': 'y', 'side': 'right'},
-            'yaxis3': {'title': 'NumOfReads', 'overlaying': 'y', 'side': 'left'},
+            'yaxis':  {'title': 'Percentage of mapped reads'},
+            'yaxis2': {'title': 'Percentage of SNPs (pass)',  'overlaying': 'y', 'side': 'right'},
+            'yaxis3': {'title': 'Number of CNVs (aplifications + deletions)', 'overlaying': 'y', 'side': 'left'},
             'barmode': 'group'
         }
     )
     #fig1.update_layout(barmode='group')
 
-    fig2 = px.violin(df, y="Coverage uniformity", x="Site",
+    fig2 = px.violin(df, y="cnv_coverage_uniformity", x="Site",
                      title="Coverage uniformity of CNVs per site",
                      color="Site", box=True, points="all", hover_data=df.columns)
 
-    fig3 = px.scatter(df, x="Coverage uniformity", y="NumOfCNVs", 
+    fig3 = px.scatter(df, x="cnv_coverage_uniformity", y="cnvs_number", 
                       title="Number of CNVs vs Coverage uniformity",
-                      hover_data=['Sample', 'Coverage uniformity', 'Site'], color='Site')
+                      hover_data=['sample', 'cnv_coverage_uniformity', 'Site'], color='Site')
     fig3.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
 
     fig4 = px.scatter(df, x="Uniformity of coverage (PCT > 0.4*mean) over genome", y="NumOfSNPs", 
@@ -262,18 +262,19 @@ def main(args):
     # "SampleSheet.csv". NOTE: SampleSheet from Nanuq GET API doesn't yet have 
     # [DragenGermline_Data] section.
     #
-    samples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
-    total   = len(samples)
+    biosamples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
+    total   = len(biosamples)
 
     samples_metrics = {} # {sample: {metric1: value, metric2: value2, ...}}
-    for count, sample in enumerate(samples, start=1):
-        logging.info(f"Processing {sample}, {count}/{total}")
+    for count, biosample in enumerate(biosamples, start=1):
+        logging.info(f"Processing {biosample}, {count}/{total}")
 
-        metrics_file = f"{data_dir}/{sample}/germline_seq/{sample}.metrics.json"
+        metrics_file = f"{data_dir}/{biosample}/germline_seq/{biosample}.metrics.json"
         with open(metrics_file, 'r') as fh:
             metrics = json.load(fh)['Attributes']['illumina_dragen_complete_v0_4']
-        samples_metrics[sample] = metrics
+        samples_metrics[biosample] = metrics
     df_samples_metrics = pd.DataFrame.from_dict(samples_metrics, orient="index")
+    df_samples_metrics['biosample'] = df_samples_metrics.index
     df_samples_metrics['cnvs_number'] = df_samples_metrics['cnv_number_of_amplifications'] + df_samples_metrics['cnv_number_of_deletions']
 
     # Subset columns for report, rename columns for prettyness
@@ -295,7 +296,6 @@ def main(args):
                    'number_of_duplicate_marked_reads'
                    ]
     df = df_samples_metrics[subset_cols]
-    #df.columns = []
     # Get LabSampleNames from SampleNames.txt, merge with DataFrame and produce
     # the report 
     #write_html_report(df, fc_short)
