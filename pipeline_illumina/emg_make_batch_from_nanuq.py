@@ -129,7 +129,7 @@ def add_hpos(ep, mrn):
     """
     Lookup Phenotips ID (PID) and HPO identifiers, using `ep_mrn`
     - ep_mrn : [str] EP+MRN identifier. Ex: CHUSJ123456
-    - Returns:
+    - Returns: [tuple of str] (pid, hpo_labels, hpo_ids)
     """
     pho = Phenotips()
     pid = ''
