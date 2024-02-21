@@ -120,8 +120,8 @@ def format_mrn_eid(ep, mrn):
         mrn = mrn.lstrip('0')
     elif ep == 'CHUS':
         pass
-    elif ep == 'CHUQ':
-        return(mrn.replace('L', 'Q'))
+    elif ep == 'CHUL':
+        mrn.replace('L', 'Q')
     return(ep + mrn)
 
 
