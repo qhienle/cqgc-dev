@@ -214,8 +214,7 @@ def df_to_manifest_for_batch_script(df):
     #                 '-p', 'PASS', 
     #                 '-b'])
 
-    
-    
+
 def df_to_manifest(df):
     """
     From data in df, generate a manifest file for batch upload to Emedgene 
@@ -282,7 +281,7 @@ def df_to_manifest(df):
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
         fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
 
-    
+
 def print_case_by_case(df):
     """
     Format and print df to STDOUT case by case, with HPO terms. 
