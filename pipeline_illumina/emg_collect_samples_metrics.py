@@ -425,7 +425,9 @@ def main(args):
         'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability']] #, 'Estimated sample contamination']]
     df1.drop_duplicates(inplace=True)
-    df1 = df1.astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
+    #df1.dropna(inplace=True)
+    df1.to_csv('CHECK_ME.csv', index=None)
+    df1 = df1.dropna().astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
                     'Average coverage': 'Float64', 'Coverage uniformity': 'Float64',
                     'CNV Number of amplifications': 'Int64', 'CNV Number of passing amplifications': 'Int64', 
                     'CNV Number of deletions': 'Int64', 'CNV Number of passing deletions': 'Int64', 
