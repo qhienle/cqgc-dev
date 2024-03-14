@@ -94,41 +94,11 @@ def list_samples(file=None):
     return(samples)
 
 
-def format_mrn_eid(ep, mrn):
-    """
-    Format Medical Record Number (MRN) identifiers for Phenotips
-    - ep (Etablissement Public): Site label [str]
-    - mrn: Medical Record Number [str]
-    - Returns: Phenotips identifier [str]
-
-    MRN is used as identifier to look up a record in Phenotips (by API method 
-    labeled external ID, "labeled-eid"). In Phenotips, MRN is prepended with 
-    the Site's EP initials (_e.g._ "CHUS1626861"). There does not seem to be a
-    standard format for MRN identifiers. Here are some of the format detected, 
-    by order of frequency of occurrences:
-
-    PRAGMatIQ | Phenotips     | Nanuq       | Notes
-    ----------|---------------|-------------|------------------------------------
-    3421069   | CHUSJ3421069  | 03421069    | For CHUSJ, Nanuq adds a leading "0"
-    X3627954  | CHUSJX3627954 | X3627954    | Not numerical, starts with 'X'
-    1628699   | CHUS1628699   | 1628699     | 7 digits, no leading '0'
-    347990    | CHUS347990    | 347990      | 6 and no leading '0' added by Nanuq
-    1633799   | 1633799       | 1633799     | Not prefixed with EP initials
-    1644460   | CHUQ1644460   | CHUL1644460 | CHUQ is stored as CHUL in Nanuq
-    """
-    if ep == 'CHUSJ':
-        mrn = mrn.lstrip('0')
-    elif ep == 'CHUS':
-        pass
-    elif ep == 'CHUL':
-        mrn.replace('L', 'Q')
-    return(ep + mrn)
-
-
 def add_hpos(ep, mrn):
     """
-    Lookup Phenotips ID (PID) and HPO identifiers, using `ep_mrn`
-    - ep_mrn : [str] EP+MRN identifier. Ex: CHUSJ123456
+    Lookup Phenotips ID (PID) and HPO identifiers
+    - ep     : [str] Etablissement Public. Ex: CHUSJ
+    - mrn    : [str] Medical Record Number. Ex: 123456
     - Returns: [tuple of str] (pid, hpo_labels, hpo_ids)
     """
     pho = Phenotips()
@@ -136,31 +106,69 @@ def add_hpos(ep, mrn):
     hpo_ids    = []
     hpo_labels = []
 
-    ep_mrn   = format_mrn_eid(ep, mrn)
-    patient  = pho.get_patient_by_mrn(ep_mrn)
-    warn_msg = f"Could not get PID using EP+MRN: {ep_mrn}"
+    # Call API with labeled external ID (eid) to retrieve PID and then get the 
+    # associated HPO terms. In Phenotips, MRN is prepended with the Site's EP 
+    # initials (_e.g._ "CHUS1626861"). There does not seem to be a standard 
+    # format for MRN identifiers. Here are some of the format detected:
+    #
+    # PRAGMatIQ | Phenotips     | Nanuq       | Notes
+    # ----------|---------------|-------------|------------------------------------
+    # 3421069   | CHUSJ3421069  | 03421069    | For CHUSJ, Nanuq adds a leading "0"
+    # X3627954  | CHUSJX3627954 | X3627954    | Not numerical, starts with 'X'
+    # 1628699   | CHUS1628699   | 1628699     | 7 digits, no leading '0'
+    # 347990    | CHUS347990    | 347990      | 6 and no leading '0' added by Nanuq
+    # 1633799   | 1633799       | 1633799     | Not prefixed with EP initials
+    # 1644460   | CHUQ1644460   | CHUL1644460 | CHUQ is stored as CHUL in Nanuq
+    #
+    # Fix malformed entries.
+    #
+    if ep == 'CHUSJ':
+        mrn = mrn.lstrip('0')
+    elif ep == 'CHUS':
+        pass
+    elif ep == 'CHUL':
+        mrn.replace('L', 'Q')
+    elif ep == 'MUHC':
+        ep = 'CUSM'
+    ep_mrn = f"{ep}{mrn}"
+    patient  = pho.get_patient_by_mrn(f"{ep}{mrn}")
 
+    # EP+MRN is a convention, not a constraint enforced in Phenotips DB
+    # Users sometimes don't follow the rule and provide only MRN
+    # Use RAMQ (not always available) as a last resort? 
+    #
     if patient is not None:
         pid = patient['id']
-        hpos = pho.parse_hpo(patient)
-        for hpo in hpos:
-            hpo_ids.append(hpo['id'])
-            hpo_labels.append(hpo['label'])
     else:
-        logging.warning(warn_msg)
+        logging.warning(f"Could not get PID using EP+MRN: {ep_mrn}. Trying with MRN: {mrn}...")
+        if ep == 'CHUSJ':
+            patient = pho.get_patient_by_mrn(mrn.lstrip('0')) # Why is MRN for CHUSJ preceded by '0'?
+        else:
+            patient = pho.get_patient_by_mrn(mrn)
+        if patient is not None:
+            pid = patient['id']
+        else:
+            logging.warning(f"Could not get PID using EP+MRN: {ep_mrn} nor by MRN: {mrn}.")
+            # Retrieve PID using ramq?
+
+    hpos = pho.parse_hpo(patient)
+    for hpo in hpos:
+        hpo_ids.append(hpo['id'])
+        hpo_labels.append(hpo['label'])
 
     if len(hpo_ids) == 0:
+        warn_msg = f"Could not find HPO terms for PID={pid} (EP+MRN={ep_mrn})"
+        logging.warning(warn_msg)
         ids_str    = warn_msg
         labels_str = warn_msg
+        logging.debug(f"Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
+        logging.debug(f"Phenotips ID for {ep_mrn} is {pid}")
+        logging.debug(f"HPO labels_str is {labels_str}")
+        logging.debug(f"HPO identifiers string is {ids_str}")
     else:
         ids_str = ';'.join(hpo_ids)
         labels_str = ';'.join(hpo_labels)
 
-    logging.debug(f"Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
-    logging.debug(f"Phenotips ID for {ep_mrn} is {pid}")
-    logging.debug(f"HPO labels_str is {labels_str}")
-    logging.debug(f"HPO identifiers string is {ids_str}")
-    
     return(pid, labels_str, ids_str)
 
 
