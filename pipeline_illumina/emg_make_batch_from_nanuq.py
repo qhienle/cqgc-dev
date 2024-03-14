@@ -156,9 +156,6 @@ def add_hpos(ep, mrn):
         ids_str = ';'.join(hpo_ids)
         labels_str = ';'.join(hpo_labels)
 
-    # sample_infos.append(pid)
-    # sample_infos.append(labels_str)
-    # sample_infos.append(ids_str)
     logging.debug(f"Got HPO terms from Phenotips by Labeled EID {ep_mrn}\n")
     logging.debug(f"Phenotips ID for {ep_mrn} is {pid}")
     logging.debug(f"HPO labels_str is {labels_str}")
