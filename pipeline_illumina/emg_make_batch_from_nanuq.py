@@ -151,10 +151,14 @@ def add_hpos(ep, mrn):
             logging.warning(f"Could not get PID using EP+MRN: {ep_mrn} nor by MRN: {mrn}.")
             # Retrieve PID using ramq?
 
-    hpos = pho.parse_hpo(patient)
-    for hpo in hpos:
-        hpo_ids.append(hpo['id'])
-        hpo_labels.append(hpo['label'])
+    try:
+        hpos = pho.parse_hpo(patient)
+    except TypeError as e:
+        logging.error(f"Could not use {ep_mrn} to retieve Phenotips patient: {patient}")
+    else:
+        for hpo in hpos:
+            hpo_ids.append(hpo['id'])
+            hpo_labels.append(hpo['label'])
 
     if len(hpo_ids) == 0:
         warn_msg = f"Could not find HPO terms for PID={pid} (EP+MRN={ep_mrn})"
