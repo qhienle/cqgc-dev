@@ -442,15 +442,6 @@ class BSSH:
         # self.headers = {'x-access-token': f'{token}'} # Also works
 
 
-    def get_project_id(self, project):
-        """
-        Placeholder. Is this function even useful? 
-        ProjectId can be retrieved through the biosample's JSON:
-        Item[0]['DefaultProject']['Id']
-        """
-        return(project)
-
-
     def get_biosample_id(self, biosamplename):
         """
         Get BSSH ID for biosamplename
@@ -458,12 +449,12 @@ class BSSH:
         - Returns id as `int` or NoneType if not found 
         """
         endpoint = '/v2/biosamples/'
-        url = self.server + endpoint
-        payload = {'biosamplename': f"{biosamplename}"}
+        url      = self.server + endpoint
+        payload  = {'biosamplename': f"{biosamplename}"}
         response = requests.get(url, headers=self.headers, params=payload)
         response.raise_for_status
         # TODO: Warn if response.json().get('Paging')["TotalCount"] != 1
-        return(response.json().get('Items')[0]['Id'])
+        return response.json().get('Items')[0]['Id']
 
 
     def get_dataset_id(self, biosampleid):
@@ -473,12 +464,12 @@ class BSSH:
         - Returns id as `int` or NoneType if not found 
         """
         endpoint = '/v2/datasets/'
-        url = self.server + endpoint
+        url      = self.server + endpoint
 
         # FastQ uploaded using CLI has DatasetTypes.ID 'illumina.fastq.v1.8' 
         # while the ones created by BCL Convert have the type 'common.fastq'.
         #
-        payload = {'inputbiosamples': {biosampleid}} # , 'datasettypes': ''}
+        payload  = {'inputbiosamples': {biosampleid}} # , 'datasettypes': ''}
         response = requests.get(url, headers=self.headers, params=payload)
         response.raise_for_status
 
@@ -489,9 +480,9 @@ class BSSH:
         if counts == len(items):
             for item in items:
                 datasets.append(item['Id'])
-            return(datasets)
+            return datasets
         else:
-            return(None)
+            return None
 
 
     def get_sequenced_files(self, biosample):
@@ -499,12 +490,15 @@ class BSSH:
         Get paths to sequenced files (FASTQ paths) for biosample
         - `biosample`: biosamplename [str]
         - Returns: List of BSSH paths to sequenced files (FASTQ) [list of str]
-        For each sequenced file, we need to get a path that looks like this:
-        /projects/0000000000/biosamples/###/datasets/###/sequenced files/###
+        For each sequenced file, we get a path that looks like this:
+        /projects/###/biosamples/###/datasets/###/sequenced files/###
         """
         fastqs = []
         biosampleid = self.get_biosample_id(biosample)
         datasets    = self.get_dataset_id(biosampleid)
+        projectid   = '0000000000' 
+        # Works by default. But Illumina recommends using ProjectId identifier
+        # which can be found in the JSON returned for ds.dataseid 
 
         # For each biosampleid, there's one or more datasets (sequencing lanes)
         # wich, in turn, has one or two files (sequencing reads)
@@ -512,15 +506,20 @@ class BSSH:
         #
         for dataset in datasets:
             endpoint = f"/v2/datasets/{dataset}/files"
-            url   = self.server + endpoint
-            response = requests.get(url, headers=self.headers, params={'limit': 100})
+            url      = self.server + endpoint
+            payload  = {'limit': 100}
+            response = requests.get(url, headers=self.headers, params=payload)
             response.raise_for_status
+            # TODO: Get ProjectId, which encoded in dataset
+            projectid = response.json()
             for item in response.json().get('Items'):
                 #print(json.dumps(item, indent=2))
-                fastq = f"/projects/0000000000/biosamples/{biosample}/datasets/{dataset}/sequenced files/{item['Id']}"
+                # Name of "biosample" works but EMG recommends "biosampleid"
+                # fastq = f"/projects/0000000000/biosamples/{biosample}/datasets/{dataset}/sequenced files/{item['Id']}"
+                fastq = f"/projects/{projectid}/biosamples/{biosampleid}/datasets/{dataset}/sequenced files/{item['Id']}"
                 fastqs.append(fastq)
 
-        return(fastqs)
+        return fastqs 
 
 
 def test():
