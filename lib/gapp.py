@@ -469,17 +469,16 @@ class BSSH:
     def get_dataset_id(self, biosampleid):
         """
         Get BSSH dataset ID for biosampleid
-        - `biosampleid`: `str`, Id of biosample
+        - `biosampleid`: `list`, Id of biosample
         - Returns id as `int` or NoneType if not found 
         """
         endpoint = '/v2/datasets/'
         url = self.server + endpoint
 
-        # FastQ files uploaded using CLI has the DatasetTypes.ID 'illumina.fastq.v1.8' 
+        # FastQ uploaded using CLI has DatasetTypes.ID 'illumina.fastq.v1.8' 
         # while the ones created by BCL Convert have the type 'common.fastq'.
         #
-        # payload = {'inputbiosamples': {biosampleid}, 'datasettypes': 'common.fastq'}
-        payload = {'inputbiosamples': {biosampleid}}
+        payload = {'inputbiosamples': {biosampleid}} # , 'datasettypes': ''}
         response = requests.get(url, headers=self.headers, params=payload)
         response.raise_for_status
 
@@ -514,14 +513,12 @@ class BSSH:
         for dataset in datasets:
             endpoint = f"/v2/datasets/{dataset}/files"
             url   = self.server + endpoint
-            response = requests.get(url, headers=self.headers, params={})
+            response = requests.get(url, headers=self.headers, params={'limit': 100})
             response.raise_for_status
             for item in response.json().get('Items'):
                 #print(json.dumps(item, indent=2))
                 fastq = f"/projects/0000000000/biosamples/{biosample}/datasets/{dataset}/sequenced files/{item['Id']}"
                 fastqs.append(fastq)
-                #fastqs.append(item['Href'])
-                #fastqs.append(item['HrefContent'])
 
         return(fastqs)
 
