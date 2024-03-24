@@ -196,7 +196,7 @@ class Phenotips:
                 if feature['observed'] == 'yes':
                     hpos.append({'id': feature['id'], 'label': feature['label']})
         else:
-            print(f"WARNING: '{filename}' is not a file {filename}")
+            warnings.warn(f"WARNING: '{filename}' is not a file {filename}")
         return(hpos)
 
 
@@ -442,7 +442,7 @@ class BSSH:
         # self.headers = {'x-access-token': f'{token}'} # Also works
 
 
-    def get_biosample_id(self, biosamplename):
+    def get_biosampleid(self, biosamplename):
         """
         Get BSSH ID for biosamplename
         - `biosamplename`: `str`, name of biosample
@@ -457,19 +457,18 @@ class BSSH:
         return response.json().get('Items')[0]['Id']
 
 
-    def get_dataset_id(self, biosampleid):
+    def get_datasets(self, biosampleid):
         """
-        Get BSSH dataset ID for biosampleid
-        - `biosampleid`: `list`, Id of biosample
-        - Returns id as `int` or NoneType if not found 
+        Get BSSH dataset ID, project ID and project Name for `biosampleid`.
+        - `biosampleid`: [str], Id of biosample
+        - Returns: [list] of tuples 
         """
         endpoint = '/v2/datasets/'
         url      = self.server + endpoint
-
+        payload  = {'inputbiosamples': {biosampleid}} # , 'datasettypes': ''}
         # FastQ uploaded using CLI has DatasetTypes.ID 'illumina.fastq.v1.8' 
         # while the ones created by BCL Convert have the type 'common.fastq'.
-        #
-        payload  = {'inputbiosamples': {biosampleid}} # , 'datasettypes': ''}
+
         response = requests.get(url, headers=self.headers, params=payload)
         response.raise_for_status
 
@@ -477,12 +476,13 @@ class BSSH:
         counts = response.json().get('Paging')['TotalCount']
 
         datasets = []
-        if counts == len(items):
-            for item in items:
-                datasets.append(item['Id'])
-            return datasets
-        else:
-            return None
+        if len(items) != counts:
+            warnings.warn(f"WARNING: Found {len(items)} datasets but expected {counts} for {biosampleid}")
+        for item in items:
+            datasets.append((item['Id'], item['Project']['Id'], item['Project']['Name']))
+        if len(datasets) != 1:
+            warnings.warn(f"WARNING: Found more than one dataset for {biosampleid}")
+        return datasets
 
 
     def get_sequenced_files(self, biosample):
@@ -494,29 +494,28 @@ class BSSH:
         /projects/###/biosamples/###/datasets/###/sequenced files/###
         """
         fastqs = []
-        biosampleid = self.get_biosample_id(biosample)
-        datasets    = self.get_dataset_id(biosampleid)
-        projectid   = '0000000000' 
-        # Works by default. But Illumina recommends using ProjectId identifier
+        biosampleid = self.get_biosampleid(biosample)
+        datasets    = self.get_datasets(biosampleid)
+        # projectid   = '0000000000'
+        # '0000000000' works but Illumina recommends using ProjectId identifier
         # which can be found in the JSON returned for ds.dataseid 
-
-        # For each biosampleid, there's one or more datasets (sequencing lanes)
-        # wich, in turn, has one or two files (sequencing reads)
+        #
+        # For each biosampleid, there's one or more datasets (runs or lanes?)
+        # wich, in turn, has one or more files (sequencing lanes and reads)
         # https://api.cac1.sh.basespace.illumina.com/v2/datasets/ds.16ef9da98da745bf9f51c57e89c282f6/files/
         #
         for dataset in datasets:
-            endpoint = f"/v2/datasets/{dataset}/files"
+            datasetid, projectid, projectname = dataset
+            endpoint = f"/v2/datasets/{datasetid}/files"
             url      = self.server + endpoint
             payload  = {'limit': 100}
             response = requests.get(url, headers=self.headers, params=payload)
             response.raise_for_status
-            # TODO: Get ProjectId, which encoded in dataset
-            projectid = response.json()
             for item in response.json().get('Items'):
                 #print(json.dumps(item, indent=2))
                 # Name of "biosample" works but EMG recommends "biosampleid"
-                # fastq = f"/projects/0000000000/biosamples/{biosample}/datasets/{dataset}/sequenced files/{item['Id']}"
-                fastq = f"/projects/{projectid}/biosamples/{biosampleid}/datasets/{dataset}/sequenced files/{item['Id']}"
+                fastq = f"/projects/0000000000/biosamples/{biosample}/datasets/{datasetid}/sequenced files/{item['Id']}"
+                # fastq = f"/projects/{projectid}/biosamples/{biosampleid}/datasets/{datasetid}/sequenced files/{item['Id']}"
                 fastqs.append(fastq)
 
         return fastqs 
