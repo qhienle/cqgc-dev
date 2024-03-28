@@ -514,8 +514,8 @@ class BSSH:
             for item in response.json().get('Items'):
                 #print(json.dumps(item, indent=2))
                 # Name of "biosample" works but EMG recommends "biosampleid"
-                fastq = f"/projects/0000000000/biosamples/{biosample}/datasets/{datasetid}/sequenced files/{item['Id']}"
-                # fastq = f"/projects/{projectid}/biosamples/{biosampleid}/datasets/{datasetid}/sequenced files/{item['Id']}"
+                # fastq = f"/projects/0000000000/biosamples/{biosample}/datasets/{datasetid}/sequenced files/{item['Id']}"
+                fastq = f"/projects/{projectid}/biosamples/{biosampleid}/datasets/{datasetid}/sequenced files/{item['Id']}"
                 fastqs.append(fastq)
 
         return fastqs 
