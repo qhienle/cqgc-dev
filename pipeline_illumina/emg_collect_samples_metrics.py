@@ -158,18 +158,30 @@ def get_metrics_from_log(sample, log_files=[]):
         logname = os.path.basename(log)
         with open(log, "r") as fh:
             lines = fh.readlines()
-        reads = ''
-        snps  = ''
-        amplifications      = ''
-        pass_amplifications = ''
-        deletions           = '' 
-        pass_deletions      = ''
-        coverage_uniformity = ''
-        callability         = ''
-        contamination       = '' 
-        mapped_reads        = '' 
-        mapped_reads_pct    = '' 
-        duplicate_reads_pct = '' 
+        # reads = ''
+        # snps  = ''
+        # amplifications      = ''
+        # pass_amplifications = ''
+        # deletions           = '' 
+        # pass_deletions      = ''
+        # coverage_uniformity = ''
+        # callability         = ''
+        # contamination       = '' 
+        # mapped_reads        = '' 
+        # mapped_reads_pct    = '' 
+        # duplicate_reads_pct = '' 
+        reads = None
+        snps  = None
+        amplifications      = None
+        pass_amplifications = None
+        deletions           = None
+        pass_deletions      = None
+        coverage_uniformity = None
+        callability         = None
+        contamination       = None
+        mapped_reads        = None
+        mapped_reads_pct    = None
+        duplicate_reads_pct = None
         for line in lines:
             line_parts = line.rstrip().split()
 
@@ -205,7 +217,10 @@ def get_metrics_from_log(sample, log_files=[]):
             elif 'Estimated sample contamination' in line:
                 if line_parts[12] != 'standard':
                     contamination = line_parts[12].replace("\\n'", "")
-        cnvs = amplifications + deletions
+        try:
+            cnvs = amplifications + deletions
+        except TypeError:
+            cnvs = None
         metrics.append([sample, logname, reads, snps, cnvs, coverage_uniformity, 
                         amplifications, pass_amplifications, deletions, pass_deletions, 
                         mapped_reads, mapped_reads_pct, duplicate_reads_pct,
@@ -240,11 +255,16 @@ def get_coverage_metrics(sample, coverage_files=[]):
     for file in coverage_files:
         path_parts   = os.path.split(file)
         version      = os.path.basename(path_parts[0])
-        avg_coverage = ''
-        coverage_20x = ''
-        uniformity_coverage_02 = ''
-        uniformity_coverage_04 = ''
-        autosomal_cover_ratio  = ''
+        # avg_coverage = ''
+        # coverage_20x = ''
+        # uniformity_coverage_02 = ''
+        # uniformity_coverage_04 = ''
+        # autosomal_cover_ratio  = ''
+        avg_coverage = None
+        coverage_20x = None
+        uniformity_coverage_02 = None
+        uniformity_coverage_04 = None
+        autosomal_cover_ratio  = None
         with open(file, "r") as fh:
             for line in fh:
                 cols = line.rstrip().split(',')
@@ -425,10 +445,11 @@ def main(args):
         'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability']] #, 'Estimated sample contamination']]
     df1.to_csv('_tmp_df_merged.csv', index=None)
-    df2 = df1.drop_duplicates()
-    df3 = df2.dropna()
-    df3.to_csv('_tmp_df_merged_dropna_dropdup.csv', index=None)
-    df3 = df3.astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
+    #df1.drop_duplicates(inplace=True)
+    df2 = df1.dropna()
+    print(df2)
+    df2.to_csv('_tmp_df_merged_dropna_dropdup.csv', index=None)
+    df3 = df2.astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
         'Average coverage': 'Float64', 'Coverage uniformity': 'Float64',
         'CNV Number of amplifications': 'Int64', 'CNV Number of passing amplifications': 'Int64', 
         'CNV Number of deletions': 'Int64', 'CNV Number of passing deletions': 'Int64', 
