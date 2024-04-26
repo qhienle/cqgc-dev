@@ -129,6 +129,9 @@ Il faut à présent se connecter _via_ l'interface web à Emedgene pour téléve
 Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload). https://chusaintejustine.emedgene.com/v2/#/help/
 
 
+Exemple d'erreur fréquent: "Unmatched phenotype(s) found: phenotypes/EMG_PHENOTYPE_0011438". Il faut supprimer ce phénotype de la liste. Pour trouver le terme fautif, il faut remplacer "EMG_PHENOTYPE_" par "HP:" (dans ce cas-ci, EMG_PHENOTYPE_0011438 == HP:0011438)
+
+
 ### 3. (**TODO**) Ajouter les participants
 
 

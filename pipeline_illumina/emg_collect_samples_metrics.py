@@ -424,9 +424,11 @@ def main(args):
         'Number of unique & mapped reads PCT',
         'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability']] #, 'Estimated sample contamination']]
-    df1.drop_duplicates(inplace=True)
-    df1.to_csv('CHECK_ME.csv', index=None)
-    df1 = df1.dropna().astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
+    df1.to_csv('_tmp_df_merged.csv', index=None)
+    df2 = df1.drop_duplicates()
+    df3 = df2.dropna()
+    df3.to_csv('_tmp_df_merged_dropna_dropdup.csv', index=None)
+    df3 = df3.astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
         'Average coverage': 'Float64', 'Coverage uniformity': 'Float64',
         'CNV Number of amplifications': 'Int64', 'CNV Number of passing amplifications': 'Int64', 
         'CNV Number of deletions': 'Int64', 'CNV Number of passing deletions': 'Int64', 
@@ -438,12 +440,12 @@ def main(args):
         'Number of unique & mapped reads PCT': 'Float64',
         'Number of duplicate marked reads PCT': 'Float64', 
         'Percent Autosome Callability': 'Float64'})
-    logging.info(f"Current Metrics DataFrame:\n{df1}")
+    logging.info(f"Current Metrics DataFrame:\n{df3}")
 
     # Combine dataframe with samples_list.csv and generate figures for the HTML report
     #
     df_samples = pd.read_csv('samples_list.csv', encoding="latin-1")
-    df = df1.merge(df_samples, how='inner')
+    df = df3.merge(df_samples, how='inner')
     df.to_csv(f'{args.run}_metrics.csv', index=None)
     write_html_report(df, args.run)
 
