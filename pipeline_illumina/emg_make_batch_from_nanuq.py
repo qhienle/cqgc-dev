@@ -246,7 +246,8 @@ def df_to_manifest(df):
         'Gender': df['gender'],
         'Phenotypes': 'Healthy',
         'Phenotypes Id': df['hpos'],
-        'Date Of Birth': pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y'),
+        #'Date Of Birth': pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y'),
+        'Date Of Birth': df['date_of_birth(YYYY-MM-DD)'],
         'Boost Genes': '',
         'Gene List Id': '',
         'Kit Id': '',
@@ -256,6 +257,15 @@ def df_to_manifest(df):
         'Due Date': '',
         'Opt In': ''
     })
+    # Convert Date of Birth to DateTime
+    #
+    try:
+        df_manifest['Date Of Birth'] =  pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y'),
+    except OverflowError as err:
+        logging.warning(err)
+    except:
+        logging.warning(f"WARNING: Pandas could not convert Date of Birth column to DateTime format.")
+
     # With the "Files Names"="auto" option, BSSH users can automatically locate
     # FASTQ files based on the BioSample Name and Default Project provided.
     # Unfortunately, this would mean that cases woul bear the lab's CQGC_ID.
