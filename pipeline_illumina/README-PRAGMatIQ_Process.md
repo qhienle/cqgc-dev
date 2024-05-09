@@ -76,9 +76,21 @@ Créer un journal dans lequel seront notés le suivi des opérations. Par exempl
 
 #### 3. Se connecter à spxp-app02 
 
-`ssh ${USER}@10.128.80.26`
-
 Au préalable, obtenir un jeton auprès du service informatique afin de pouvoir se connecter à distance _via_ le VPN du CHUSJ.
+
+```bash
+# Mise en place de l'environnement de travail. Il suffit seulement de renseigner 
+# la valeur de FC et de copier-coller les commandes dans votre shell sur spxp-app02
+# ssh ${USER}@10.128.80.26
+
+export FC="20240507_LH00336_0041_A22K5J7LT3" # À modifier 
+a=($(echo ${FC} | tr '_' '\n'))
+export FC_SHORT="${a[1]}_${a[2]}"
+export BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
+export WORKDIR="/mnt/spxp-app02/staging2/dragen"
+
+cd ${BASEDIR}
+```
 
 #### 4. Mettre en place l'environnement de travail 
 
