@@ -1,6 +1,6 @@
 # Procédure PRAGMatIQ
 
-Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à analyser sur la plateforme d'[Emedgene (EMG)](https://chusaintejustine.emedgene.com/) une fois que les séquences des échantillons sont disponibles sur BaseSpace Sequence Hub (BSSH). La progression des opérations de séquençage puis de la déconvolution-conversion de la _Run_ peuvent être suivies sur BSSH sous l'onglet ["Run"](https://chusj.cac1.sh.basespace.illumina.com/runs/active) et ["Analyses"](https://chusj.cac1.sh.basespace.illumina.com/analyses/), respectivement.
+Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à analyser sur la plateforme d'[Emedgene (EMG)](https://chusaintejustine.emedgene.com/) une fois que les séquences des échantillons sont disponibles sur BaseSpace Sequence Hub (BSSH). Les BCLs issus des séquenceurs sont d'abord convertis en FASTQs par DRAGEN BCLcConvert, soit directement sur le NovaSeqX, par notre serveur local ou sur BSSH. La progression des opérations de séquençage puis de la déconvolution-conversion de la _Run_ peuvent être suivies sur BSSH sous l'onglet ["Run"](https://chusj.cac1.sh.basespace.illumina.com/runs/active) et ["Analyses"](https://chusj.cac1.sh.basespace.illumina.com/analyses/), respectivement. Les cas à analyser sont finalement créés dans Emedgene à l'aide d'un fichier "batch manifest" en format CSV. Ce fichier contient les informations sur les individus des familles (sexe, âge, relation, FASTQs associés, termes HPOs, _etc_.). 
 
 En résumé, voici les étapes à suivre:
 
@@ -17,20 +17,25 @@ En résumé, voici les étapes à suivre:
 
 Où ${FC_SHORT} est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", ${FC_SHORT} est "A00516_0441".
 
+***_N.B._***: Afin de connecter les informations génétiques des familles (issues de Nanuq) aux phénotypes (termes HPOs contenus dans Phenotips), il est impératif que les deux champs EP (Établissement Public) et MRN (Medical Record Number) soient bien renseignés dans les deux systèmes par les collègues. Sinon, il faut obtenir les informations de Phenotips (identifiants PID) par "Camille Varin-Tremblay (HSJ)" <camille.varin-tremblay.hsj@ssss.gouv.qc.ca>.
+
 
 ## Procédure
 
 
 ### 0. Préparer la création des analyses
 
+Installation des outils pré-requis et obtention des identifiants de connexion aux différents services.
+
 #### 1. Obtenir les identifiants de connexion
 
 Demander à l'administrateur de fournir les droits d'accès (identifiant, mot-de-passe, permissions) aux services suivants:
 
-- Nanuq
-- Emedgene
-- Phenotips
-- BSSH
+- ENG: Emedgene, pour les analyses des cas
+- Nanuq: Base de données des échantillons de séquençage du CQGC
+- Phenotips: Base de données contenant les termes HPO des patients
+- BSSH: _i.e._ BaseSpace, stockage infonuagique d'Illumina où les FASTQs seront mis à disposition pour Emedgene
+    - `bs`: Utilitaire CLI pour interagir avec BaseSpace, notamment pour téléverser les FASTQs depuis spxp-app02
 
 Pour Nanuq, il faut créer le fichier `~/.nanuq`, contenant une seule et unique ligne comme ceci:
 
@@ -55,10 +60,16 @@ Pour les services Emedgene, Phenotips et BSSH, il faut créer un fichier texte d
 
 Un exemple de fichier est disponible sur [l'espace PrivateDoc dans GitHub](https://github.com/CQGC-Ste-Justine/PrivateDoc/blob/0f59d674fd5d91ca5da7880ab55cd753ad324203/gapp_conf.json).
 
+De plus, l'utilitaire CLI `bs`, installé sur spxp-app02, va rechercher un fichier de configuration `*.cfg` dans votre "home", `/home/hienle/.basespace`. Voici un exemple de `spxp-app02://home/hienle/.basespace/cac1.cfg`
+
+    apiServer   = https://api.cac1.sh.basespace.illumina.com
+    accessToken = <TOKEN>
+
+Veuillez vous référer à la documentation d'Illumina afin de générer le jeton d'accès (token).
 
 #### 2. Créer un journal pour le suivi
 
-Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel du laboratoire CQGC, mais peuvent aussi être récupérées depuis BSSH (sous l'onglet "_Runs_").
+Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel du laboratoire CQGC, mais peuvent aussi être récupérées depuis BSSH (sous l'onglet "_Runs_"). Un modèle `README-${FC_SHORT}-template.ipynb` est disponible sur GitHub et dans Teams.
 
 **_N.B._** Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir.
 
