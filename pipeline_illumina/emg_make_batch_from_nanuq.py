@@ -111,14 +111,15 @@ def add_hpos(ep, mrn):
     # initials (_e.g._ "CHUS1626861"). There does not seem to be a standard 
     # format for MRN identifiers. Here are some of the format detected:
     #
-    # PRAGMatIQ | Phenotips     | Nanuq       | Notes
-    # ----------|---------------|-------------|------------------------------------
-    # 3421069   | CHUSJ3421069  | 03421069    | For CHUSJ, Nanuq adds a leading "0"
-    # X3627954  | CHUSJX3627954 | X3627954    | Not numerical, starts with 'X'
-    # 1628699   | CHUS1628699   | 1628699     | 7 digits, no leading '0'
-    # 347990    | CHUS347990    | 347990      | 6 and no leading '0' added by Nanuq
-    # 1633799   | 1633799       | 1633799     | Not prefixed with EP initials
-    # 1644460   | CHUQ1644460   | CHUL1644460 | CHUQ is stored as CHUL in Nanuq
+    # Phenotips     | Nanuq            | Notes
+    # --------------|------------------|------------------------------------
+    # CHUSJ3421069  | 03421069         | For CHUSJ, Nanuq adds a leading "0"
+    # CHUSJX3627954 | X3627954         | Not numerical, starts with 'X'
+    # CHUS1628699   | 1628699          | 7 digits, no leading '0'
+    # CHUS347990    | 347990           | 6 and no leading '0' added by Nanuq
+    # 1633799       | 1633799          | Not prefixed with EP initials
+    # CHUQ1644460   | CHUL1644460      | CHUQ is stored as CHUL in Nanuq
+    # CHUQ1753303   | CHUQ1753303 CHUL | Suffix CHUL added in Nanuq
     #
     # Fix malformed entries.
     #
