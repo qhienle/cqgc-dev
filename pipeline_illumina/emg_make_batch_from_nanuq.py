@@ -131,8 +131,10 @@ def add_hpos(ep, mrn):
         mrn.replace('L', 'Q')
     elif ep == 'MUHC':
         ep = 'CUSM'
+    elif mrn.endswith(' CHUL'):
+        mrn = mrn.replace(' CHUL', '')
     ep_mrn = f"{ep}{mrn}"
-    patient  = pho.get_patient_by_mrn(f"{ep}{mrn}")
+    patient  = pho.get_patient_by_mrn(ep_mrn)
 
     # EP+MRN is a convention, not a constraint enforced in Phenotips DB
     # Users sometimes don't follow the rule and provide only MRN
