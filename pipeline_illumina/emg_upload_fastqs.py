@@ -41,7 +41,7 @@ __version__ = "0.1"
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Upload FASTQ files to BaseSpace. for a given Run.")
-    parser.add_argument('run', help="FC_SHORT Run ID, ex: 'LH00336_0043'")
+    parser.add_argument('run', help="Run ID, ex: '20240510_LH00336_0043_A22K5KMLT3'")
     parser.add_argument('--file', '-f', help="Get samples from `--file` instead of fetching <Run> from Nanuq.")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
@@ -92,7 +92,7 @@ def list_samples(file=None):
 def main(args):
     """
     """
-    args.run.split('_')
+    date, inst, args.run.split('_')
     print(f"# Logging run {args.run}")
     
     workdir = f"{os.getcwd()}{os.sep}{args.run}"
