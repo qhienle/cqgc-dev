@@ -492,7 +492,7 @@ if __name__ == '__main__':
 
 """
 Example of Nanuq SampleNames:
-```pyhton
+```python
 nq = Nanuq()
 samplenames = nq.get_samplenames("A00516_0445")
 samplenames.text
