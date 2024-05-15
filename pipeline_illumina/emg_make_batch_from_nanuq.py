@@ -91,7 +91,7 @@ def list_samples(file=None):
     for line in lines:
         if not line.startswith('#'):
             samples.append(line)
-    return(samples)
+    return (fc_date, samples)
 
 
 def add_hpos(ep, mrn):
@@ -373,16 +373,7 @@ def main(args):
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
-    if args.file:
-        samplenames = list_samples(args.file)
-    else:
-        samplenames = nq.get_samplenames(args.run)
-        if not samplenames.text.startswith("##20"):
-            sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
-        else:
-            logging.info("Retrieved samples conversion table from Nanuq")
-            fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
-            logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
+    fc_date, samplenames = list_samples(args.file)
 
     
     # 2. Build cases: Get Nanuq JSON for each CQGC ID found in SampleNames 
@@ -392,68 +383,68 @@ def main(args):
     # pandas DataFrame and printed to STDOUT at the end.
     # 
     cases = []
-    for line in samplenames.text.splitlines():
-        if not line.startswith('#'):
-            cqgc, sample = line.split("\t")
-            
-            # 2.1 Get information for sample from Nanuq
-            #
-            try:
-                data = json.loads(nq.get_sample(cqgc))
-            except Exception as e:
-                logging.warning(f"JSONDecodeError {e} could not decode sample {cqgc} ({sample})")
-                continue
+    for line in samplenames:
+        cqgc, sample = line.split("\t")
+        
+        # 2.1 Get information for sample from Nanuq
+        #
+        try:
+            data = json.loads(nq.get_sample(cqgc))
+        except Exception as e:
+            logging.warning(f"JSONDecodeError {e} could not decode sample {cqgc} ({sample})")
+            continue
 
-            logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
-            if len(data) != 1:
-                logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
-            try:
-                data[0]["patient"]["mrn"]
-            except Exception as err:
-                logging.warning(f"Could not find MRN for patient {cqgc} ({sample}: {err})")
-                data[0]["patient"]["mrn"] = '0000000'
-            else:
-                pass
-            finally:
-                sample_infos = [
-                    data[0]["ldmSampleId"],
-                    data[0]["labAliquotId"],
-                    data[0]["patient"]["familyMember"],
-                    data[0]["patient"]["sex"],
-                    data[0]["patient"]["ep"],
-                    data[0]["patient"]["mrn"],
-                    data[0]["patient"]["designFamily"],
-                    data[0]["patient"]["birthDate"],
-                    data[0]["patient"]["status"],
-                    data[0]["patient"].get("familyId", "-")
-                ]
-            #logging.warning(f"Something went wrong while parsing JSON for {cqgc} ({sample})")
-            # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers for
-            # the proband. Lookup this information in Phenotips, using EP+MRN
-            # Ex: CHUSJ123456
-            #
-            if data[0]["patient"]["familyMember"] == 'PROBAND':
-                pid, labels_str, ids_str = add_hpos(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
-                logging.info(f"Got HPO terms from Phenotips for PID {pid}")
-            else:
-                pid, labels_str, ids_str = ('', '', '')
-                logging.debug(f'Not retrieving PID for {cqgc} ({data[0]["patient"]["familyMember"]})')
-            sample_infos.append(pid)
-            sample_infos.append(labels_str)
-            sample_infos.append(ids_str)
-            logging.debug(f"PID: {pid}; HPO ID: {ids_str}; Labels: {labels_str}\n")
+        logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
+        if len(data) != 1:
+            logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
+        try:
+            data[0]["patient"]["mrn"]
+        except Exception as err:
+            logging.warning(f"Could not find MRN for patient {cqgc} ({sample}: {err})")
+            data[0]["patient"]["mrn"] = '0000000'
+        else:
+            pass
+        finally:
+            sample_infos = [
+                data[0]["ldmSampleId"],
+                data[0]["labAliquotId"],
+                data[0]["patient"]["familyMember"],
+                data[0]["patient"]["sex"],
+                data[0]["patient"]["ep"],
+                data[0]["patient"]["mrn"],
+                data[0]["patient"]["designFamily"],
+                data[0]["patient"]["birthDate"],
+                data[0]["patient"]["status"],
+                data[0]["patient"].get("familyId", "-")
+            ]
+        #logging.warning(f"Something went wrong while parsing JSON for {cqgc} ({sample})")
 
-            # 2.3 Add paths to fastq on BaseSpace
-            #
-            try:
-                fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
-            except Exception as err:
-                logging.info(f"Could not retrieve FASTQs paths for {cqgc}: {err}")
-                fastqs = []
-            else:
-                sample_infos.append(';'.join(fastqs))
+        # 2.2 Add Phenotips ID (`pid`) and patients' HPO identifiers for
+        # the proband. Lookup this information in Phenotips, using EP+MRN
+        # Ex: CHUSJ123456
+        #
+        if data[0]["patient"]["familyMember"] == 'PROBAND':
+            pid, labels_str, ids_str = add_hpos(data[0]["patient"]["ep"], data[0]["patient"]["mrn"])
+            logging.info(f"Got HPO terms from Phenotips for PID {pid}")
+        else:
+            pid, labels_str, ids_str = ('', '', '')
+            logging.debug(f'Not retrieving PID for {cqgc} ({data[0]["patient"]["familyMember"]})')
+        sample_infos.append(pid)
+        sample_infos.append(labels_str)
+        sample_infos.append(ids_str)
+        logging.debug(f"PID: {pid}; HPO ID: {ids_str}; Labels: {labels_str}\n")
 
-            cases.append(sample_infos)
+        # 2.3 Add paths to fastq on BaseSpace
+        #
+        try:
+            fastqs = bssh.get_sequenced_files(data[0]["labAliquotId"])
+        except Exception as err:
+            logging.info(f"Could not retrieve FASTQs paths for {cqgc}: {err}")
+            fastqs = []
+        else:
+            sample_infos.append(';'.join(fastqs))
+
+        cases.append(sample_infos)
     
     # 3. Load cases (list of list) in a DataFrame, sort and group members
     # Translate column names to match EMG's manifest specifications.

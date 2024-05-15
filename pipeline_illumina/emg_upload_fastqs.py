@@ -64,6 +64,34 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
+def list_samples(file=None):
+    """
+    Return a list of CQGC ID for samples from `file`. If file is None, get list
+    from Nanuq directly.
+    - file (str): Nanuq's "SampleNames.txt" or a one-column list of CQGC IDs.
+    """
+    samples = []
+    if file is None:
+        samplenames = nq.get_samplenames(args.run)
+        if not samplenames.text.startswith("##20"):
+            sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
+        else:
+            logging.info("Retrieved samples conversion table from Nanuq")
+            fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
+            logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
+            lines = samplenames.text.splitlines()
+    else:
+        logging.info(f"Using list of samples from file {args.file} instead of Nanuq")
+        with open(file, 'r') as fh:
+            lines = fh.readlines()
+
+    for line in lines:
+        if not line.startswith('#'):
+            samples.append(line)
+    return(samples)
+ 
+
+
 def main(args):
     """
     """
@@ -77,15 +105,23 @@ def main(args):
         logging.warning(f"Could not create {workdir}")
     os.chdir(workdir)
 
+    # 1. Get a list of samples on this run to construct the cases.
+    # TODO: Add experiment name as an alternative identifier for Nanuq API?
+    #
+    samplenames = list_samples(args.file)
+    for line in samplenames:
+        cqgc, sample = line.split("\t")
+        print(cqgc)
 
-def tests():
+
+def tests(args):
     return(1)
 
 if __name__ == '__main__':
     args = parse_args()
     configure_logging(args.level)
     main(args)
-    #tests()
+    #tests(args)
 
 
 """
