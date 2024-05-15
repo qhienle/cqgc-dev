@@ -3,7 +3,7 @@
 Upload FASTQ files to BaseSpace.
 
 USAGE: emg_upload_fastqs.py <RUN>
-       emg_upload_fastqs.py LH00336_0043
+       emg_upload_fastqs.py 20240510_LH00336_0043_A22K5KMLT3
        emg_upload_fastqs.py --help
 
 List of samples can be provided using --file, instead of fetching from Nanuq.
@@ -77,8 +77,6 @@ def list_samples(file=None):
             sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
         else:
             logging.info("Retrieved samples conversion table from Nanuq")
-            fc_date = re.match(r'##(\d{4}-\d{2}-\d{2})', samplenames.text).group(1)
-            logging.debug(f"Date of run from Nanuq's SampleNames file: {fc_date}")
             lines = samplenames.text.splitlines()
     else:
         logging.info(f"Using list of samples from file {args.file} instead of Nanuq")
@@ -88,13 +86,13 @@ def list_samples(file=None):
     for line in lines:
         if not line.startswith('#'):
             samples.append(line)
-    return(samples)
- 
+    return samples
 
 
 def main(args):
     """
     """
+    args.run.split('_')
     print(f"# Logging run {args.run}")
     
     workdir = f"{os.getcwd()}{os.sep}{args.run}"
@@ -103,7 +101,6 @@ def main(args):
         logging.info(f"Created work directory '{workdir}'")
     except:
         logging.warning(f"Could not create {workdir}")
-    os.chdir(workdir)
 
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
