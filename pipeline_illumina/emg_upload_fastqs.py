@@ -34,7 +34,7 @@ sys.path.append(src_path)
 from lib.nanuq import Nanuq
 from lib.gapp import BSSH
 
-nq = Nanuq()
+nq   = Nanuq()
 bssh = BSSH()
 
 __version__ = "0.1"
@@ -143,7 +143,8 @@ def main(args):
     fc_date, fc_short, fc_id = parse_run_id(args.run)
     print(f"# Logging run {fc_date} {fc_short} {fc_id}")
     
-    workdir = f"{os.getcwd()}{os.sep}{fc_short}"
+    workdir  = f"{os.getcwd()}{os.sep}{fc_short}"
+    fastqdir = f"/staging/hiseq_raw/{fc_short}/{args.run}/Analysis/1"
     try:
         os.mkdir(workdir)
         logging.info(f"Created work directory '{workdir}'")
@@ -222,7 +223,9 @@ def main(args):
     df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
     df.to_csv(f"{workdir}{os.sep}samples_list.csv", index=None)
     logging.info(f"Saved list of samples to file: {workdir}{os.sep}samples_list.csv")
-    print(df[['biosample', 'sample_name', 'label']])
+    
+    for biosample in df['biosample']: 
+        logging.info(f"Uploading FASTQs for {biosample}")
 
 
 def tests(args):
