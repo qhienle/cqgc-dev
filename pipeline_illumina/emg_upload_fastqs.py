@@ -39,6 +39,25 @@ bssh = BSSH()
 
 __version__ = "0.1"
 
+# List of PRAGMatIQ projects on BaseSpace, as of 2024-05-16
+# BSSH Project Id required for uploading FASTQs to the right project folder.
+#
+# bs -c cac1 project list --filter-term "PRAGMatIQ"
+# +-----------------+---------+----------------+
+# |      Name       |   Id    |   TotalSize    |
+# +-----------------+---------+----------------+
+# | PRAGMatIQ_CHUSJ | 3703702 | 18289900071562 |
+# | PRAGMatIQ_CHUS  | 3703703 | 4840873989012  |
+# | PRAGMatIQ_CHUQ  | 4714713 | 2470539400235  |
+# | PRAGMatIQ_CUSM  | 5412410 | 2181153257963  |
+# +-----------------+---------+----------------+
+#
+# This hash to link "ep" fields for samples in Nanuq to BSSH ProjectId
+#
+project_ids = {'CHUSJ': '3703702', 
+               'CHUS' : '3703703', 
+               'CHUQ' : '4714713', 
+               'CUSM' : '5412410'}
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Upload FASTQ files to BaseSpace. for a given Run.")
@@ -124,7 +143,7 @@ def main(args):
     fc_date, fc_short, fc_id = parse_run_id(args.run)
     print(f"# Logging run {fc_date} {fc_short} {fc_id}")
     
-    workdir = f"{os.getcwd()}{os.sep}{args.run}"
+    workdir = f"{os.getcwd()}{os.sep}{fc_short}"
     try:
         os.mkdir(workdir)
         logging.info(f"Created work directory '{workdir}'")
@@ -201,8 +220,9 @@ def main(args):
     df['fc_date'] = fc_date
     logging.info(f"Add column for flowcell date {fc_date}")
     df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
-    print(df)
-
+    df.to_csv(f"{workdir}{os.sep}samples_list.csv", index=None)
+    logging.info(f"Saved list of samples to file: {workdir}{os.sep}samples_list.csv")
+    print(df[['biosample', 'sample_name', 'label']])
 
 
 def tests(args):
