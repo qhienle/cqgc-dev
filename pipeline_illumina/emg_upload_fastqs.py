@@ -84,36 +84,13 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def list_samples(file=None):
-    """
-    Return a list of CQGC ID for samples from `file`. If file is None, get list
-    from Nanuq directly.
-    - file (str): Nanuq's "SampleNames.txt" or a one-column list of CQGC IDs.
-    """
-    samples = []
-    if file is None:
-        samplenames = nq.get_samplenames(args.run)
-        if not samplenames.text.startswith("##20"):
-            sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
-        else:
-            logging.info("Retrieved samples conversion table from Nanuq")
-            lines = samplenames.text.splitlines()
-    else:
-        logging.info(f"Using list of samples from file {args.file} instead of Nanuq")
-        with open(file, 'r') as fh:
-            lines = fh.readlines()
-
-    for line in lines:
-        if not line.startswith('#'):
-            samples.append(line)
-    return samples
-
-
 def main(args):
     """
     """
-    fc_date, fc_short, fc_id = nq.parse_run_name(args.run)
-    print(f"# Logging run {fc_date} {fc_short} {fc_id}")
+    fc_parts = nq.parse_run_name(args.run)
+    fc_date  = fc_parts[0]
+    fc_short = fc_parts[4]
+    print(f"# Logging run {fc_parts}")
     
     workdir  = f"{os.getcwd()}{os.sep}{fc_short}"
     fastqdir = f"/staging/hiseq_raw/{fc_short}/{args.run}/Analysis/1"
@@ -126,15 +103,10 @@ def main(args):
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
-    samplenames = list_samples(args.file)
+    samplenames = nq.list_samples(args.run)
     cases = []
-    for line in samplenames:
-        try:
-            cqgc, sample = line.split("\t")
-        except ValueError as err:
-            logging.warning(err)
-            cqgc   = line.rstrip()
-            sample = ''
+    for cqgc_sample in samplenames:
+        cqgc, sample = cqgc_sample[0], cqgc_sample[1]
 
         # Get information for sample from Nanuq for "cqgc" ID
         #

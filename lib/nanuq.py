@@ -41,7 +41,7 @@ url = https://nanuq.cqgc.hsj.rtss.qc.ca/nanuqMPS/ws/GetClinicalSampleInfoWS?name
 subprocess.run(['wget', '--post-file', '~/.nanuq', '--no-cookies', url, '-O', 'nanuq.json'])
 ```
 """
-import os
+import os, sys
 import argparse
 import requests
 import datetime
@@ -157,6 +157,7 @@ class Nanuq:
         if len(fc_parts) == 4 and fc_parts[0] == 'Seq':
             # Format "Seq_S2_PRAG_20230811"
             #
+            logging.warning(f"Run name {run} appears to be experiment name.")
             return(run)
         else:
             # Format "200302_A00516_0106_BHNKHFDMXX" or "A00516_0106".
@@ -168,7 +169,7 @@ class Nanuq:
                 # RunID given in long format, ex.: "200302_A00516_0106_BHNKHFDMXX"
                 #
                 fc_short = f"{fc_parts[1]}_{fc_parts[2]}"
-                logging.info(f"RunID {run} in long format. Converted to short form {fc_short}")
+                logging.info(f"Run name {run} in long format. Converted to short form {fc_short}")
                 return(fc_short)
             else:
                 raise ValueError(f"Incorrect format for RunID {run}. Please use something like 'A00516_0106' or skip_check with `--no-check-run-name`.")
@@ -177,29 +178,33 @@ class Nanuq:
     def parse_run_name(self, run):
         """
         Parse run identifier.
-        - run (str): Illumina's Run ID, ex: 20240510_LH00336_0043_A22K5KMLT3
-        - Returns  : date (datetime), fc_short (str), fc_id (str). 
-                Ex: ("2024-05-10", "LH00336_0043", "A22K5KMLT3")
+        - run    : [str] Illumina Run ID, ex: 20240510_LH00336_0043_A22K5KMLT3
+        - Returns: A tuple (date, instrument_id, run_num, fc_id, fc_short),
+                   where date is of type [DateTime] and the rest are [str].
+                   e.g., ("2024-05-10", "LH00336", "0043", "A22K5KMLT3", 
+                   "LH00336_0043").
         """
+        fc_short = self.check_run_name(run) # ex: LH00336_0043
         fc_parts = run.split('_')
-        if len(fc_parts) == 4: 
-            fc_date  = fc_parts[0]
-            fc_short = self.check_run_name(run) # f"{fc_parts[1]}_{fc_parts[2]}"
-            fc_id    = fc_parts[3]
+        if fc_parts == 2:
+            logging.warning(f"Run name {run} appears to be in short format")
+            return date, None, None, None, fc_short
+        elif fc_parts == 4:
             # Better to convert DateTime based on the instrument ID (fc_parts[1])?
             # NovaSeqX (LH00336) has 8 digits for dates (yyyymmdd), 
             # whereas NovaSeq6000 (A00516, A00977) have 6 (yymmdd).
             #
-            if len(fc_date) == 8:
-                date = datetime.datetime.strptime(fc_date, '%Y%m%d').strftime('%Y-%m-%d')
-            elif len(fc_date) == 6:
-                date = datetime.datetime.strptime(fc_date, '%y%m%d').strftime('%Y-%m-%d')
+            if fc_parts[0].isdigit():
+                if len(fc_parts[0]) == 8:
+                    date = datetime.datetime.strptime(fc_parts[0], '%Y%m%d').strftime('%Y-%m-%d')
+                elif len(fc_parts[0]) == 6:
+                    date = datetime.datetime.strptime(fc_parts[0], '%y%m%d').strftime('%Y-%m-%d')
+            else:
+                logging.warning(f"Wrong format for flowcell date '{fc_parts[0]}'")
         else:
-            logging.error("Incorrect run identifier: {run}. Should be in a format similar to '20240510_LH00336_0043_A22K5KMLT3'")
-            date     = None
-            fc_short = run
-            fc_id    = None
-        return date, fc_short, fc_id
+            logging.info(f"Wrong format for Run name '{run}'")
+            date = fc_parts[0]
+        return date, fc_parts[1], fc_parts[2], fc_parts[3], fc_short
 
 
     def get_samplesheet(self, run, outfile=None, skip_check=False):
@@ -251,13 +256,47 @@ class Nanuq:
         return(response.text)
     
 
+    def list_samples(self, run, file=None):
+        """
+        Return a list of tuples (cqgc_id, sample_names) for run. 
+        A SampleNames.txt `file` can be provided instead of downloading from Nanuq.
+        - run (str) : Run name
+        - file (str): Nanuq's "SampleNames.txt" or a one-column list of CQGC IDs.
+        """
+        samples = []
+        if file is None:
+            samplenames = self.get_samplenames(run)
+            if not samplenames.text.startswith("##20"):
+                sys.exit(logging.error(f"Unexpected content for SampleNames. Please verify Nanuq's reponse:\n{samplenames.text}"))
+            else:
+                logging.info("Retrieved samples conversion table from Nanuq")
+                lines = samplenames.text.splitlines()
+        else:
+            logging.info(f"Using list of samples from file {file} instead of Nanuq")
+            with open(file, 'r') as fh:
+                lines = fh.readlines()
+
+        for line in lines:
+            if not line.startswith('#'):
+                samples.append(tuple(line.split("\t")))
+        return samples
+
+
 def main():
     args = parse_args()
     os.chdir(os.getcwd())
-    nanuq = Nanuq()
-    nanuq.get_samplesheet(args.run, outfile='SampleSheet.csv', skip_check=args.skip_check)
-    nanuq.get_samplenames(args.run, outfile='SampleNames.txt', skip_check=args.skip_check)
-    nanuq.get_samplepools(args.run, outfile='SamplePools.csv', skip_check=args.skip_check)
+    nq = Nanuq()
+    
+    # Write Nanuq files:
+    #
+    # nq.get_samplesheet(args.run, outfile='SampleSheet.csv', skip_check=args.skip_check)
+    # nq.get_samplenames(args.run, outfile='SampleNames.txt', skip_check=args.skip_check)
+    # nq.get_samplepools(args.run, outfile='SamplePools.csv', skip_check=args.skip_check)
+    
+    fc_parts = nq.parse_run_name(args.run)
+    print(fc_parts)
+    for t in nq.list_samples(fc_parts[4]):
+        print(t)
     print("\nDone.\n")
 
 
