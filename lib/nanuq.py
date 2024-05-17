@@ -44,7 +44,6 @@ subprocess.run(['wget', '--post-file', '~/.nanuq', '--no-cookies', url, '-O', 'n
 import os
 import argparse
 import requests
-import time
 import datetime
 import logging
 
@@ -63,13 +62,6 @@ def parse_args():
     parser.add_argument('-p', '--password', help="Nanuq password")
     parser.add_argument('-n', '--no-check-run-name', action='store_true', dest='skip_check', help="Do not check run name")
     return(parser.parse_args())
-
-
-def now():
-    """
-    Returns a timestamp string, ex: print(f'{now} is the right time to salute')
-    """
-    return(time.strftime('[%Y-%m-%d@%H:%M:%S]'))
 
 
 def configure_logging(level):
@@ -137,13 +129,13 @@ class Nanuq:
         if filename for {outfile} is not 'None'.
         """
         try:
-            # print(f"{now()} Connecting to {url}")
+            logging.debug(f"Connecting to {url}")
             response = requests.post(url, data=self.auth_data)
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            print(f"{now()} {err}") # print(f"HTTP status code: {response.status_code}")
+            logging.warning(f"{err}") # print(f"HTTP status code: {response.status_code}")
             if response.status_code == 400:
-                print(f"{now()} Bad request. Try using an alternative run format 'A00516_0447' or 'Seq_S2_PRAG_20230811'")
+                logging.warning(f"Bad request. Try using an alternative run format 'A00516_0447' or 'Seq_S2_PRAG_20230811'")
         if outfile is None:
             return(response)
         else:
@@ -176,13 +168,13 @@ class Nanuq:
                 # RunID given in long format, ex.: "200302_A00516_0106_BHNKHFDMXX"
                 #
                 fc_short = f"{fc_parts[1]}_{fc_parts[2]}"
-                print(f"{now()} RunID {run} in long format. Converted to short form {fc_short}")
+                logging.info(f"RunID {run} in long format. Converted to short form {fc_short}")
                 return(fc_short)
             else:
                 raise ValueError(f"Incorrect format for RunID {run}. Please use something like 'A00516_0106' or skip_check with `--no-check-run-name`.")
     
 
-    def parse_run_name(run):
+    def parse_run_name(self, run):
         """
         Parse run identifier.
         - run (str): Illumina's Run ID, ex: 20240510_LH00336_0043_A22K5KMLT3
@@ -192,7 +184,8 @@ class Nanuq:
         fc_parts = run.split('_')
         if len(fc_parts) == 4: 
             fc_date  = fc_parts[0]
-            fc_short = f"{fc_parts[1]}_{fc_parts[2]}"
+            #fc_short = f"{fc_parts[1]}_{fc_parts[2]}"
+            fc_short = self.check_run_name(run)
             fc_id    = fc_parts[3]
             # Better to convert DateTime based on the instrument ID (fc_parts[1])?
             # NovaSeqX (LH00336) has 8 digits for dates (yyyymmdd), 
