@@ -34,8 +34,7 @@ sys.path.append(src_path)
 from lib.nanuq import Nanuq
 from lib.gapp import BSSH
 
-nq   = Nanuq()
-bssh = BSSH()
+nq = Nanuq()
 
 __version__ = "0.1"
 
@@ -84,6 +83,80 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
+def nanuq_samples_to_df(run):
+    """
+    For a run in Nanuq, save samples infos to pd.DataFrame
+    """
+    samplenames = nq.list_samples(run)
+    cases = []
+    for cqgc_sample in samplenames:
+        cqgc, sample = cqgc_sample[0], cqgc_sample[1]
+
+        # Get information for sample from Nanuq for "cqgc" ID
+        #
+        try:
+            data = json.loads(nq.get_sample(cqgc))
+        except Exception as e:
+            logging.warning(f"JSONDecodeError {e} could not decode sample {cqgc} ({sample})")
+            continue
+
+        logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
+        if len(data) != 1:
+            logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
+        
+        # Verify that Nanuq info is the same as our cqgc and sample IDs
+        #
+        if cqgc != data[0]["labAliquotId"]:
+            logging.error(f"CQGC ID {cqgc} does not match identifier from Nanuq {data[0]['labAliquotId']}")
+        elif sample != '':
+            if sample != data[0]["ldmSampleId"]:
+                logging.error(f"Lab sample {sample} does not match identifier from Nanuq {data[0]['ldmSampleId']}")
+        else:
+            pass
+
+        try:
+            data[0]["patient"]["mrn"]
+        except Exception as err:
+            logging.warning(f"Could not find MRN for patient {cqgc} ({sample}: {err})")
+            data[0]["patient"]["mrn"] = '0000000'
+        else:
+            pass
+        
+        # try:
+        #     birthDate = datetime.datetime.strptime(data[0]["patient"]["birthDate"], '%d/%m/%Y').strftime('%Y-%m-%d')
+        # except:
+        #     logging.warning(f"Could not convert birthDate {data[0]['patient']['birthDate']}")
+        #     birthDate = data[0]["patient"]["birthDate"]
+
+        finally:
+            sample_infos = [
+                data[0]["ldmSampleId"],
+                data[0]["labAliquotId"],
+                data[0]["patient"]["familyMember"],
+                data[0]["patient"]["sex"],
+                data[0]["patient"]["ep"],
+                data[0]["patient"]["mrn"],
+                data[0]["patient"]["designFamily"],
+                data[0]["patient"]["birthDate"],
+                data[0]["patient"]["status"],
+                data[0]["patient"].get("familyId", "-")
+            ]
+        cases.append(sample_infos)
+
+    # Load cases (list of list) in a DataFrame, sort and group members
+    # Translate column names to match EMG's manifest specifications.
+    # pid => Family Id, hpo_labels => phenotypes, hpo_ids => hpos
+    # Group by family and sort by relation.
+    # Add Family Id (PID) to all family members based on familyID.
+    #
+    df = pd.DataFrame(cases)
+    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
+                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
+                  'Family Id']
+    df['date_of_birth(YYYY-MM-DD)'] =  pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y')
+    return df
+
+
 def main(args):
     """
     """
@@ -103,65 +176,7 @@ def main(args):
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
     #
-    samplenames = nq.list_samples(args.run)
-    cases = []
-    for cqgc_sample in samplenames:
-        cqgc, sample = cqgc_sample[0], cqgc_sample[1]
-
-        # Get information for sample from Nanuq for "cqgc" ID
-        #
-        try:
-            data = json.loads(nq.get_sample(cqgc))
-        except Exception as e:
-            logging.warning(f"JSONDecodeError {e} could not decode sample {cqgc} ({sample})")
-            continue
-
-        logging.info(f"Got information for biosample {cqgc} a.k.a. {sample}")
-        if len(data) != 1:
-            logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
-        try:
-            data[0]["patient"]["mrn"]
-        except Exception as err:
-            logging.warning(f"Could not find MRN for patient {cqgc} ({sample}: {err})")
-            data[0]["patient"]["mrn"] = '0000000'
-        else:
-            pass
-        finally:
-            sample_infos = [
-                data[0]["ldmSampleId"],
-                data[0]["labAliquotId"],
-                data[0]["patient"]["familyMember"],
-                data[0]["patient"]["sex"],
-                data[0]["patient"]["ep"],
-                data[0]["patient"]["mrn"],
-                data[0]["patient"]["designFamily"],
-                data[0]["patient"]["birthDate"],
-                data[0]["patient"]["status"],
-                data[0]["patient"].get("familyId", "-")
-            ]
-
-        # Verify that Nanuq info is the same as our cqgc and sample IDs
-        #
-        if cqgc != data[0]["labAliquotId"]:
-            logging.error(f"CQGC ID {cqgc} does not match identifier from Nanuq {data[0]['labAliquotId']}")
-        elif sample != '':
-            if sample != data[0]["ldmSampleId"]:
-                logging.error(f"Lab sample {sample} does not match identifier from Nanuq {data[0]['ldmSampleId']}")
-        else:
-            pass
-
-        cases.append(sample_infos)
-
-    # 3. Load cases (list of list) in a DataFrame, sort and group members
-    # Translate column names to match EMG's manifest specifications.
-    # pid => Family Id, hpo_labels => phenotypes, hpo_ids => hpos
-    # Group by family and sort by relation.
-    # Add Family Id (PID) to all family members based on familyID.
-    #
-    df = pd.DataFrame(cases)
-    df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
-                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
-                  'Family Id']
+    df = nanuq_samples_to_df(args.run)
     df['fc_date'] = fc_date
     logging.info(f"Add column for flowcell date {fc_date}")
     df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])

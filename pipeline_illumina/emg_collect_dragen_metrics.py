@@ -230,8 +230,13 @@ def main(args):
     # some information collected here will be used for case creation later
     # on Emedgene.
     #
-    date, instr, run_nb, flowcell = args.run.split('_')
-    fc_short = f"{instr}_{run_nb}"
+    nq   = Nanuq()
+
+    fc_parts = nq.parse_run_name(args.run)
+    fc_date  = fc_parts[0]
+    fc_short = fc_parts[4]
+    print(f"# Logging run {fc_parts}")
+    
     if args.data_dir is not None:
         data_dir = args.data_dir
     else:
