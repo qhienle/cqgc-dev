@@ -184,8 +184,7 @@ class Nanuq:
         fc_parts = run.split('_')
         if len(fc_parts) == 4: 
             fc_date  = fc_parts[0]
-            #fc_short = f"{fc_parts[1]}_{fc_parts[2]}"
-            fc_short = self.check_run_name(run)
+            fc_short = self.check_run_name(run) # f"{fc_parts[1]}_{fc_parts[2]}"
             fc_id    = fc_parts[3]
             # Better to convert DateTime based on the instrument ID (fc_parts[1])?
             # NovaSeqX (LH00336) has 8 digits for dates (yyyymmdd), 

@@ -84,34 +84,6 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def parse_run_id(run):
-    """
-    Parse run identifier.
-    - run (str): Illumina's Run ID, ex: 20240510_LH00336_0043_A22K5KMLT3
-    - Returns  : date (datetime), fc_short (str), fc_id (str). 
-             Ex: ("2024-05-10", "LH00336_0043", "A22K5KMLT3")
-    """
-    fc_parts = run.split('_')
-    if len(fc_parts) == 4: 
-        fc_date  = fc_parts[0]
-        fc_short = f"{fc_parts[1]}_{fc_parts[2]}"
-        fc_id    = fc_parts[3]
-        # Better to convert DateTime based on the instrument ID (fc_parts[1])?
-        # NovaSeqX (LH00336) has 8 digits for dates (yyyymmdd), 
-        # whereas NovaSeq6000 (A00516, A00977) have 6 (yymmdd).
-        #
-        if len(fc_date) == 8:
-            date = datetime.datetime.strptime(fc_date, '%Y%m%d').strftime('%Y-%m-%d')
-        elif len(fc_date) == 6:
-            date = datetime.datetime.strptime(fc_date, '%y%m%d').strftime('%Y-%m-%d')
-    else:
-        logging.error("Incorrect run identifier: {run}. Should be in a format similar to '20240510_LH00336_0043_A22K5KMLT3'")
-        date     = None
-        fc_short = run
-        fc_id    = None
-    return date, fc_short, fc_id
-
-
 def list_samples(file=None):
     """
     Return a list of CQGC ID for samples from `file`. If file is None, get list
@@ -140,7 +112,7 @@ def list_samples(file=None):
 def main(args):
     """
     """
-    fc_date, fc_short, fc_id = parse_run_id(args.run)
+    fc_date, fc_short, fc_id = nq.parse_run_name(args.run)
     print(f"# Logging run {fc_date} {fc_short} {fc_id}")
     
     workdir  = f"{os.getcwd()}{os.sep}{fc_short}"
