@@ -45,8 +45,10 @@ import os
 import argparse
 import requests
 import time
+import datetime
+import logging
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 CONFIG_FILE = os.path.expanduser('~') + os.sep + '.nanuq'
 
@@ -68,6 +70,22 @@ def now():
     Returns a timestamp string, ex: print(f'{now} is the right time to salute')
     """
     return(time.strftime('[%Y-%m-%d@%H:%M:%S]'))
+
+
+def configure_logging(level):
+    """
+    Set logging level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
+    """
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
 
 
 class Nanuq:
@@ -163,6 +181,34 @@ class Nanuq:
             else:
                 raise ValueError(f"Incorrect format for RunID {run}. Please use something like 'A00516_0106' or skip_check with `--no-check-run-name`.")
     
+
+    def parse_run_name(run):
+        """
+        Parse run identifier.
+        - run (str): Illumina's Run ID, ex: 20240510_LH00336_0043_A22K5KMLT3
+        - Returns  : date (datetime), fc_short (str), fc_id (str). 
+                Ex: ("2024-05-10", "LH00336_0043", "A22K5KMLT3")
+        """
+        fc_parts = run.split('_')
+        if len(fc_parts) == 4: 
+            fc_date  = fc_parts[0]
+            fc_short = f"{fc_parts[1]}_{fc_parts[2]}"
+            fc_id    = fc_parts[3]
+            # Better to convert DateTime based on the instrument ID (fc_parts[1])?
+            # NovaSeqX (LH00336) has 8 digits for dates (yyyymmdd), 
+            # whereas NovaSeq6000 (A00516, A00977) have 6 (yymmdd).
+            #
+            if len(fc_date) == 8:
+                date = datetime.datetime.strptime(fc_date, '%Y%m%d').strftime('%Y-%m-%d')
+            elif len(fc_date) == 6:
+                date = datetime.datetime.strptime(fc_date, '%y%m%d').strftime('%Y-%m-%d')
+        else:
+            logging.error("Incorrect run identifier: {run}. Should be in a format similar to '20240510_LH00336_0043_A22K5KMLT3'")
+            date     = None
+            fc_short = run
+            fc_id    = None
+        return date, fc_short, fc_id
+
 
     def get_samplesheet(self, run, outfile=None, skip_check=False):
         """
