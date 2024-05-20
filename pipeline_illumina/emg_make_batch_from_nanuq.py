@@ -263,7 +263,7 @@ def df_to_manifest(df):
     # Convert Date of Birth to DateTime
     #
     try:
-        df_manifest['Date Of Birth'] =  pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%Y-%m-%d')
+        df_manifest['Date Of Birth'] =  pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y')
     except OverflowError as err:
         logging.warning(err)
     except:
