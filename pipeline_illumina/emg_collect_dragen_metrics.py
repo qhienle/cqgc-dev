@@ -120,9 +120,8 @@ def get_nanuq_sample_data(cqgc_id):
             'cohort_type': data[0]["patient"]["designFamily"],
             'status'     : data[0]["patient"]["status"],
             'family_id'  : data[0]["patient"].get("familyId", "-"),
-            'birth_date' : data[0]["patient"]["birthDate"]
+            'birthdate'  : data[0]["patient"]["birthDate"]
         }
-        #TODO: Add 'pid', 'phenotypes', 'hpos', 'filenames'
     return sample_infos
 
 
@@ -278,10 +277,13 @@ def main(args):
         samples_families.append(get_nanuq_sample_data(biosample))
 
     # Build Pandas DataFrames from collected data for easier manipulations
+    # Save DataFrame for samples to samples_list.csv, for later use
     #
     df_samples_families = pd.DataFrame(samples_families)
     df_samples_families = df_samples_families.sort_values(by=['family_id', 'relation'], ascending=[True, False])
+    df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='%d/%m/%Y')
     df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y%m%d')
+    df_samples_families.to_csv('samples_list.csv', index=None)
 
     df_samples_metrics  = pd.DataFrame.from_dict(samples_metrics, orient="index")
     df_samples_metrics['biosample'] = df_samples_metrics.index
