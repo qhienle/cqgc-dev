@@ -115,12 +115,12 @@ def get_nanuq_sample_data(cqgc_id):
             'biosample'  : data[0]["labAliquotId"],
             'relation'   : data[0]["patient"]["familyMember"],
             'gender'     : data[0]["patient"]["sex"],
-            'label'      : data[0]["patient"]["ep"],
+            'ep_label'   : data[0]["patient"]["ep"],
             'mrn'        : data[0]["patient"]["mrn"],
             'cohort_type': data[0]["patient"]["designFamily"],
             'status'     : data[0]["patient"]["status"],
-            'Family Id'  : data[0]["patient"].get("familyId", "-"),
-            'date_of_birth(YYYY-MM-DD)': data[0]["patient"]["birthDate"]
+            'family_id'  : data[0]["patient"].get("familyId", "-"),
+            'birth_date' : data[0]["patient"]["birthDate"]
         }
         #TODO: Add 'pid', 'phenotypes', 'hpos', 'filenames'
     return sample_infos
@@ -280,7 +280,8 @@ def main(args):
     # Build Pandas DataFrames from collected data for easier manipulations
     #
     df_samples_families = pd.DataFrame(samples_families)
-    df_samples_families = df_samples_families.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
+    df_samples_families = df_samples_families.sort_values(by=['family_id', 'relation'], ascending=[True, False])
+    df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y%m%d')
 
     df_samples_metrics  = pd.DataFrame.from_dict(samples_metrics, orient="index")
     df_samples_metrics['biosample'] = df_samples_metrics.index
@@ -307,7 +308,7 @@ def main(args):
                    'number_of_duplicate_marked_reads'
                    ]
     df_subset_metrics = df_samples_metrics[subset_cols]
-    df_report = pd.merge(df_subset_metrics, df_samples_families[['biosample', 'sample_name', 'label']], on='biosample', how="outer")
+    df_report = pd.merge(df_subset_metrics, df_samples_families[['biosample', 'sample_name', 'ep_label']], on='biosample', how="outer")
     logging.info(f"Writing report for {fc_short}:\n{df_report}")
     write_html_report(df_report, fc_short)
 
