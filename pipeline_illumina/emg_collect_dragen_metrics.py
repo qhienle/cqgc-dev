@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Collect DRAGEN metrics for samples in a given Run and generate reports in HTML
+Collect DRAGEN metrics for samples in a given Run to generate reports in HTML
 and CSV format. Data is collected from the file "{sample}.metrics.json" output
 by DragenGermline (version 4+).
 
@@ -86,7 +86,7 @@ def list_dragengermline_samples(samplesheet):
     return samples
 
 
-def get_nanuq_data(cqgc_id):
+def get_nanuq_sample_data(cqgc_id):
     """
     Get from Nanuq family information for biosample `cqgc_id`.
     - `cqgc_id`: [str] sample identifier
@@ -226,14 +226,15 @@ def main(args):
     - `args` : Command-line arguments, from `argparse`.
     - Returns: Two files named ./archives_metrics.csv and archives_metrics.html
     """
-    # Setup environment for this run. Results are written to folder, because
-    # some information collected here will be used for case creation later
-    # on Emedgene.
+    # Setup environment for this run. Results are written to folder "work_dir",
+    # some information collected here will be used for case creation later on
+    # Emedgene.
     #
     nq   = Nanuq()
 
     fc_parts = nq.parse_run_name(args.run)
     fc_date  = fc_parts[0]
+    fc_instr = fc_parts[1]
     fc_short = fc_parts[4]
     print(f"# Logging run {fc_parts}")
     
@@ -241,12 +242,12 @@ def main(args):
         data_dir = args.data_dir
     else:
         # If there is more than one dir under "./Analysis/", use --data-dir"
-        data_dir = f"/staging/hiseq_raw/{instr}/{args.run}/Analysis/1/Data/DragenGermline"
+        data_dir = f"/staging/hiseq_raw/{fc_instr}/{args.run}/Analysis/1/Data/DragenGermline"
     work_dir = f"/staging2/dragen/{fc_short}"
     try:
         os.mkdir(work_dir)
-    except FileExistsError:
-        pass
+    except FileExistsError as err:
+        logging.info(err)
     finally:
         os.chdir(work_dir)
 
@@ -274,7 +275,7 @@ def main(args):
 
         # Collect family information from Nanuq for biosample (to build Case)
         #
-        samples_families.append(get_nanuq_data(biosample))
+        samples_families.append(get_nanuq_sample_data(biosample))
 
     # Build Pandas DataFrames from collected data for easier manipulations
     #
