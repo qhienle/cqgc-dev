@@ -312,6 +312,7 @@ def main(args):
     df_subset_metrics = df_samples_metrics[subset_cols]
     df_report = pd.merge(df_subset_metrics, df_samples_families[['biosample', 'sample_name', 'ep_label']], on='biosample', how="outer")
     logging.info(f"Writing report for {fc_short}:\n{df_report}")
+    df_report.to_csv(f'{fc_short}_metrics.csv', index=None)
     write_html_report(df_report, fc_short)
 
 
