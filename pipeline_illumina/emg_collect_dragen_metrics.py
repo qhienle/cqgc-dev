@@ -146,25 +146,25 @@ def write_html_report(df, fc_short):
     )
     #fig1.update_layout(barmode='group')
 
-    fig2 = px.violin(df, y="cnv_coverage_uniformity", x="label",
+    fig2 = px.violin(df, y="cnv_coverage_uniformity", x="ep_label",
                      title="Coverage uniformity of CNVs per site",
-                     color="label", box=True, points="all", hover_data=df.columns)
+                     color="ep_label", box=True, points="all", hover_data=df.columns)
 
     fig3 = px.scatter(df, x="cnv_coverage_uniformity", y="cnvs_number", 
                       title="Number of CNVs vs Coverage uniformity",
-                      hover_data=['sample_name', 'cnv_coverage_uniformity', 'label'], color='label')
+                      hover_data=['sample_name', 'cnv_coverage_uniformity', 'ep_label'], color='ep_label')
     fig3.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
 
     fig4 = px.scatter(df, x="uniformity_of_coverage_pct_gt_02mean_over_genome", y="variants_snps_pass_pct", 
                       title="Number of variants passing filter and uniformity of coverage >0.2 mean over genome",
-                      hover_data=['sample_name', 'pct_of_genome_with_coverage_20x_inf', 'uniformity_of_coverage_pct_gt_02mean_over_genome', 'label'], 
-                      color='label')
+                      hover_data=['sample_name', 'pct_of_genome_with_coverage_20x_inf', 'uniformity_of_coverage_pct_gt_02mean_over_genome', 'ep_label'], 
+                      color='ep_label')
     fig4.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
 
     fig5 = px.scatter(df, x="average_alignment_coverage_over_genome", y="cnv_coverage_uniformity", 
                       title="CNV coverage uniformity vs Average coverage",
-                      hover_data=['sample_name', 'cnv_coverage_uniformity', 'average_alignment_coverage_over_genome','label'], 
-                      color='label')             
+                      hover_data=['sample_name', 'cnv_coverage_uniformity', 'average_alignment_coverage_over_genome','ep_label'], 
+                      color='ep_label')             
     fig5.update_traces(marker=dict(size=10, opacity=0.75, line=dict(width=2, color='DarkSlateGrey')), selector=dict(mode='markers'))
 
     css = """
