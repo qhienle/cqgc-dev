@@ -57,7 +57,10 @@ def download_files(run, credentials, out_sheet, out_names, out_pools):
     #server = 'http://spxp-app07'
     server = 'https://nanuq.cqgc.hsj.rtss.qc.ca'
 
-    url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}/'
+    # Index2 in reverse-complement for NovaSeq6000
+    # url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}/'
+    # New API decides whether Index2 is rc for NovaSeq6000, or forward for NovaSeqX
+    url_sheet = f'{server}/nanuqMPS/dragenSampleSheet/NovaSeq/{run}/'
     url_names = f'{server}/nanuqMPS/sampleConversionTable/run/{run}/technology/NovaSeq/'
     url_pools = f'{server}/nanuqMPS/poolingSampleSheet/run/{run}/technology/NovaSeq/'
 
