@@ -215,7 +215,10 @@ class Nanuq:
         """
         if skip_check is False:
             run = self.check_run_name(run)
-        url = f'{self.server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}'
+        # Index2 in reverse-complement for NovaSeq6000
+        # url = f'{self.server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}'
+        # New API decides whether Index2 is rc for NovaSeq6000, or forward for NovaSeqX
+        url = f'{self.server}/nanuqMPS/dragenSampleSheet/NovaSeq/{run}/'
         response = self.get_api(url, outfile)
         return(response)
 
