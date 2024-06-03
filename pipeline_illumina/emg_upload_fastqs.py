@@ -85,6 +85,13 @@ def configure_logging(level):
 def main(args):
     """
     """
+    try: 
+        samples_list = pd.read_csv('samples_list.csv')
+    except FileNotFoundError as err:
+        logging.error(err)
+    else:
+        pass
+    
     fastqdir = f"/staging/hiseq_raw/{fc_short}/{args.run}/Analysis/1"
     try:
         os.mkdir(workdir)
