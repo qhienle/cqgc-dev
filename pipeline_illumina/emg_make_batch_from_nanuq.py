@@ -131,6 +131,8 @@ def add_hpos(ep, mrn):
         mrn.replace('L', 'Q')
     elif ep == 'MUHC':
         ep = 'CUSM'
+    elif mrn.startswith('MCH_'):
+        mrn = mrn.replace('MCH_', '')
     elif mrn.endswith(' CHUL'):
         mrn = mrn.replace(' CHUL', '')
     ep_mrn = f"{ep}{mrn}"
