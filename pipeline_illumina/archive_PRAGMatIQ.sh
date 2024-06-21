@@ -5,6 +5,8 @@
 # Archive PRAGMatIQ Runs from Emedgenes AWS S3 bucket to narval
 # ssh narval.calculquebec.ca
 
+set -ex
+
 #samples=(GM240041 4013833470 MO-23-014288 24-00666-T1)
 #total_samples=${#samples[@]}
 samples=$@
