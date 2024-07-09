@@ -99,8 +99,7 @@ def main(args):
             biosample = row[1]
             ep_label  = row[4]
             flowcell  = row[11]
-
-    fastqdir = f"/staging/hiseq_raw/{fc_short}/{args.run}/Analysis/1"
+            fastqdir = f"/staging/hiseq_raw/{flowcell}/{args.run}/Analysis/1"
     try:
         os.mkdir(workdir)
         logging.info(f"Created work directory '{workdir}'")
