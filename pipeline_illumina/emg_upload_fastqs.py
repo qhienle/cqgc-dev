@@ -100,11 +100,6 @@ def main(args):
             ep_label  = row[4]
             flowcell  = row[11]
             fastqdir = f"/staging/hiseq_raw/{flowcell}/{args.run}/Analysis/1"
-    try:
-        os.mkdir(workdir)
-        logging.info(f"Created work directory '{workdir}'")
-    except:
-        logging.warning(f"Could not create {workdir}")
 
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
