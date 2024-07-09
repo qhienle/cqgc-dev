@@ -6,21 +6,34 @@ USAGE: emg_upload_fastqs.py
        emg_upload_fastqs.py --file samples_list.csv
        emg_upload_fastqs.py --help
 
+Use run and samples information contained in `--file=samples_list.csv` to look 
+for FASTQs to upload to BaseSpace. File "samples_list.csv" is normally created 
+by the script `emg_collect_dragen_metrics.py` which should have been executed
+beforehand.  
+
+samples_list .csv should have the following columns and look like the example 
+below:
+
+    sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,family_id,birthdate,flowcell_date,flowcell
+    GM241567,27556,PROBAND,FEMALE,CHUSJ,03486257,TRIO,AFF,03486257,2024-04-29,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    GM241601,27560,MTH,FEMALE,CHUSJ,03487612,TRIO,UNF,03486257,1980-10-15,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    GM241575,27559,FTH,MALE,CHUSJ,03487451,TRIO,UNF,03486257,1978-10-02,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+
 Options:
 
---file, list of samples in CSV format. Default
+--file="samples_list.csv", list of samples in CSV format.
 
-Tokens to connect with Phenotips and BaseSpace (BSSH) are expected to be found 
-in ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
+Tokens to connect to BaseSpace (BSSH) is expected to be found in:
+~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
 """
 
 import os, sys
 import argparse
 import logging
+import csv
 import json
 import re
 import subprocess
-import pandas as pd
 
 # Set source path to CQGC-utils so that we can use relative imports
 #
@@ -80,13 +93,13 @@ def configure_logging(level):
 def main(args):
     """
     """
-    try: 
-        samples_list = pd.read_csv('samples_list.csv')
-    except FileNotFoundError as err:
-        logging.error(err)
-    else:
-        pass
-    
+    with open(args.file, 'r') as samples_list_fh:
+        samples_list = csv.reader(samples_list_fh)
+        for row in samples_list:
+            biosample = row[1]
+            ep_label  = row[4]
+            flowcell  = row[11]
+
     fastqdir = f"/staging/hiseq_raw/{fc_short}/{args.run}/Analysis/1"
     try:
         os.mkdir(workdir)
