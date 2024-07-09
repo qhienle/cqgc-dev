@@ -3,16 +3,12 @@
 Upload FASTQ files to BaseSpace.
 
 USAGE: emg_upload_fastqs.py
-       emg_upload_fastqs.py 20240510_LH00336_0043_A22K5KMLT3
+       emg_upload_fastqs.py --file samples_list.csv
        emg_upload_fastqs.py --help
 
-List of samples can be provided using --file, instead of fetching from Nanuq.
-This file can either be the "SampleNames.txt" downloaded from Nanuq, or a one-
-column listing of CQGC IDs.
+Options:
 
-Nanuq username and password have be saved in a file named '~/.nanuq', like so:
-`echo "j_username=USERNAME&j_password=PASSWORD&toto=1" > ~/.nanuq`
-Replace USERNAME and PASSWORD with actual values.
+--file, list of samples in CSV format. Default
 
 Tokens to connect with Phenotips and BaseSpace (BSSH) are expected to be found 
 in ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
@@ -21,7 +17,6 @@ in ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/
 import os, sys
 import argparse
 import logging
-import datetime
 import json
 import re
 import subprocess
