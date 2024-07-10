@@ -7,30 +7,30 @@ USAGE: emg_upload_fastqs.py
        emg_upload_fastqs.py --help
 
 Use run and samples information contained in `--file=samples_list.csv` to look 
-for FASTQs to upload to BaseSpace. File "samples_list.csv" is normally created 
+for FASTQs for uploading to BaseSpace. "samples_list.csv" is normally created 
 by the script `emg_collect_dragen_metrics.py` which should have been executed
-beforehand.  
+beforehand. "samples_list.csv" has the following 12 columns:
 
-samples_list .csv should have the following columns and look like the example 
-below:
+sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,
+family_id,birthdate,flowcell_date,flowcell
+
+Tokens to connect to BaseSpace (BSSH) is expected to be found in:
+~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
+
+Options:
+
+--file="samples_list.csv", list of samples in CSV format. Ex:
 
     sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,family_id,birthdate,flowcell_date,flowcell
     GM241567,27556,PROBAND,FEMALE,CHUSJ,03486257,TRIO,AFF,03486257,2024-04-29,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
     GM241601,27560,MTH,FEMALE,CHUSJ,03487612,TRIO,UNF,03486257,1980-10-15,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
     GM241575,27559,FTH,MALE,CHUSJ,03487451,TRIO,UNF,03486257,1978-10-02,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-
-Options:
-
---file="samples_list.csv", list of samples in CSV format.
-
-Tokens to connect to BaseSpace (BSSH) is expected to be found in:
-~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
 """
 
 import os, sys
 import argparse
 import logging
-import csv
+import pandas as pd
 import json
 import re
 import subprocess
@@ -92,14 +92,14 @@ def configure_logging(level):
 
 def main(args):
     """
+    Iterate through information in "samples_list.csv" to build `bs` command for
+    uploading FASTQs to BaseSpace.
     """
-    with open(args.file, 'r') as samples_list_fh:
-        samples_list = csv.reader(samples_list_fh)
-        for row in samples_list:
-            biosample = row[1]
-            ep_label  = row[4]
-            flowcell  = row[11]
-            fastqdir = f"/staging/hiseq_raw/{flowcell}/{args.run}/Analysis/1"
+    df = pd.read_csv('samples_list.csv')
+    for row in df.itertuples():
+        print(f"{row.biosample}, {row.ep_label}, {row.flowcell}")
+        fc_short = row.flowcell.split()
+        fastqdir = f"/staging/hiseq_raw/{row.flowcell}/{row.flowcell}/Analysis/1"
 
     # 1. Get a list of samples on this run to construct the cases.
     # TODO: Add experiment name as an alternative identifier for Nanuq API?
