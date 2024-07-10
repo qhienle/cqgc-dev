@@ -27,22 +27,12 @@ Options:
     GM241575,27559,FTH,MALE,CHUSJ,03487451,TRIO,UNF,03486257,1978-10-02,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
 """
 
-import os, sys
+import os
 import argparse
 import logging
-import pandas as pd
-import json
-import re
 import subprocess
-
-# Set source path to CQGC-utils so that we can use relative imports
-#
-src_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.append(src_path)
-from lib.nanuq import Nanuq
-from lib.gapp import BSSH
-
-nq = Nanuq()
+import pandas as pd
+from glob import glob
 
 __version__ = "0.1"
 
@@ -59,7 +49,7 @@ __version__ = "0.1"
 # | PRAGMatIQ_CUSM  | 5412410 | 2181153257963  |
 # +-----------------+---------+----------------+
 #
-# This hash to link "ep" fields for samples in Nanuq to BSSH ProjectId
+# Hash to link Nanuq samples "ep" to BaseSpace "ProjectId"
 #
 project_ids = {'CHUSJ': '3703702', 
                'CHUS' : '3703703', 
@@ -95,27 +85,27 @@ def main(args):
     Iterate through information in "samples_list.csv" to build `bs` command for
     uploading FASTQs to BaseSpace.
     """
-    df = pd.read_csv('samples_list.csv')
+    df = pd.read_csv(args.file)
     for row in df.itertuples():
-        print(f"{row.biosample}, {row.ep_label}, {row.flowcell}")
-        fc_short = row.flowcell.split()
-        fastqdir = f"/staging/hiseq_raw/{row.flowcell}/{row.flowcell}/Analysis/1"
-
-    # 1. Get a list of samples on this run to construct the cases.
-    # TODO: Add experiment name as an alternative identifier for Nanuq API?
-    #
-    df = nanuq_samples_to_df(args.run)
-    df['fc_date'] = fc_date
-    logging.info(f"Add column for flowcell date {fc_date}")
-    df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
-    df.to_csv(f"{workdir}{os.sep}samples_list.csv", index=None)
-    logging.info(f"Saved list of samples to file: {workdir}{os.sep}samples_list.csv")
-    
-    for biosample in df['biosample']: 
-        logging.info(f"Uploading FASTQs for {biosample}")
+        fastqdir = f"/staging/hiseq_raw/{row.flowcell.split('_')[1]}/{row.flowcell}/Analysis/1/Data/DragenGermline/fastq"
+        logging.info(f"List FASTQs for {row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
+        os.chdir(fastqdir)
+        fastqs = glob(f"{row.biosample}_*.fastq.gz")
+        results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', '--project', f"{project_ids[row.ep_label]}", '--biosample-name', f"{row.biosample}"] + fastqs))
+        logging.info(results)
+        
+        # ```bash
+        # ep="CHUSJ"
+        # project=$( bs -c cac1 projects list --terse --filter-term "PRAGMatIQ_${ep}$" )
+        # for sample in 27556 27560 27559 27555 27557 27558; do
+        #     fastqs=$( ls ${sample}_*_001.fastq.gz )
+        #     bs -c cac1 dataset upload --project ${project} --biosample-name ${sample} ${fastqs}
+        # done
+        # ```
 
 
 def tests(args):
+    print(args)
     return(1)
 
 if __name__ == '__main__':
@@ -123,66 +113,3 @@ if __name__ == '__main__':
     configure_logging(args.level)
     main(args)
     #tests(args)
-
-
-"""
-Example of Nanuq SampleNames:
-```pyhton
-nq = Nanuq()
-samplenames = nq.get_samplenames("A00516_0445")
-samplenames.text
-```
-##2023-08-09
-##Centre for Pediatric Clinical Genomics
-##Flow Cell: H7N33DSX7
-##Principal Investigator: Dr Mehdi Yeganeh, CHUS Service de génétique médicale, Dr Jean-François Soucy
-##Nanuq References: A00516_0445
-##Content: Internal_Sample_ID -> Client_Sample_Name Conversion grid
-##-------------------------------------------
-##Internal_Sample_ID	Client_Sample_Name
-##-------------------------------------------
-22256	3042652455
-22257	3042642360
-22258	3042645886
-22262	3052768938
-22263	3052768942
-22264	3052768961
-22265	3052768951
-22282	23-05982-T1
-22283	23-06383-T1
-22284	23-06384-T1
-22285	GM231615
-22286	GM231624
-22287	GM231626
-22288	GM231627
-22290	GM231632
-22293	GM231651
-...
-##The "Internal_Sample_ID" is the internal identifier assigned by the Center for this sample.
-##Use of an "Internal_Sample_ID" ensures the traceability of this sample throughout the sequencing
-##process, but also the anonymization of the information generated and transferred in the
-##frame of this project.
-
-
-Example of Nanuq sample: `json.loads(nq.get_sample(22283))`
-[{'ldmSampleId': '23-06383-T1',
-  'ldm': 'LDM-CHUS',
-  'patient': {'designFamily': 'TRIO',
-   'familyId': '23-05982-T1',
-   'familyMember': 'FTH',
-   'firstName': 'Andre-Philippe',
-   'lastName': 'Belley',
-   'ramq': 'BELA93092213',
-   'sex': 'MALE',
-   'mrn': '00000000',
-   'ep': 'CHUS',
-   'birthDate': '22/09/1993',
-   'fetus': False,
-   'status': 'UNK'},
-  'ldmServiceRequestId': '23-06383-T1',
-  'labAliquotId': '22283',
-  'panelCode': 'PRAGMATIQ',
-  'specimenType': 'NBL',
-  'sampleType': 'DNA',
-  'ldmSpecimenId': '23-06383-T1'}]
-"""
