@@ -92,13 +92,14 @@ def main(args):
         os.chdir(fastqdir)
         fastqs = glob(f"{row.biosample}_*.fastq.gz")
         results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
-                                    '--dry-run', '--no-progress-bars', 
+                                    '--no-progress-bars', 
                                     '--project', f"{project_ids[row.ep_label]}", 
-                                    '--biosample-name', f"{row.biosample}"] + fastqs))
-        logging.info(f"Upload to BSSH complete: {results}")
-        logging.debug(f"cmdargs:\n{results.args}")
-        logging.debug(f"stdout :\n{results.stdout}")
-        logging.debug(f"stderr :\n{results.stderr}")
+                                    '--biosample-name', f"{row.biosample}"] + fastqs), 
+                                    capture_output=True, text=True)
+        logging.info(f"Upload to BSSH complete:")
+        logging.info(f"stdout:\n{results.stdout}")
+        logging.debug(f"stdargs:\n{results.stderr}")
+        logging.debug(f"stderr:\n{results.stderr}")
         
         # ```bash
         # ep="CHUSJ"
