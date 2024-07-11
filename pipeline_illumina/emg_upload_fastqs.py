@@ -87,12 +87,18 @@ def main(args):
     """
     df = pd.read_csv(args.file)
     for row in df.itertuples():
+        logging.info(f"List FASTQs for biosample={row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
         fastqdir = f"/staging/hiseq_raw/{row.flowcell.split('_')[1]}/{row.flowcell}/Analysis/1/Data/DragenGermline/fastq"
-        logging.info(f"List FASTQs for {row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
         os.chdir(fastqdir)
         fastqs = glob(f"{row.biosample}_*.fastq.gz")
-        results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', '--project', f"{project_ids[row.ep_label]}", '--biosample-name', f"{row.biosample}"] + fastqs))
-        logging.info(results)
+        results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
+                                    '--dry-run', '--no-progress-bars', 
+                                    '--project', f"{project_ids[row.ep_label]}", 
+                                    '--biosample-name', f"{row.biosample}"] + fastqs))
+        logging.info(f"Upload to BSSH complete: {results}")
+        logging.debug(f"cmdargs:\n{results.args}")
+        logging.debug(f"stdout :\n{results.stdout}")
+        logging.debug(f"stderr :\n{results.stderr}")
         
         # ```bash
         # ep="CHUSJ"
@@ -105,8 +111,12 @@ def main(args):
 
 
 def tests(args):
+    """
+    Write some quick and dirty tests
+    """
     print(args)
-    return(1)
+    return(0)
+
 
 if __name__ == '__main__':
     args = parse_args()
