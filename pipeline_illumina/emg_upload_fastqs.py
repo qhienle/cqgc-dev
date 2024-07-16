@@ -86,6 +86,12 @@ def main(args):
     uploading FASTQs to BaseSpace.
     """
     df = pd.read_csv(args.file)
+
+    sites = df['Site'].unique()
+    logging.info(f"Uploading {len(df)} samples for {len(sites)} site:")
+    for site in sites:
+        logging.info(f"{site} => {len(df[df['Site'] == site])}")
+
     for row in df.itertuples():
         logging.info(f"List FASTQs for biosample={row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
         fastqdir = f"/staging/hiseq_raw/{row.flowcell.split('_')[1]}/{row.flowcell}/Analysis/1/Data/DragenGermline/fastq"
