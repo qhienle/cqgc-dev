@@ -313,15 +313,11 @@ def main(args):
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             Retrieve information for creating cases in Emedgene from samples_list file.
     Return a CSV file to be used as input for Emedgene's batch upload script.
 
-    1. Get list of samples samples_list.csv.
-    2. For each sample listed: 
-        2.1 Get the patient and family information;
-        2.2 Get the Phenotips ID (PID) and the corresponding HPO Identifiers;
-        2.3 Connect to BaseSpace and re-construct the path to the FASTQ files;
-    3. Combine individual data into a Pandas data frame
-        3.1 Sort, group and print each trio to STDOUT for case creation.
-        3.2 Use case PID instead of surname to connect family members.
-    4. Convert DataFrame into a CSV file (manifest) for EMG batch upload either
+    1. Get patient and family information for cases listed in samples_list.csv.
+        1.1 Get the Phenotips ID (PID) and the corresponding HPO Identifiers;
+        1.2 Connect to BaseSpace and re-construct the path to the FASTQ files;
+        1.3 Use case PID instead of surname to sort and connect family members.
+    2. Convert DataFrame into a CSV file (manifest) for EMG batch upload either
        using their script, or the UI;
        TODO: Check how QUADs are handled 
        TODO: Raise red flag when sibling or other family member is Affected 
@@ -334,6 +330,7 @@ def main(args):
     df_samples_list = pd.read_csv(args.file)
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
+    logging.info(f"Logging run {df_samples_list}")
 
 
 def tests():
