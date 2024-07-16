@@ -330,7 +330,7 @@ def main(args):
     df_samples_list = pd.read_csv(args.file)
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
-    logging.info(f"Logging run {df_samples_list}")
+    logging.info(f"Logging run {','.join(df_samples_list['flowcell'].unique())}")
 
 
 def tests():
