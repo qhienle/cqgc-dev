@@ -87,10 +87,8 @@ def main(args):
     """
     df = pd.read_csv(args.file)
 
-    sites = df['Site'].unique()
-    logging.info(f"Uploading {len(df)} samples for {len(sites)} site:")
-    for site in sites:
-        logging.info(f"{site} => {len(df[df['Site'] == site])}")
+    logging.info(f"Uploading {len(df)} samples to BaseSpace :")
+    for ep in df['ep_label'].unique(): logging.info(f"{ep} => {len(df[df['ep_label'] == ep])}")
 
     for row in df.itertuples():
         logging.info(f"List FASTQs for biosample={row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
