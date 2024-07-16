@@ -1,21 +1,28 @@
 # Procédure PRAGMatIQ
 
-Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à analyser sur la plateforme d'[Emedgene (EMG)](https://chusaintejustine.emedgene.com/) une fois que les séquences des échantillons sont disponibles sur BaseSpace Sequence Hub (BSSH). Les BCLs issus des séquenceurs sont d'abord convertis en FASTQs par DRAGEN BCLcConvert, soit directement sur le NovaSeqX, par notre serveur local ou sur BSSH. La progression des opérations de séquençage puis de la déconvolution-conversion de la _Run_ peuvent être suivies sur BSSH sous l'onglet ["Run"](https://chusj.cac1.sh.basespace.illumina.com/runs/active) et ["Analyses"](https://chusj.cac1.sh.basespace.illumina.com/analyses/), respectivement. Les cas à analyser sont finalement créés dans Emedgene à l'aide d'un fichier "batch manifest" en format CSV. Ce fichier contient les informations sur les individus des familles (sexe, âge, relation, FASTQs associés, termes HPOs, _etc_.). 
+Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à analyser sur la plateforme d'[Emedgene (EMG)](https://chusaintejustine.emedgene.com/) une fois que les séquences des échantillons sont disponibles sur BaseSpace Sequence Hub (BSSH). Les BCLs issus des séquenceurs sont d'abord convertis en FASTQs par DRAGEN BCLConvert, soit directement sur le NovaSeqX, soit par notre serveur local ou sur BSSH. La progression des opérations de séquençage puis de la déconvolution-conversion de la _Run_ peuvent être suivies sur BSSH sous l'onglet ["Run"](https://chusj.cac1.sh.basespace.illumina.com/runs/active) et ["Analyses"](https://chusj.cac1.sh.basespace.illumina.com/analyses/), respectivement. Les cas à analyser sont finalement créés dans Emedgene à l'aide d'un fichier "batch manifest" en format CSV. Ce fichier contient les informations sur les individus des familles (sexe, âge, relation, FASTQs associés, termes HPOs, _etc_.). 
 
 En résumé, voici les étapes à suivre:
 
 0. Préparer la création des analyses
     1. Obtenir les identifiants de connexion
-    2. Créer un journal pour le suivi, par exemple `README-${FC_SHORT}.ipynb`
+    2. Créer un journal pour le suivi, par exemple `README-${FC_SHORT}.ipynb` (*)
     3. Se connecter à spxp-app02 `ssh ${USER}@10.128.80.26`
     4. Mettre en place l'environnement de travail `conda activate CQGC-utils`.
-1. Récupérer les informations sur les familles dans Nanuq `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`. Ce script génère le fichier CSV d'entrée `emg_batch_manifest.csv`, avec les chemins d'accès aux FASTQs sur BSSH.
-2. Créer les cas sur Emedgene et lancer les analyses grâce au fichier CSV.
-3. (**TODO**) Ajouter les participants _via_ l'API
-4. Collecter les métriques des analyses Emedgene `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_samples_metrics.py ${FC_SHORT}`
-5. Archiver les résultats
+1. Collecter les informations sur les familles et les métriques DragenGermline `emg_collect_dragen_metrics.py ${FC}`.
+2. Téléverser les FASTQs sur BaseSpace `emg_upload_fastqs.py`
+3. Créer les cas sur Emedgene 
+    1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
+    2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
+    3. (**TODO**) Ajouter les participants _via_ l'API
+3. Créer les cas sur Emedgene `emg_make_batch_from_nanuq.py ${FC}`
+    1. Glisser-déposer le fichier généré "emg_batch_manifest.csv" dans Emedgene
+    2. (**TODO**) Ajouter les participants _via_ l'API
+4. Archiver les résultats
 
 Où ${FC_SHORT} est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", ${FC_SHORT} est "A00516_0441".
+
+(*) Un fichier `README-FC_SHORT-template.ipynb` est disponible sur GitHub. Il contient le code à copier-coller et les cases à remplir pour le suivi des opérations.
 
 ***_N.B._***: Afin de connecter les informations génétiques des familles (issues de Nanuq) aux phénotypes (termes HPOs contenus dans Phenotips), il est impératif que les deux champs EP (Établissement Public) et MRN (Medical Record Number) soient bien renseignés dans les deux systèmes par les collègues. Sinon, il faut obtenir les informations de Phenotips (identifiants PID) par "Camille Varin-Tremblay (HSJ)" <camille.varin-tremblay.hsj@ssss.gouv.qc.ca>.
 
@@ -71,75 +78,136 @@ Veuillez vous référer à la documentation d'Illumina afin de générer le jeto
 
 Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel du laboratoire CQGC, mais peuvent aussi être récupérées depuis BSSH (sous l'onglet "_Runs_"). Un modèle `README-${FC_SHORT}-template.ipynb` est disponible sur GitHub et dans Teams.
 
-**_N.B._** Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir.
-
+**_N.B._** Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir. Un fichier `README-FC_SHORT-template.ipynb` est disponible sur GitHub. Il contient le code à copier-coller et les cases à remplir pour le suivi des opérations.
 
 #### 3. Se connecter à spxp-app02 
 
 Au préalable, obtenir un jeton auprès du service informatique afin de pouvoir se connecter à distance _via_ le VPN du CHUSJ.
 
-```bash
-# Mise en place de l'environnement de travail. Il suffit seulement de renseigner 
-# la valeur de FC et de copier-coller les commandes dans votre shell sur spxp-app02
-# ssh ${USER}@10.128.80.26
+`ssh ${USER}@10.128.80.26`
 
-export FC="20240507_LH00336_0041_A22K5J7LT3" # À modifier 
+#### 4. Mettre en place l'environnement de travail 
+
+```bash
+## 0. Mise en place de l'environnement de travail
+# ssh ${USER}@10.128.80.26 # Renseigner la valeur de ${FC}
+
+screen -S prag
+conda activate CQGC-utils
+
+export FC=""
 a=($(echo ${FC} | tr '_' '\n'))
 export FC_SHORT="${a[1]}_${a[2]}"
 export BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
 export WORKDIR="/mnt/spxp-app02/staging2/dragen"
-
-cd ${BASEDIR}
 ```
 
-#### 4. Mettre en place l'environnement de travail 
+### 1. Collecter les informations sur les familles et les métriques DragenGermline
 
-`conda activate CQGC-utils`
+Les informations sur la constitution des familles ("Case") sont centralisées dans Nanuq. La commande suivante permet de récupérer la liste des échantillons sur la _Run_ et de fournir les données nécessaires à la création de cas dans Emedgene, incluant les termes HPOs associées aux patients dans la base de données [Phenotips](https://chusj.phenotips.com//). Avec le NoveSeqX, il est également possible de générer les alignements localement et de récupérer les métriques pour faire approuver les échantillons avant que ceux-ci soient soumis aux analyses dans Emedgene.
 
-### 1. Récupérer les informations sur les familles
+```bash
+cd ${WORKDIR}
+python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_dragen_metrics.py ${FC}
+```
 
-Les informations sur la constitution des familles ("Case") sont centralisées dans Nanuq. La commande suivante permet de récupérer la liste des échantillons sur la _Run_ et de fournir les données nécessaires à la création de cas dans Emedgene, incluant les termes HPOs associées aux patients dans la base de données [Phenotips](https://chusj.phenotips.com//). 
+_E.g._ `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_dragen_metrics.py 20240705_LH00336_0073_A22MFJFLT3`
+
+La commande ci-dessus génère: 
+
+- Les métriques des analyses DragenGermline en format HTML, `${FC_SHORT}_metrics.html`
+- Les mêmes métriques en format CSV, `${FC_SHORT}_metrics.csv`
+- Un fichier "samples_list.csv" qui sera utile pour les étapes suivantes. Voici un exmple du contenu de samples_list.csv
+
+Le script s'attend à trouver les analyses dans le répertoire `/staging/hiseq_raw/LH00336/${FC}/Analysis/1/Data/DragenGermline/`.
+
+Récupérer les métriques et le fichier "samples_list.csv" générés par la commande ci-dessus. 
+
+```PowerShell:
+Set-Location D:\HSJ\Projects\PRAGMatIQ\Runs\LH00336_0073
+scp hienle@10.128.80.26:/mnt/spxp-app02/staging2/dragen/LH00336_0073/* .
+```
+Envoyer les fichiers `${FC_SHORT}_metrics.csv` et `${FC_SHORT}_metrics.html` dans un courriel aux personnes responsables:
+
+- "Dr Jacques Michaud (HSJ)" <jacques.michaud.med@ssss.gouv.qc.ca>
+- "Camille Varin-Tremblay (HSJ)" <camille.varin-tremblay.hsj@ssss.gouv.qc.ca>
+- "Rene Allard (HSJ)" <rene.allard.hsj@ssss.gouv.qc.ca>
+
+Si les métriques passent les critères d'acceptabilité, procéder au téléversement des FASTQs dans BaseSpace. Sinon, attendre la réponse des responsables. Dans ce cas, il faudra éventuellement supprimer les lignes correspondantes aux échantillons de mauvaise qualité du fichier `samples_list.csv` ou du fichier de création par lot, `amg_batch_manifest.csv`, avant de procéder aux prochaines étapes.
+
+Seuils d'acceptabilité (en discussion):
+
+- Coverage Uniformity < 0.25 ou 0.2
+- Average Alignment Coverage > 25X ou 30X
+- % mapped reads > 95%
+- à partir des fichiers .wgs_coverage_metrics.csv:
+    - COVERAGE SUMMARY,,Average alignment coverage over genome > 30X
+    - COVERAGE SUMMARY,,PCT of genome with coverage [  20x: inf) > 90%
+    - COVERAGE SUMMARY,,Uniformity of coverage (PCT > 0.4*mean) over genome > 90%
+- À partir des fichiers .mapping_metrics.csv:
+    - MAPPING/ALIGNING SUMMARY,,Number of unique & mapped reads (excl. duplicate marked reads) > 80%
+    - MAPPING/ALIGNING SUMMARY,,Estimated sample contamination < 0.05
+- À partir des fichiers .cnv_metrics.csv:
+    - CNV SUMMARY,,Coverage uniformity
+    - CNV SUMMARY,,Number of passing amplifications
+    - CNV SUMMARY,,Number of passing deletions
+- À partir des fichiers .ploidy_estimation_metrics.csv:
+    - PLOIDY ESTIMATION,,Ploidy estimation doit correspondre au sexe de l'échantillon
+- Autre chose qu'on devrait pouvoir confirmer avant de releaser les données est la structure familiale des trios
+
+Exemple du contenu d'un fichier `samples_list.csv`:
+
+    sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,family_id,birthdate,flowcell_date,flowcell
+    GM241567,27556,PROBAND,FEMALE,CHUSJ,03486257,TRIO,AFF,03486257,2024-04-29,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    GM241601,27560,MTH,FEMALE,CHUSJ,03487612,TRIO,UNF,03486257,1980-10-15,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    GM241575,27559,FTH,MALE,CHUSJ,03487451,TRIO,UNF,03486257,1978-10-02,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    GM241566,27555,PROBAND,FEMALE,CHUSJ,03486541,TRIO,AFF,03486541,2024-02-13,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    GM241572,27557,MTH,FEMALE,CHUSJ,03486957,TRIO,UNF,03486541,1987-05-04,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    GM241573,27558,FTH,MALE,CHUSJ,03486959,TRIO,UNF,03486541,1987-01-20,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    24-05914-T1,27573,PROBAND,MALE,CHUS,2552542,TRIO,AFF,24-05914-T1,2024-06-09,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    24-05822-T1,27574,MTH,FEMALE,CHUS,24-05822-T1,TRIO,UNK,24-05914-T1,2000-11-28,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    24-05821-T1,27575,FTH,MALE,CHUS,24-05821-T1,TRIO,UNK,24-05914-T1,1989-01-24,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    MO-24-008162,27484,PROBAND,FEMALE,CUSM,MCH_5991033,TRIO,AFF,24-38625,2024-06-05,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    MO-24-008381,27485,MTH,FEMALE,CUSM,RVH_5994052,TRIO,UNF,24-38625,1986-10-13,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    MO-24-008380,27486,FTH,MALE,CUSM,R2265273,TRIO,UNF,24-38625,1994-06-01,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    MO-24-008229,27487,PROBAND,FEMALE,CUSM,MCH_5991739,TRIO,AFF,24-38627,2024-06-05,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    MO-24-008668,27488,MTH,FEMALE,CUSM,RVH_5175816,TRIO,UNF,24-38627,1994-09-29,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+    MO-24-008667,27489,FTH,MALE,CUSM,RVH_5809722,TRIO,UNF,24-38627,1989-08-11,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+
+
+### 2. Téléverser les FASTQs sur BaseSpace
+
+À ce jour, il n'est pas possible de créer les cas dans Emedgene en partant de CRAM ou de VCF, tout en bénéficiant de toutes les fonctionnalités (ex: Manta, SMN callers,...). Il nous faut donc téléverser et repartir des FASTQs.
+
+```bash
+cd ${WORKDIR}/${FC_SHORT}
+python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_upload_fastqs.py
+```
+
+Le script s'attend à trouver les fichiers dans le répertoire `/staging/hiseq_raw/LH00336/${FC}/Analysis/1/Data/DragenGermline/fastq`.
+
+
+### 3. Créer les cas sur Emedgene
+
+Cette étape consiste à:
+
+1. Générer le fichier "emg_batch_manifest.csv"
+2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
+3. (**TODO**) Ajouter les participants _via_ l'API
+
+#### 1. Générer le fichier "emg_batch_manifest.csv"
 
 `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`
 
-_E.g._ `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py A00516_0433`
-
-La commande ci-dessus devrait générer une sortie d'écran comme ceci:
-
-[2023-07-13@17:39:50] Cases for A00516_0433:
-
-    sample_name biosample relation  gender labels      mrn cohort_type  \
-    3  23-03938-T1     21939  PROBAND  FEMALE   CHUS  1538614        TRIO
-    4  23-05449-T1     21940      MTH  FEMALE   CHUS  1279938        TRIO
-    5  23-05448-T1     21941      FTH    MALE   CHUS   147112        TRIO
-    0  23-05328-T1     21933  PROBAND    MALE   CHUS  1636084        TRIO
-    1  23-05367-T1     21934      MTH  FEMALE   CHUS  1635873        TRIO
-    2  23-05368-T1     21935      FTH    MALE   CHUS  1636411        TRIO
-
-    date_of_birth(YYYY-MM-DD) phenotypes    family case_group_number  \
-    3                12/10/2018        AFF  23-03938          P0000137
-    4                02/10/1979        UNK  23-03938                na
-    5                01/11/1977        UNK  23-03938                na
-    0                16/06/2023        AFF  23-05328          P0000134
-    1                25/12/1991        UNK  23-05328                na
-    2                25/01/1990        UNK  23-05328                na
-
-                                                                            hpos
-    3             HP:0001251,HP:0001263,HP:0002064,HP:0011342,HP:0012447,HP:0030891
-    4                                                                            na
-    5                                                                            na
-    0  HP:0000126,HP:0000201,HP:0000294,HP:0000316,HP:0000586,HP:0001631,HP:0012368
-    1                                                                            na
-    2                                                                            na
+Supprimer manuellement du fichier `emg_batch_manifest.csv` les échantillons qui n'ont pas été approuvés par les responsables avant de se connecter à Emedgene et soumettre le fichier CSV à la cration des cas par lot.
 
 **_N.b._**: Les termes HPOs [Human Phenotype Ontology](https://hpo.jax.org/app/) sont contenus dans la base de données patients, Phenotips, et peuvent être consultées _via_ l'API avec un identifiant externe composé du "site + MRN" (ex. "CHUS1636084"). C'est ce que fait le script `emg_make_batch_from_nanuq.py` car l'identifiant primaire PhenotipsID (PID), n'est pas contenu dans Nanuq.
 
 Alternativement, les informations sur les familles pour la _Run_, incluant le PID, peuvent être récupérées à partir du fichier Excel partagé sur "\\shsjcifs01\public crhsj\centre genomique\Projets\Pragmatiq\Étude PRAGMatIQ - Base de données.xlsx" ou sur Teams/OneDrive "Étude PRAGMatIQ - Base de données.xlsx" (canal de l'équipe _CHUSJ - Étude PRAGMatIQ_ dans Teams ("Documents > Général")). Ceci peut s'avérer nécessaire dans l'éventualité où le script `emg_make_batch_from_nanuq.py` échoue. _C.f._ Annexe A (Rechercher les termes HPOs) plus bas. En dernier recours, contacter Camille VARIN-TREMBLAY pour obtenir les informations manquantes.
 
+#### 2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
 
-### 2. Créer les cas et lancer les analyses
-
-Le script Python `emg_make_batch_from_nanuq.py` exécuté à l'étape précédente génère automatiquement le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH. Pour plus d'information au sujet du fichier d'entrée pour la création des cas par lot, consulter les spécifications d'Emedgene [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements).
+Le script Python `emg_make_batch_from_nanuq.py` exécuté à l'étape précédente génère le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH. Pour plus d'information au sujet du fichier d'entrée pour la création des cas par lot, consulter les spécifications d'Emedgene [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements).
 
 Il faut à présent se connecter _via_ l'interface web à Emedgene pour téléverser le fichier manifestedécrivant les cas à l'étude, puis lancer les analyses.
 
@@ -151,22 +219,13 @@ Il faut à présent se connecter _via_ l'interface web à Emedgene pour téléve
 
 Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload). https://chusaintejustine.emedgene.com/v2/#/help/
 
-
 Exemple d'erreur fréquent: "Unmatched phenotype(s) found: phenotypes/EMG_PHENOTYPE_0011438". Il faut supprimer ce phénotype de la liste. Pour trouver le terme fautif, il faut remplacer "EMG_PHENOTYPE_" par "HP:" (dans ce cas-ci, EMG_PHENOTYPE_0011438 == HP:0011438)
 
 
-### 3. (**TODO**) Ajouter les participants
+#### 3. (**TODO**) Ajouter les participants
 
 
-### 4. Collecter les métriques des analyses Emedgene
-
-Une fois que les analyses Emedgene passeront au statut "Delivered", collecter les métriques pour les envoyer à René.
-
-`python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_samples_metrics.py ${FC_SHORT}`
-
-Ce script génère un fichier CSV avec les métriques, et un rapport en format HTML. Mettre ces deux fichiers en p.j. d'un courriel à emvoyer à René.
-
-### 5. Archiver les résultats
+### 4. Archiver les résultats
 
 Une fois que les analyses sont terminées, rapattrier et archiver les résultats.
 
