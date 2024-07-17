@@ -106,9 +106,11 @@ def main(args):
                                     '--project', f"{project_ids[row.ep_label]}", 
                                     '--biosample-name', f"{row.biosample}"] + fastqs), 
                                     capture_output=True, text=True)
-        logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
-        logging.debug(f"args:\n{results.args}")
-        logging.debug(f"stderr:\n{results.stderr}")
+        if results.stderr != '':
+            logging.warn(f"stderr:\n{results.stderr}")
+            logging.debug(f"args:\n{results.args}")
+        else:
+            logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
         
         # ```bash
         # ep="CHUSJ"
