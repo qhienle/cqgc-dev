@@ -4,7 +4,7 @@ Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à ana
 
 En résumé, voici les étapes à suivre:
 
-0. Préparer la création des analyses
+0. Pré-requis
     1. Obtenir les identifiants de connexion
     2. Créer un journal pour le suivi, par exemple `README-${FC_SHORT}.ipynb` (*)
     3. Se connecter à spxp-app02 `ssh ${USER}@10.128.80.26`
@@ -19,6 +19,7 @@ En résumé, voici les étapes à suivre:
     1. Glisser-déposer le fichier généré "emg_batch_manifest.csv" dans Emedgene
     2. (**TODO**) Ajouter les participants _via_ l'API
 4. Archiver les résultats
+5. Nettoyage
 
 Où ${FC_SHORT} est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", ${FC_SHORT} est "A00516_0441".
 
@@ -30,9 +31,9 @@ Où ${FC_SHORT} est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ 
 ## Procédure
 
 
-### 0. Préparer la création des analyses
+### 0. Pré-requis
 
-Installation des outils pré-requis et obtention des identifiants de connexion aux différents services.
+Installation des outils et obtention des identifiants de connexion aux différents services.
 
 #### 1. Obtenir les identifiants de connexion
 
@@ -76,7 +77,7 @@ Veuillez vous référer à la documentation d'Illumina afin de générer le jeto
 
 #### 2. Créer un journal pour le suivi
 
-Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel du laboratoire CQGC, mais peuvent aussi être récupérées depuis BSSH (sous l'onglet "_Runs_"). Un modèle `README-${FC_SHORT}-template.ipynb` est disponible sur GitHub et dans Teams.
+Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel par le laboratoire du CQGC, mais peuvent aussi être récupérées dans la SampleSheet ou depuis BSSH (sous l'onglet "_Runs_"). Un modèle `README-${FC_SHORT}-template.ipynb` est disponible sur GitHub et dans Teams.
 
 **_N.B._** Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir. Un fichier `README-FC_SHORT-template.ipynb` est disponible sur GitHub. Il contient le code à copier-coller et les cases à remplir pour le suivi des opérations.
 
@@ -244,6 +245,11 @@ for sample in GM231339 GM231362 GM231511 GM231395 GM231398 GM231399 GM231401 GM2
     echo ${sample} $( date +'%Y-%m-%d %T' ) >> archive_PRAGMatIQ.log
 done
 ```
+
+
+### 5. Nettoyage
+
+Une fois que les analyses sont terminées et archivées, il faut libérer l'espace disque sur `spxp-app02`. Au préalable, notifier le laboratoire, qui doit sauvegarder quelqeues métriques de l'opération de séquençage avant qU'elles ne soient effacées.
 
 
 ## Références
