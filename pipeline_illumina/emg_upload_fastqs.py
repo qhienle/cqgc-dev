@@ -101,7 +101,7 @@ def main(args):
                                     '--biosample-name', f"{row.biosample}"] + fastqs), 
                                     capture_output=True, text=True)
         logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
-        logging.debug(f"stdargs:\n{results.stderr}")
+        logging.debug(f"args:\n{results.args}")
         logging.debug(f"stderr:\n{results.stderr}")
         
         # ```bash

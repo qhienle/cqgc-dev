@@ -19,7 +19,7 @@ En résumé, voici les étapes à suivre:
     1. Glisser-déposer le fichier généré "emg_batch_manifest.csv" dans Emedgene
     2. (**TODO**) Ajouter les participants _via_ l'API
 4. Archiver les résultats
-5. Nettoyage
+5. Nettoyer
 
 Où ${FC_SHORT} est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", ${FC_SHORT} est "A00516_0441".
 
@@ -122,12 +122,8 @@ La commande ci-dessus génère:
 
 Le script s'attend à trouver les analyses dans le répertoire `/staging/hiseq_raw/LH00336/${FC}/Analysis/1/Data/DragenGermline/`.
 
-Récupérer les métriques et le fichier "samples_list.csv" générés par la commande ci-dessus. 
+Examiner les métriques et le fichier "samples_list.csv" générés par la commande ci-dessus. 
 
-```PowerShell:
-Set-Location D:\HSJ\Projects\PRAGMatIQ\Runs\LH00336_0073
-scp hienle@10.128.80.26:/mnt/spxp-app02/staging2/dragen/LH00336_0073/* .
-```
 Envoyer les fichiers `${FC_SHORT}_metrics.csv` et `${FC_SHORT}_metrics.html` dans un courriel aux personnes responsables:
 
 - "Dr Jacques Michaud (HSJ)" <jacques.michaud.med@ssss.gouv.qc.ca>
@@ -247,7 +243,7 @@ done
 ```
 
 
-### 5. Nettoyage
+### 5. Nettoyer
 
 Une fois que les analyses sont terminées et archivées, il faut libérer l'espace disque sur `spxp-app02`. Au préalable, notifier le laboratoire, qui doit sauvegarder quelqeues métriques de l'opération de séquençage avant qU'elles ne soient effacées.
 
