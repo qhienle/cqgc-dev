@@ -94,7 +94,13 @@ def main(args):
         logging.info(f"List FASTQs for biosample={row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
         fastqdir = f"/staging/hiseq_raw/{row.flowcell.split('_')[1]}/{row.flowcell}/Analysis/1/Data/DragenGermline/fastq"
         os.chdir(fastqdir)
+
+        # glob() does not create ordered list of files, so we sort()for `bs`
+        # `bs` checks for R1/R2 pairs and panics if both files are not listed
+        # consecutively.
+        #
         fastqs = glob(f"{row.biosample}_*.fastq.gz")
+        fastqs.sort() 
         results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
                                     '--no-progress-bars', 
                                     '--project', f"{project_ids[row.ep_label]}", 
