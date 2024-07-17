@@ -107,8 +107,8 @@ def main(args):
                                     '--biosample-name', f"{row.biosample}"] + fastqs), 
                                     capture_output=True, text=True)
         if results.stderr != '':
-            logging.warn(f"stderr:\n{results.stderr}")
-            logging.debug(f"args:\n{results.args}")
+            logging.warn(f"ERROR while subprocess.run():\n{results.stderr}")
+            logging.warn(f"args:\n{results.args}")
         else:
             logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
         
