@@ -336,7 +336,7 @@ def list_samples_to_archive(df):
     filename = 'samples_list.csv'
     df1 = df[['sample_name', 'biosample', 'label', 'fc_date']] # TODO: Add flowcell
     df1 = df1.rename(columns={'sample_name': 'Sample', 'biosample': 'CQGC_ID', 'label': 'Site', 'fc_date': 'Date'})
-    df1.to_csv(filename, index=False)
+    # df1.to_csv(filename, index=False)
     logging.info(f"Created file {filename}")
     return(f"{' '.join(df1['Sample'])}")
 
@@ -479,7 +479,7 @@ def main(args):
     
     # TODO: 6. Archive samples from cases finalized on Emedgene
     #
-    logging.info(f"List of samples to archive:\n{list_samples_to_archive(df1)}")
+    print(f"List of samples to archive:\n{list_samples_to_archive(df1)}")
 
 
 def tests():

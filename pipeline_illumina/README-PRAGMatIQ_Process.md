@@ -15,9 +15,6 @@ En résumé, voici les étapes à suivre:
     1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
     2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
     3. (**TODO**) Ajouter les participants _via_ l'API
-3. Créer les cas sur Emedgene `emg_make_batch_from_nanuq.py ${FC}`
-    1. Glisser-déposer le fichier généré "emg_batch_manifest.csv" dans Emedgene
-    2. (**TODO**) Ajouter les participants _via_ l'API
 4. Archiver les résultats
 5. Nettoyer
 
@@ -130,7 +127,7 @@ Envoyer les fichiers `${FC_SHORT}_metrics.csv` et `${FC_SHORT}_metrics.html` dan
 - "Camille Varin-Tremblay (HSJ)" <camille.varin-tremblay.hsj@ssss.gouv.qc.ca>
 - "Rene Allard (HSJ)" <rene.allard.hsj@ssss.gouv.qc.ca>
 
-Si les métriques passent les critères d'acceptabilité, procéder au téléversement des FASTQs dans BaseSpace. Sinon, attendre la réponse des responsables. Dans ce cas, il faudra éventuellement supprimer les lignes correspondantes aux échantillons de mauvaise qualité du fichier `samples_list.csv` ou du fichier de création par lot, `amg_batch_manifest.csv`, avant de procéder aux prochaines étapes.
+Si les métriques passent les critères d'acceptabilité, procéder au téléversement des FASTQs dans BaseSpace. Sinon, attendre la réponse des responsables. Dans ce cas, il faudra éventuellement supprimer les lignes correspondantes aux échantillons de mauvaise qualité du fichier `samples_list.csv` avant de procéder aux prochaines étapes.
 
 Seuils d'acceptabilité (en discussion):
 
@@ -194,9 +191,10 @@ Cette étape consiste à:
 
 #### 1. Générer le fichier "emg_batch_manifest.csv"
 
-`python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT}`
-
-Supprimer manuellement du fichier `emg_batch_manifest.csv` les échantillons qui n'ont pas été approuvés par les responsables avant de se connecter à Emedgene et soumettre le fichier CSV à la cration des cas par lot.
+```bash
+cd ${WORKDIR}
+python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT} 2>&1 | tee ${FC_SHORT}/emg_make_batch.log
+```
 
 **_N.b._**: Les termes HPOs [Human Phenotype Ontology](https://hpo.jax.org/app/) sont contenus dans la base de données patients, Phenotips, et peuvent être consultées _via_ l'API avec un identifiant externe composé du "site + MRN" (ex. "CHUS1636084"). C'est ce que fait le script `emg_make_batch_from_nanuq.py` car l'identifiant primaire PhenotipsID (PID), n'est pas contenu dans Nanuq.
 
