@@ -149,53 +149,6 @@ def add_hpos(ep, mrn):
     return(pid, labels_str, ids_str)
 
 
-def df_to_manifest_for_batch_script(df):
-    """
-    From data in df, generate a manifest file for batch upload to Emedgene.
-    - `df`: A Pandas DataFrame
-    - Returns: File 'emg_batch_manifest.csv' in current folder
-    """
-    df_manifest = pd.DataFrame({
-        'case_group_number': df['case_group_number'],
-        'case_type': 'Whole Genome',
-        'filenames': df['filenames'],
-        'bam_file': '', 
-        'execute_now':  'False',
-        'sample_name': df['sample_name'],
-        'relation': df['relation'],
-        'gender': df['gender'],
-        'phenotypes': df['phenotypes'],
-        'hpos': df['hpos'],
-        'boost_genes': '',
-        'gene_list_id': '',
-        'kit_id': '',
-        'selected_preset': '',
-        'due_date(YYYY-MM-DD)': '',
-        'label': df['label'],
-        'bigwig': '',
-        'clinical_notes': df['pid'],
-        'Default Project': '',
-        'date_of_birth(YYYY-MM-DD)': df['date_of_birth(YYYY-MM-DD)']
-    })
-    df_manifest['Default Project'] = 'PRAGMatIQ_' + df_manifest['label']
-
-    with open('emg_batch_manifest.csv', 'w') as fh:
-        fh.write('[Data],,,,,,,,,,,,,,,,,,,,,')
-        fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
-
-    # Upload manifest to create cases on EMG
-    #
-    logging.info("Please run the command below, replacing '-u USER' and '-p PASS' with Emedgene credentials:")
-    logging.info('python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p PASS -b\n')
-    # subprocess.run(['python', '/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/create_batch_cases_v2.py', 
-    #                 '-i', 'emg_batch_manifest.csv', 
-    #                 '-s', '10123', 
-    #                 '-hu', 'stejustine.emedgene.com', 
-    #                 '-u', 'cqgc.bioinfo.hsj@ssss.gouv.qc.ca', 
-    #                 '-p', 'PASS', 
-    #                 '-b'])
-
-
 def df_to_manifest(df):
     """
     From data in df, generate a manifest file for batch upload to Emedgene 
@@ -292,37 +245,18 @@ def print_case_by_case(df):
         print(f"HPO Terms: {','.join(hpo_terms)}\n\n")
 
 
-def list_samples_to_archive(df):
-    """
-    Create a file listing samples to archive. This list can later be used to
-    archive samples and to collect metrics with scripts `archive_PRAGMatIQ.sh`
-    and `emg_collect_samples_metrics.py`, respectively.
-    - `df`: A Pandas DataFrame
-    - Returns: list of samples [str] and file 'samples_list.txt' for archiving
-    """
-    filename = 'samples_list.csv'
-    df1 = df[['sample_name', 'biosample', 'label', 'fc_date']] # TODO: Add flowcell
-    df1 = df1.rename(columns={'sample_name': 'Sample', 'biosample': 'CQGC_ID', 'label': 'Site', 'fc_date': 'Date'})
-    df1.to_csv(filename, index=False)
-    logging.info(f"Created file {filename}")
-    return(f"{' '.join(df1['Sample'])}")
-
-
 def main(args):
     """
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Retrieve information for creating cases in Emedgene from samples_list file.
+    Read samples in --file and retrieve required information to build Cases:
+    1. Get the corresponding HPO Identifiers to add HPO terms
+    2. Connect to BaseSpace and re-construct the path to the FASTQ files;
+    3. Use case PID instead of surname to sort and connect family members.
     Return a CSV file to be used as input for Emedgene's batch upload script.
 
-    1. Get patient and family information for cases listed in samples_list.csv.
-        1.1 Get the Phenotips ID (PID) and the corresponding HPO Identifiers;
-        1.2 Connect to BaseSpace and re-construct the path to the FASTQ files;
-        1.3 Use case PID instead of surname to sort and connect family members.
-    2. Convert DataFrame into a CSV file (manifest) for EMG batch upload either
-       using their script, or the UI;
-       TODO: Check how QUADs are handled 
-       TODO: Raise red flag when sibling or other family member is Affected 
-    5. TODO: Add participants to cases
-    6. TODO: Archive samples for this run
+    TODO: Check how QUADs are handled 
+    TODO: Raise red flag when sibling or other family member is Affected 
+    TODO: Add participants to cases
+    TODO: Archive samples for this run
     """
 
     # 1. Get list of samples samples_list.csv and prepare data
