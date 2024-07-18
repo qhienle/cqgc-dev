@@ -58,13 +58,23 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def add_fastqs(df):
+def add_fastqs(biosample):
     """
     Add BSSH paths to fastq files for samples listed in df
-    - df     : [pandas.DataFrame] DataFrame with a column named 'biosamples'
-    - Returns: [pandas.DataFrame] df appened with column 'filenames'
+    - biosample: [pandas.DataFrame] DataFrame with a column named 'biosamples'
+    - Returns  : [pandas.DataFrame] df appened with column 'filenames'
     """
-    return df
+    bssh = BSSH()
+    try:
+        fastqs = bssh.get_sequenced_files(biosample)
+    except Exception as err:
+        logging.info(f"Could not retrieve FASTQs paths for {biosample}: {err}")
+        fastqs = []
+    else:
+        #sample_infos.append(';'.join(fastqs))
+        logging.debug(';'.join(fastqs))
+
+    return fastqs
 
 
 def add_hpos(ep, mrn):
@@ -273,7 +283,6 @@ def main(args):
 
     # 1. Add BaseSpace FASTQ file paths for each sample
     #
-    bssh = BSSH()
     logging.info(f"Add BaseSpace FASTQ file paths for each sample")
 
     # 2. Get the corresponding HPO Identifiers and add HPO terms
