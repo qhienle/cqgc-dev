@@ -27,12 +27,8 @@ import pandas as pd
 #
 src_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(src_path)
-from lib.nanuq import Nanuq
 from lib.gapp import Phenotips
 from lib.gapp import BSSH
-
-nq = Nanuq()
-bssh = BSSH()
 
 __version__ = "0.1"
 
@@ -43,7 +39,7 @@ def parse_args():
     parser.add_argument('--project', '-p', default='prag', help="Project: 'prag', 'eval' Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
-    return(parser.parse_args())
+    return parser.parse_args()
 
 
 def configure_logging(level):
@@ -60,6 +56,15 @@ def configure_logging(level):
     logging.basicConfig(level=level_name, 
                         format='[%(asctime)s] %(levelname)s: %(message)s', 
                         datefmt='%Y-%m-%d@%H:%M:%S')
+
+
+def add_fastqs(df):
+    """
+    Add BSSH paths to fastq files for samples listed in df
+    - df     : [pandas.DataFrame] DataFrame with a column named 'biosamples'
+    - Returns: [pandas.DataFrame] df appened with column 'filenames'
+    """
+    return df
 
 
 def add_hpos(ep, mrn):
@@ -248,8 +253,8 @@ def print_case_by_case(df):
 def main(args):
     """
     Read samples in --file and retrieve required information to build Cases:
-    1. Get the corresponding HPO Identifiers to add HPO terms
-    2. Connect to BaseSpace and re-construct the path to the FASTQ files;
+    1. Add BaseSpace FASTQ file paths for each sample
+    2. Get the corresponding HPO Identifiers and add HPO terms
     3. Use case PID instead of surname to sort and connect family members.
     Return a CSV file to be used as input for Emedgene's batch upload script.
 
@@ -259,12 +264,38 @@ def main(args):
     TODO: Archive samples for this run
     """
 
-    # 1. Get list of samples samples_list.csv and prepare data
+    # Read samples in --file and retrieve required information to build Cases:
     #
     df_samples_list = pd.read_csv(args.file)
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
-    logging.info(f"Logging run {','.join(df_samples_list['flowcell'].unique())}")
+    print(f"\n#  Log run {','.join(df_samples_list['flowcell'].unique())}\n")
+
+    # 1. Add BaseSpace FASTQ file paths for each sample
+    #
+    bssh = BSSH()
+    logging.info(f"Add BaseSpace FASTQ file paths for each sample")
+
+    # 2. Get the corresponding HPO Identifiers and add HPO terms
+    #
+    logging.info(f"Fetching HPO terms for project {args.project}")
+    if args.project == 'prag' or args.project == 'eval':
+        pass
+    elif args.project == 'q1k':
+        pass
+    else:
+        logging.warn(f"Project '{args.project}' is not defined")
+
+    # 3. Use case PID instead of surname to sort and connect family members.
+    #
+    logging.info(f"Sorting cases' families")
+
+    # Return a CSV file to be used as input for Emedgene's batch upload script
+    #
+    #df_to_manifest(df_samples_list)
+    logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
+
+    logging.info(f"Done.\n")
 
 
 def tests():
