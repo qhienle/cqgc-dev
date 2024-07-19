@@ -71,17 +71,17 @@ def add_fastqs(biosample):
         logging.info(f"Could not retrieve FASTQs paths for {biosample}: {err}")
         fastqs = []
     else:
-        logging.debug(';'.join(fastqs))
+        filenames = ';'.join(fastqs)
+    finally:
+        return filenames
 
-    return ';'.join(fastqs)
 
-
-def add_hpos(ep, mrn):
+def add_hpos_phenotips(ep, mrn):
     """
     Lookup Phenotips ID (PID) and HPO identifiers
     - ep     : [str] Etablissement Public. Ex: CHUSJ
     - mrn    : [str] Medical Record Number. Ex: 123456
-    - Returns: [tuple of str] (pid, hpo_labels, hpo_ids)
+    - Returns: [str] Semi-column-spearated list of hpo identifiers
     """
     pho = Phenotips()
     pid = ''
@@ -282,14 +282,16 @@ def main(args):
 
 
     # 1. Add BaseSpace FASTQ file paths for each sample
-    # logging.debug(add_fastqs(df_samples_list['biosample'][0]))
     #
     logging.info(f"Add BaseSpace FASTQ file paths for each sample")
     df_samples_list['filenames'] = df_samples_list.apply(lambda row: add_fastqs(row.biosample), axis=1)
+    logging.debug(f"Lookup FASTQ files for biosample {df_samples_list['biosample'][0]}:\n{add_fastqs(df_samples_list['biosample'][0])}")
+    logging.debug(f"Filenames added as new column:\n{df_samples_list['filenames']}")
+
 
     # 2. Get the corresponding HPO Identifiers and add HPO terms
     #
-    logging.info(f"Fetching HPO terms for project {args.project}")
+    logging.info(f"Fetching HPO terms for project '{args.project}'")
     if args.project == 'prag' or args.project == 'eval':
         pass
     elif args.project == 'q1k':
