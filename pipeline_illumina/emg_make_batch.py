@@ -293,7 +293,12 @@ def main(args):
     #
     logging.info(f"Fetching HPO terms for project '{args.project}'")
     if args.project == 'prag' or args.project == 'eval':
-        pass
+        # HPO terms are stored in Phenotips. 
+        # Also grab 'PID', which will populate 'Clinical Notes'
+        #
+        df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[2] if row.status == 'AFF' else '', axis=1)
+        df_samples_list['pid']  = df_samples_list.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[0] if row.status == 'AFF' else '', axis=1)
+        logging.debug(f"Subset of DataFrame to show PIDs and HPO terms:\n{df_samples_list[['biosample', 'sample_name', 'status', 'pid', 'hpos']]}")
     elif args.project == 'q1k':
         pass
     else:
