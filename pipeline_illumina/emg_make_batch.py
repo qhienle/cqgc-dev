@@ -61,8 +61,8 @@ def configure_logging(level):
 def add_fastqs(biosample):
     """
     Add BSSH paths to fastq files for samples listed in df
-    - biosample: [pandas.DataFrame] DataFrame with a column named 'biosamples'
-    - Returns  : [pandas.DataFrame] df appened with column 'filenames'
+    - biosample: [str] Name of biosample (usually CQGC LabID, ex: 27692)
+    - Returns  : [str] df appened with column 'filenames'
     """
     bssh = BSSH()
     try:
@@ -71,10 +71,9 @@ def add_fastqs(biosample):
         logging.info(f"Could not retrieve FASTQs paths for {biosample}: {err}")
         fastqs = []
     else:
-        #sample_infos.append(';'.join(fastqs))
         logging.debug(';'.join(fastqs))
 
-    return fastqs
+    return ';'.join(fastqs)
 
 
 def add_hpos(ep, mrn):
@@ -281,9 +280,12 @@ def main(args):
     os.chdir(workdir)
     print(f"\n#  Log run {','.join(df_samples_list['flowcell'].unique())}\n")
 
+
     # 1. Add BaseSpace FASTQ file paths for each sample
+    # logging.debug(add_fastqs(df_samples_list['biosample'][0]))
     #
     logging.info(f"Add BaseSpace FASTQ file paths for each sample")
+    df_samples_list['filenames'] = df_samples_list.apply(lambda row: add_fastqs(row.biosample), axis=1)
 
     # 2. Get the corresponding HPO Identifiers and add HPO terms
     #
@@ -297,7 +299,7 @@ def main(args):
 
     # 3. Use case PID instead of surname to sort and connect family members.
     #
-    logging.info(f"Sorting cases' families")
+    logging.info(f"Sorting samples by families")
 
     # Return a CSV file to be used as input for Emedgene's batch upload script
     #
