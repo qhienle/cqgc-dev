@@ -35,8 +35,8 @@ __version__ = "0.1"
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Make Emedgene batch file for case creation from samples_list.")
-    parser.add_argument('--file', '-f', default='samples_list.csv', help="List of samples with Case information")
-    parser.add_argument('--project', '-p', default='prag', help="Project: 'prag', 'eval' Default='prag'")
+    parser.add_argument('--file',    '-f', default='samples_list.csv', help="List of samples with Case information")
+    parser.add_argument('--project', '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return parser.parse_args()
