@@ -267,10 +267,15 @@ def main(args):
         # Collect metrics for this biosample
         #
         metrics_file = f"{data_dir}/{biosample}/germline_seq/{biosample}.metrics.json"
-        with open(metrics_file, 'r') as fh:
-            metrics = json.load(fh)['Attributes']['illumina_dragen_complete_v0_4']
-        samples_metrics[biosample] = metrics
-        logging.info(f"Collected metrics for {biosample}")
+        try:
+            with open(metrics_file, 'r') as fh:
+                metrics = json.load(fh)['Attributes']['illumina_dragen_complete_v0_4']
+        except Exception as e:
+            logging.warn(f"While opening file {metrics_file} for {biosample}, got ERROR: {e}")
+            samples_metrics[biosample] = None
+        else:
+            samples_metrics[biosample] = metrics
+            logging.info(f"Collected metrics for {biosample}")
 
         # Collect family information from Nanuq for biosample (to build Case)
         #
