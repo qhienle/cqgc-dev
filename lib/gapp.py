@@ -7,6 +7,7 @@ Hub (BSSH).
 """
 
 import sys, os, warnings
+import logging
 import re
 import json
 import requests
@@ -49,6 +50,57 @@ class Configurator:
             self.phenotips_server = self.configs['X-Gene42-Server']
             self.phenotips_auth   = self.configs['X-Gene42-Auth']
             self.phenotips_secret = self.configs['X-Gene42-Secret']
+
+            # Configurations for REDCap
+            #
+            self.redcap_server = self.configs['REDCap-Server']
+            self.redcap_token  = self.configs['REDCap-Token']
+
+
+class REDCap:
+    """
+    Return object for [REDCap](https://tacc-redcap.bic.mni.mcgill.ca/) API
+    """
+    def __init__(self, config_file=os.path.expanduser("~/.illumina/gapp_conf.json")):
+        """
+        Load settings from config_file, if provided. Define instance vars to
+        provide more readable access to settings in dict "configs".
+        """
+        configs     = Configurator()
+        self.server = configs.redcap_server
+        self.token  = configs.redcap_token
+
+    def get_patient(self, q1k_id):
+        """
+        Get REDCap record_id for patient by `q1k_id`.
+        - q1k_id: [str] of the following format e.g.: Q1K_HSJ_10050_P.
+        - Returns [str] e.g.: '50', or None (error).
+        """
+        filterLogic = '[q1k_proband_id_1]="' + q1k_id + '" or [q1k_relative_idgenerated_1]="' + q1k_id + '"'
+        data = {
+            'token': self.token,
+            'content': 'record',
+            'action': 'export',
+            'format': 'json',
+            'type': 'flat',
+            'csvDelimiter': '',
+            'fields[0]': 'record_id',
+            'rawOrLabel': 'raw',
+            'rawOrLabelHeaders': 'raw',
+            'exportCheckboxLabel': 'false',
+            'exportSurveyFields': 'false',
+            'exportDataAccessGroups': 'false',
+            'returnFormat': 'json',
+            'filterLogic': filterLogic
+        }
+        r = requests.post(self.server, data=data)
+        if r.status_code == 200:
+            return r.json()[0]['record_id']
+        else:
+            logging.error('HTTP Status: ' + str(r.status_code))
+            logging.debug(json.dumps(r.json(), indent=2))
+            return None
+
 
 
 class Phenotips:
