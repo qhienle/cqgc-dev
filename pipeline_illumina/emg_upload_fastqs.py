@@ -54,7 +54,8 @@ __version__ = "0.1"
 project_ids = {'CHUSJ': '3703702', 
                'CHUS' : '3703703', 
                'CHUQ' : '4714713', 
-               'CUSM' : '5412410'}
+               'CUSM' : '5412410',
+               'Q1K'  : '6197214'}
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Upload FASTQ files to BaseSpace. for a given Run.")
