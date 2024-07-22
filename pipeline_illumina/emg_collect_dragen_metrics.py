@@ -286,7 +286,7 @@ def main(args):
     #
     df_samples_families = pd.DataFrame(samples_families)
     df_samples_families = df_samples_families.sort_values(by=['family_id', 'relation'], ascending=[True, False])
-    df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='%d/%m/%Y')
+    df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='mixed') # format='%d/%m/%Y')
     df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y%m%d')
     df_samples_families['flowcell'] = args.run
     df_samples_families.to_csv('samples_list.csv', index=None)
