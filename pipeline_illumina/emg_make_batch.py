@@ -299,6 +299,7 @@ def main(args):
     1. Add BaseSpace FASTQ file paths for each sample
     2. Get the corresponding HPO Identifiers and add HPO terms
     3. Use case PID instead of surname to sort and connect family members.
+    4. Add storage provider and label ID's based on project
     Return a CSV file to be used as input for Emedgene's batch upload script.
 
     TODO: Check how QUADs are handled 
@@ -312,7 +313,7 @@ def main(args):
     df_samples_list = pd.read_csv(args.file)
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
-    print(f"\n#  Log run {','.join(df_samples_list['flowcell'].unique())}\n")
+    print(f"\n# Log run {','.join(df_samples_list['flowcell'].unique())}\n")
 
 
     # 1. Add BaseSpace FASTQ file paths for each sample
@@ -338,14 +339,31 @@ def main(args):
     else:
         logging.warn(f"Project '{args.project}' is not defined")
 
+
     # 3. Use case PID instead of surname to sort and connect family members.
     #
     logging.info(f"Sorting samples by families")
 
+
+    # 4. Add storage provider and label ID's based on project
+    #
+    logging.info(f"Add storage provider and label ID's based for project {args.project}")
+    
+    # "Storage Provider ID" for BaseSpace and "Label ID" change according to 
+    # the project domain (Organization) we're logged into. Dict to set the IDs
+    # based on `args.project`
+    # Maybe this should be in the configuration file?
+    #
+    projects_ids = {
+        'eval': {'storage_id': '10123', 'label_ids': {'CHUS': '14', 'CHUSJ': '15', 'CHUQ': '16', 'CUSM': '17'}},
+        'prag': {'storage_id': '10126', 'label_ids': {'CHUS': '12', 'CHUSJ': '13', 'CHUQ': '14', 'CUSM': '15'}},
+        'q1k' : {'storage_id': '10219', 'label_ids': {'CHUSJ': '1'}},
+        'aoh' : {'storage_id': '10220', 'label_ids': {'CHUSJ': '1'}}
+    }
+
     # Return a CSV file to be used as input for Emedgene's batch upload script
     #
     logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
-
     logging.info(f"Done.\n")
 
 
