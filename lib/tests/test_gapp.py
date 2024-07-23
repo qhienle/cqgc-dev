@@ -48,9 +48,9 @@ class TestREdCap(unittest.TestCase):
         self.assertIsNotNone(self.red.token)
 
     def test_get_patient(self):
-        foo = self.red.get_patient('Q1K_HSJ_10050_P')
-        self.assertEqual(foo, '50', 'REDCap record_id for patient should be 50')
-        self.assertIsInstance(foo, str)
+        foo = self.red.get_record_id('Q1K_HSJ_10050_P')
+        self.assertEqual(foo, '50', 'REDCap record_id for patient "Q1K_HSJ_10050_P" should be "50"')
+        self.assertIsInstance(foo, str, 'record_id should be an instance of `str`')
 
     def tearDown(self):
         pass

@@ -70,7 +70,7 @@ class REDCap:
         self.server = configs.redcap_server
         self.token  = configs.redcap_token
 
-    def get_patient(self, q1k_id):
+    def get_record_id(self, q1k_id):
         """
         Get REDCap record_id for patient by `q1k_id`.
         - q1k_id: [str] of the following format e.g.: Q1K_HSJ_10050_P.
@@ -101,6 +101,15 @@ class REDCap:
             logging.debug(json.dumps(r.json(), indent=2))
             return None
 
+    def get_hpos(self, q1k_id):
+        """
+        Get HPO terms for `q1k_id`.
+        - q1k_id: [str] of the following format e.g.: Q1K_HSJ_10050_P.
+        - Returns [list] e.g.: '50', or None (error).
+        """
+        record_id = self.get_record_id(q1k_id)
+        hpos = f"REDCAP Record ID for {q1k_id} is {record_id}"
+        return hpos
 
 
 class Phenotips:

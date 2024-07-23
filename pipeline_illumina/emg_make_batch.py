@@ -188,10 +188,9 @@ def add_hpos_redcap(sample_name):
     - sample_name : [str] Q1K sample name. Ex: 'Q1K_HSJ_10050_P'
     - Returns     : [str] Semi-column-spearated list of hpo identifiers
     """
-    hpos = []
     red  = REDCap()
-    red.get_patient(sample_name)
-    return ';'.join(hpos)
+    hpos = red.get_hpos(sample_name)
+    return hpos # TODO
 
 
 def add_hpos_aoh():
@@ -345,7 +344,6 @@ def main(args):
 
     # Return a CSV file to be used as input for Emedgene's batch upload script
     #
-    #df_to_manifest(df_samples_list)
     logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
 
     logging.info(f"Done.\n")
