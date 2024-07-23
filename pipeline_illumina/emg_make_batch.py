@@ -5,8 +5,26 @@ Make a batch file for Case creation in Emedgene from list of samples.
 USAGE: emg_make_batch_from_nanuq.py --file samples_list.csv
        emg_make_batch_from_nanuq.py --help
 
-List of samples can either be the "SampleNames.txt" downloaded from Nanuq, or a one-
-column listing of CQGC IDs.
+List of samples can either be the "SampleNames.txt" downloaded from Nanuq, 
+or a one-column listing of CQGC IDs.
+
+Credentials to access Emedgene, Phenotips and REDCap should be stored in a 
+configuration file in JSON format. The default `gapp_conf.json` must contain:
+
+{
+    "instance"         : "cac1.trusight.illumina.com",
+    "X-ILMN-Domain"    : "chusj",
+    "X-ILMN-Workgroup" : "<replace_with_your_hash_key>",
+    "X-Auth-Token"     : "APIKey <replace_with_your_hash_key>",
+    "testDefinitionId" : "<replace_with_your_hash_key>",
+    "bs_apiServer"     : "https://api.cac1.sh.basespace.illumina.com",
+    "bs_accessToken"   : "<replace_with_your_hash_key>",
+    "X-Gene42-Server"  : "https://chusj.phenotips.com",
+    "X-Gene42-Auth"    : "Basic replace_with_your_hash_key",
+    "X-Gene42-Secret"  : "<replace_with_your_hash_key>",
+    "REDCap-Server"    : "https://tacc-redcap.bic.mni.mcgill.ca/api/",
+    "REDCap-Token"     : "<replace_with_your_hash_key>"
+}
 
 Nanuq username and password have be saved in a file named '~/.nanuq', like so:
 `echo "j_username=USERNAME&j_password=PASSWORD&toto=1" > ~/.nanuq`
@@ -28,6 +46,7 @@ import pandas as pd
 src_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(src_path)
 from lib.gapp import Phenotips
+from lib.gapp import REDCap
 from lib.gapp import BSSH
 
 __version__ = "0.1"
@@ -161,6 +180,22 @@ def add_hpos_phenotips(ep, mrn):
         labels_str = ';'.join(hpo_labels)
 
     return(pid, labels_str, ids_str)
+
+
+def add_hpos_redcap(sample_name):
+    """
+    Lookup HPO identifiers from REDCap for `sample_name`.
+    - sample_name : [str] Q1K sample name. Ex: 'Q1K_HSJ_10050_P'
+    - Returns     : [str] Semi-column-spearated list of hpo identifiers
+    """
+    hpos = []
+    red  = REDCap()
+    red.get_patient(sample_name)
+    return ';'.join(hpos)
+
+
+def add_hpos_aoh():
+    pass
 
 
 def df_to_manifest(df):

@@ -53,14 +53,16 @@ Pour les services Emedgene, Phenotips et BSSH, il faut créer un fichier texte d
     {
         "instance"         : "cac1.trusight.illumina.com",
         "X-ILMN-Domain"    : "chusj",
-        "X-ILMN-Workgroup" : "TOKEN",
-        "X-Auth-Token"     : "APIKey <TOKEN>",
-        "testDefinitionId" : "TOKEN",
+        "X-ILMN-Workgroup" : "<replace_with_your_hash_key>",
+        "X-Auth-Token"     : "APIKey <replace_with_your_hash_key>",
+        "testDefinitionId" : "<replace_with_your_hash_key>",
         "bs_apiServer"     : "https://api.cac1.sh.basespace.illumina.com",
-        "bs_accessToken"   : "TOKEN",
+        "bs_accessToken"   : "<replace_with_your_hash_key>",
         "X-Gene42-Server"  : "https://chusj.phenotips.com",
-        "X-Gene42-Auth"    : "Basic <TOKEN>",
-        "X-Gene42-Secret"  : "TOKEN"
+        "X-Gene42-Auth"    : "Basic replace_with_your_hash_key",
+        "X-Gene42-Secret"  : "<replace_with_your_hash_key>",
+        "REDCap-Server"    : "https://tacc-redcap.bic.mni.mcgill.ca/api/",
+        "REDCap-Token"     : "<replace_with_your_hash_key>"
     }
 
 Un exemple de fichier est disponible sur [l'espace PrivateDoc dans GitHub](https://github.com/CQGC-Ste-Justine/PrivateDoc/blob/0f59d674fd5d91ca5da7880ab55cd753ad324203/gapp_conf.json).
