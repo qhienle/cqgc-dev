@@ -62,8 +62,9 @@ project_ids = {'CHUSJ': '3703702',
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Upload FASTQ files to BaseSpace. for a given Run.")
-    parser.add_argument('--file',    '-f', default="samples_list.csv", help="Get samples from file. Default='samples_list.csv'.")
-    parser.add_argument('--project', '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
+    parser.add_argument('--file',     '-f', default="samples_list.csv", help="Get samples from file. Default='samples_list.csv'.")
+    parser.add_argument('--data-dir', '-d', default="fastq", help="Get FASTQs from --data-dir. Default='fastq folder'.")
+    parser.add_argument('--project',  '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
@@ -112,7 +113,10 @@ def main(args):
     #
     for row in df.itertuples():
         logging.info(f"List FASTQs for biosample={row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
-        fastqdir = f"/staging/hiseq_raw/{row.flowcell.split('_')[1]}/{row.flowcell}/Analysis/1/Data/DragenGermline/fastq"
+        if args.data_dir is not None:
+            fastqdir = args.fastq_dir
+        else:
+            fastqdir = f"/staging/hiseq_raw/{row.flowcell.split('_')[1]}/{row.flowcell}/Analysis/1/Data/DragenGermline/fastq"
         os.chdir(fastqdir)
 
         # glob() does not create ordered list of files, so we sort()for `bs`
