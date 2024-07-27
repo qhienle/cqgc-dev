@@ -81,7 +81,7 @@ def list_dragengermline_samples(samplesheet):
             else:
                 if section.startswith('[DragenGermline_Data]'):
                     cols = line.split(',')
-                    if not line.startswith('Sample_ID') and len(cols) > 1:
+                    if not line.startswith('Sample_ID') and len(cols) >= 1:
                         samples.append(cols[0])
     return samples
 
