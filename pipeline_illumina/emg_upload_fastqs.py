@@ -114,7 +114,7 @@ def main(args):
     for row in df.itertuples():
         logging.info(f"List FASTQs for biosample={row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
         if args.data_dir is not None:
-            fastqdir = args.fastq_dir
+            fastqdir = args.data_dir
         else:
             fastqdir = f"/staging/hiseq_raw/{row.flowcell.split('_')[1]}/{row.flowcell}/Analysis/1/Data/DragenGermline/fastq"
         os.chdir(fastqdir)
