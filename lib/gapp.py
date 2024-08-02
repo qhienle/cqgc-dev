@@ -101,7 +101,7 @@ class REDCap:
             logging.debug(json.dumps(r.json(), indent=2))
             return None
 
-    def get_hpos(self, q1k_id):
+    def get_hpo(self, q1k_id):
         """
         Get HPO terms for `q1k_id`.
         - q1k_id: [str] of the following format e.g.: Q1K_HSJ_10050_P.
