@@ -42,15 +42,19 @@ class TestPhenotips(unittest.TestCase):
 class TestREdCap(unittest.TestCase):
     def setUp(self):
         self.red  = REDCap()
+        self.sample = 'Q1K_HSJ_10050_P'
     
     def test_init_redcap(self):
         self.assertIsNotNone(self.red.server)
         self.assertIsNotNone(self.red.token)
 
-    def test_get_patient(self):
+    def test_get_record_id(self):
         foo = self.red.get_record_id('Q1K_HSJ_10050_P')
         self.assertEqual(foo, '50', 'REDCap record_id for patient "Q1K_HSJ_10050_P" should be "50"')
         self.assertIsInstance(foo, str, 'record_id should be an instance of `str`')
+
+    def test_get_hpo(self):
+        self.assertIsInstance(self.red.get_hpo(self.sample), str, 'record_id should be an instance of `str`')
 
     def tearDown(self):
         pass

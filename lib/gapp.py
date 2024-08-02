@@ -93,12 +93,12 @@ class REDCap:
             'returnFormat': 'json',
             'filterLogic': filterLogic
         }
-        r = requests.post(self.server, data=data)
-        if r.status_code == 200:
-            return r.json()[0]['record_id']
+        response = requests.post(self.server, data=data)
+        if response.status_code == 200:
+            return response.json()[0]['record_id']
         else:
-            logging.error('HTTP Status: ' + str(r.status_code))
-            logging.debug(json.dumps(r.json(), indent=2))
+            logging.error('HTTP Status: ' + str(response.status_code))
+            logging.debug(json.dumps(response.json(), indent=2))
             return None
 
     def get_hpo(self, q1k_id):
@@ -107,9 +107,28 @@ class REDCap:
         - q1k_id: [str] of the following format e.g.: Q1K_HSJ_10050_P.
         - Returns [list] e.g.: '50', or None (error).
         """
+        hpos = []
         record_id = self.get_record_id(q1k_id)
-        hpos = f"REDCAP Record ID for {q1k_id} is {record_id}"
-        return hpos
+        data = {
+            'token': self.token,
+            'content': 'record', # required
+            'action': 'export',  # default? Not required
+            'format': 'json',    # required
+            'rawOrLabel': 'raw', # 'label' will return HPO Label instead of HPO ID
+            'events[0]': 'direct_assessment_arm_1', # Get all events if not provided
+            'records[0]': record_id #,
+            # 'fields[n]' NOT specified seem to return all fields
+            # 'fields[0]': 'record_id', # to include record_id in the json output
+            # 'fields[1]': 'ghf_vis_hpo_1', (...) 'fields[9]': 'ghf_dely_gmd_hpo'
+        }
+        response = requests.post('https://tacc-redcap.bic.mni.mcgill.ca/api/',data=data)
+        if response.status_code == 200:
+            for value in response.json()[0].values():
+                hpos.append(value) if value.startswith('HP:') else None
+        else:
+            logging.error('REDCap.get_hpo() HTTP Status: ' + str(response.status_code))
+            logging.debug(json.dumps(response.json(), indent=2))
+        return ';'.join(hpos)
 
 
 class Phenotips:
