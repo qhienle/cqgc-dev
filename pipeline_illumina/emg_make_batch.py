@@ -189,8 +189,7 @@ def add_hpos_redcap(sample_name):
     - Returns     : [str] Semi-column-spearated list of hpo identifiers
     """
     red  = REDCap()
-    hpos = red.get_hpos(sample_name)
-    return hpos # TODO
+    return red.get_hpo(sample_name)
 
 
 def add_hpos_aoh():
@@ -328,14 +327,14 @@ def main(args):
     #
     logging.info(f"Fetching HPO terms for project '{args.project}'")
     if args.project == 'prag' or args.project == 'eval':
-        # HPO terms are stored in Phenotips. 
+        # HPO terms are stored in Phenotips for project PRAG. 
         # Also grab 'PID', which will populate 'Clinical Notes'
         #
         df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[2] if row.status == 'AFF' else '', axis=1)
         df_samples_list['pid']  = df_samples_list.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[0] if row.status == 'AFF' else '', axis=1)
         logging.debug(f"Subset of DataFrame to show PIDs and HPO terms:\n{df_samples_list[['biosample', 'sample_name', 'status', 'pid', 'hpos']]}")
     elif args.project == 'q1k':
-        # HPO terms are stored in REDCap.
+        # HPO terms are stored in REDCap for project Q1K.
         # add_hpos_redcap(sample_name) returns a semi-column-separated list of HPO terms.
         #
         df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_redcap(row.sample_name) if row.status == 'AFF' else '', axis=1)

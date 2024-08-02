@@ -49,12 +49,17 @@ class TestREdCap(unittest.TestCase):
         self.assertIsNotNone(self.red.token)
 
     def test_get_record_id(self):
-        foo = self.red.get_record_id('Q1K_HSJ_10050_P')
+        foo = self.red.get_record_id(self.sample)
         self.assertEqual(foo, '50', 'REDCap record_id for patient "Q1K_HSJ_10050_P" should be "50"')
         self.assertIsInstance(foo, str, 'record_id should be an instance of `str`')
 
-    def test_get_hpo(self):
+    def test_get_hpo_is_str(self):
         self.assertIsInstance(self.red.get_hpo(self.sample), str, 'record_id should be an instance of `str`')
+    
+    def test_get_hpo_equals_10(self):
+        hpos_str = self.red.get_hpo('Q1K_HSJ_100123_P')
+        num_hpos = len(hpos_str.split(';'))
+        self.assertEqual(num_hpos, 10, 'Patient "Q1K_HSJ_10050_P" should have 10 HPO terms!')
 
     def tearDown(self):
         pass
