@@ -335,6 +335,13 @@ def main(args):
         df_samples_list['pid']  = df_samples_list.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[0] if row.status == 'AFF' else '', axis=1)
         logging.debug(f"Subset of DataFrame to show PIDs and HPO terms:\n{df_samples_list[['biosample', 'sample_name', 'status', 'pid', 'hpos']]}")
     elif args.project == 'q1k':
+        # HPO terms are stored in REDCap.
+        # add_hpos_redcap(sample_name) returns a semi-column-separated list of HPO terms.
+        #
+        df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_redcap(row.sample_name) if row.status == 'AFF' else '', axis=1)
+    elif args.project == 'aoh':
+        # HPO terms are fixed.
+        #
         pass
     else:
         logging.warn(f"Project '{args.project}' is not defined")
