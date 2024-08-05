@@ -186,7 +186,7 @@ def add_hpos_redcap(sample_name):
     """
     Lookup HPO identifiers from REDCap for `sample_name`.
     - sample_name : [str] Q1K sample name. Ex: 'Q1K_HSJ_10050_P'
-    - Returns     : [str] Semi-column-spearated list of hpo identifiers
+    - Returns     : [str] HPO identifiers, separated by semi-columns
     """
     red  = REDCap()
     return red.get_hpo(sample_name)
