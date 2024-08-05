@@ -124,7 +124,7 @@ def add_hpos(ep, mrn):
     # Fix malformed entries.
     #
     if ep == 'CHUSJ':
-        mrn = mrn.lstrip('0')
+        mrn = mrn.lstrip('0') # Why is MRN for CHUSJ preceded by '0'?
     elif ep == 'CHUS':
         pass
     elif ep == 'CHUL':
@@ -147,7 +147,10 @@ def add_hpos(ep, mrn):
     else:
         logging.warning(f"Could not get PID using EP+MRN: {ep_mrn}. Trying with MRN: {mrn}...")
         if ep == 'CHUSJ':
-            patient = pho.get_patient_by_mrn(mrn.lstrip('0')) # Why is MRN for CHUSJ preceded by '0'?
+            patient = pho.get_patient_by_mrn(mrn) 
+            if patient is None:
+                logging.warning(f"Could not get PID using MRN: {mrn}. Trying with HSJ+MRN: HSJ{mrn}...")
+                patient = pho.get_patient_by_mrn(f"HSJ{mrn}")
         else:
             patient = pho.get_patient_by_mrn(mrn)
         if patient is not None:
