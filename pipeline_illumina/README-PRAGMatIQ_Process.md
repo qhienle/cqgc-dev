@@ -106,6 +106,10 @@ export WORKDIR="/mnt/spxp-app02/staging2/dragen"
 
 Les informations sur la constitution des familles ("Case") sont centralisées dans Nanuq. La commande suivante permet de récupérer la liste des échantillons sur la _Run_ et de fournir les données nécessaires à la création de cas dans Emedgene, incluant les termes HPOs associées aux patients dans la base de données [Phenotips](https://chusj.phenotips.com//). Avec le NoveSeqX, il est également possible de générer les alignements localement et de récupérer les métriques pour faire approuver les échantillons avant que ceux-ci soient soumis aux analyses dans Emedgene.
 
+***_N.B._***:
+- Si le séquençage est réalisé avec le NovaSeq6000, il ne sera malheureusement pas possible de récupérer les métriques avant de créer les cas dans Emedgene. Dans ce cas, il faut s'assurer que le labo a demandé au NovaSeq6000 de faire la déconvolution sur BaseSpace et passer à l'étape 3, "créer les cas sur Emedgene", une fois que les FASTQs ont été générés (suivi sur l'onglet [Analyses](https://chusj.cac1.sh.basespace.illumina.com/analyses)). 
+- Dans la situation où la déconvolution n'a pas lieu sur BaseSpace, il faut déconvoluer les BCLs avec les serveurs DRAGEN du CQGC et envoyer les FASTQs résultants sur BaseSpace (passer à l'étape 2, "Téléverser les FASTQs sur BaseSpace").
+
 ```bash
 cd ${WORKDIR}
 python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_dragen_metrics.py ${FC}
