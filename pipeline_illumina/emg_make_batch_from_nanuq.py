@@ -320,9 +320,8 @@ def print_case_by_case(df):
     for case in df['Family Id'].unique():
         df_tmp = df[df['Family Id'] == case]
         pid    = df_tmp['pid'].tolist()[0]
-        cohort = df_tmp['cohort_type'].tolist()[0]
         site   = df_tmp['label'].tolist()[0]
-        print(f"============ {pid} | {case} | {site} | {cohort} ============\n")
+        print(f"============ {pid} | {case} | {site} ============\n")
         print(df_tmp[['pid', 'sample_name', 'biosample', 'relation', 'gender', 'date_of_birth(YYYY-MM-DD)', 'status']].to_string(index=False))
         hpo_terms = df_tmp[df_tmp['relation'] == 'PROBAND']['hpos']
         print(f"HPO Terms: {','.join(hpo_terms)}\n\n")
