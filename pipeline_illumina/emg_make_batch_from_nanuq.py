@@ -460,7 +460,7 @@ def main(args):
     df = pd.DataFrame(cases)
     df.columns = ['sample_name', 'biosample', 'relation', 'gender', 'label', 
                   # 'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
-                  'mrn', 'cohort_type', 'date_of_birth(YYYY-MM-DD)', 'status',
+                  'mrn', 'date_of_birth(YYYY-MM-DD)', 'status',
                   'Family Id', 'pid', 'phenotypes', 'hpos', 'filenames']
     df['fc_date'] = fc_date
     logging.info(f"Add column for flowcell date {fc_date}")
