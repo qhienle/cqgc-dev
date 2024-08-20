@@ -417,7 +417,7 @@ def main(args):
                 data[0]["patient"]["sex"],
                 data[0]["patient"]["ep"],
                 data[0]["patient"]["mrn"],
-                data[0]["patient"]["designFamily"],
+                # data[0]["patient"]["designFamily"],
                 data[0]["patient"]["birthDate"],
                 data[0]["patient"]["status"],
                 data[0]["patient"].get("familyId", "-")
