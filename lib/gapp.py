@@ -56,6 +56,13 @@ class Configurator:
             self.redcap_server = self.configs['REDCap-Server']
             self.redcap_token  = self.configs['REDCap-Token']
 
+            # Configurations for Emedgene
+            #
+            self.emg_username    = self.configs['EMG-Username']
+            self.emg_password    = self.configs['EMG-Password']
+            self.emg_prag_server = self.configs['EMG-PRAG-Server']
+            self.emg_eval_server = self.configs['EMG-EVAL-Server']
+
 
 class REDCap:
     """
@@ -599,6 +606,35 @@ class BSSH:
                 fastqs.append(fastq)
 
         return fastqs 
+
+
+class Emedgene:
+    """
+    Return object for interacting with Emedgene's API
+    """
+    def __init__(self, config_file=os.path.expanduser("~/.illumina/gapp_conf.json")):
+        """
+        Load settings from config_file, if provided. Define instance vars to
+        provide more readable access to settings in dict "configs".
+        """
+        configs          = Configurator()
+        self.username    = configs.emg_username
+        self.password    = configs.emg_password
+        self.prag_server = configs.emg_prag_server
+        self.eval_server = configs.emg_eval_server
+
+    def authenticate(self):
+        """
+        Returns an authorization token.
+        N.B. The Authorization header expires after 8H, after that, requests 
+        will return an error code 403. To resolve, re-do the Login procedure to
+        get a new token.
+        """
+        url      = f"{self.prag_server}/api/auth/api_login/"
+        payload  = f'{{"username": "{self.username}", "password": "{self.password}"}}'
+        headers  = {'Content-Type': 'application/json'}
+        response = requests.request("POST", url, headers=headers, data=payload)
+        return response.json()["Authorization"]
 
 
 def test():
