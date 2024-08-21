@@ -9,6 +9,7 @@ sys.path.append(os.path.dirname(LIB_DIR))
 from gapp import Configurator
 from gapp import Phenotips
 from gapp import REDCap
+from gapp import Emedgene
 
 
 class TestConfigurator(unittest.TestCase):
@@ -60,6 +61,24 @@ class TestREdCap(unittest.TestCase):
         hpos_str = self.red.get_hpo('Q1K_HSJ_100123_P')
         num_hpos = len(hpos_str.split(';'))
         self.assertEqual(num_hpos, 10, 'Patient "Q1K_HSJ_10050_P" should have 10 HPO terms!')
+
+    def tearDown(self):
+        pass
+
+
+class TestEmedgene(unittest.TestCase):
+    def setUp(self):
+        self.emg = Emedgene()
+
+    def test_init_emedgene(self):
+        self.assertIsNotNone(self.emg.username)
+        self.assertIsNotNone(self.emg.password)
+        self.assertIsNotNone(self.emg.prag_server)
+        self.assertIsNotNone(self.emg.eval_server)
+
+    def test_authenticate_emedgene(self):
+        auth = self.emg.authenticate()
+        self.assertIsNotNone(auth)
 
     def tearDown(self):
         pass
