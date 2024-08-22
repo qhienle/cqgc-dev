@@ -2,8 +2,11 @@
 """
 Make a batch file for Case creation in Emedgene from list of samples.
 
-USAGE: emg_make_batch_from_nanuq.py --file samples_list.csv
-       emg_make_batch_from_nanuq.py --help
+[2024-08-22] IN PROGRESS: This script is meant to replace emg_make_batch.py and
+to work for projects PRAG, AOH and Q1K.
+
+USAGE: emg_make_batch.py --file samples_list.csv
+       emg_make_batch.py --help
 
 List of samples can either be the "SampleNames.txt" downloaded from Nanuq, 
 or a one-column listing of CQGC IDs.
@@ -14,16 +17,20 @@ configuration file in JSON format. The default `gapp_conf.json` must contain:
 {
     "instance"         : "cac1.trusight.illumina.com",
     "X-ILMN-Domain"    : "chusj",
-    "X-ILMN-Workgroup" : "<replace_with_your_hash_key>",
-    "X-Auth-Token"     : "APIKey <replace_with_your_hash_key>",
-    "testDefinitionId" : "<replace_with_your_hash_key>",
+    "X-ILMN-Workgroup" : "42948014-b206-320d-b304-1af26fc98af3",
+    "X-Auth-Token"     : "APIKey *#u37t_5KmQ4FWGfBl)Y)1",
+    "testDefinitionId" : "278b1d65-4cad-44e1-89d6-425c26564380",
     "bs_apiServer"     : "https://api.cac1.sh.basespace.illumina.com",
-    "bs_accessToken"   : "<replace_with_your_hash_key>",
+    "bs_accessToken"   :  "91f1679effd44db299dea79fb59b7c68",
     "X-Gene42-Server"  : "https://chusj.phenotips.com",
-    "X-Gene42-Auth"    : "Basic replace_with_your_hash_key",
-    "X-Gene42-Secret"  : "<replace_with_your_hash_key>",
+    "X-Gene42-Auth"    : "Basic Q0hVU0pQcm9kQVBJVXNlcjpKZWVjNGtvaDl1dWNlNGtvbmdlaQo=",
+    "X-Gene42-Secret"  : "LstKPNP7XPXVYqq29qSh7MPpbCqB3dAYvoQpE7C4DHzo9tnz",
     "REDCap-Server"    : "https://tacc-redcap.bic.mni.mcgill.ca/api/",
-    "REDCap-Token"     : "<replace_with_your_hash_key>"
+    "REDCap-Token"     : "F9A026E6BFA450497654BAF50BFB47C6",
+    "EMG-Username"     : "cqgc.bioinfo.hsj@ssss.gouv.qc.ca",
+    "EMG-Password"     : "3175Cote-Ste-Catherine",
+    "EMG-PRAG-Server"  : "https://chusaintejustine.emedgene.com",
+    "EMG-EVAL-Server"  : "https://stejustine.emedgene.com"
 }
 
 Nanuq username and password have be saved in a file named '~/.nanuq', like so:
