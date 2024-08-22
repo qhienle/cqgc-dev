@@ -117,7 +117,6 @@ def get_nanuq_sample_data(cqgc_id):
             'gender'     : data[0]["patient"]["sex"],
             'ep_label'   : data[0]["patient"]["ep"],
             'mrn'        : data[0]["patient"]["mrn"],
-            'cohort_type': data[0]["patient"]["designFamily"],
             'status'     : data[0]["patient"]["status"],
             'family_id'  : data[0]["patient"].get("familyId", "-"),
             'birthdate'  : data[0]["patient"]["birthDate"]
