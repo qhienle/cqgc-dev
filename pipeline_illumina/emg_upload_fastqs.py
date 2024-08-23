@@ -63,7 +63,7 @@ project_ids = {'CHUSJ': '3703702',
 def parse_args():
     parser = argparse.ArgumentParser(description="Upload FASTQ files to BaseSpace. for a given Run.")
     parser.add_argument('--file',     '-f', default="samples_list.csv", help="Get samples from file. Default='samples_list.csv'.")
-    parser.add_argument('--data-dir', '-d', default="fastq", help="Get FASTQs from --data-dir. Default='fastq folder'.")
+    parser.add_argument('--data-dir', '-d', help="Get FASTQs from --data-dir. Default='fastq folder'.")
     parser.add_argument('--project',  '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
