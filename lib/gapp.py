@@ -630,11 +630,36 @@ class Emedgene:
         will return an error code 403. To resolve, re-do the Login procedure to
         get a new token.
         """
+        # TODO: Add different domain servers
         url      = f"{self.prag_server}/api/auth/api_login/"
         payload  = f'{{"username": "{self.username}", "password": "{self.password}"}}'
         headers  = {'Content-Type': 'application/json'}
         response = requests.request("POST", url, headers=headers, data=payload)
         return response.json()["Authorization"]
+
+    def get_emg_id(self, sample):
+        """
+        Returns EMG identifier for Sample
+        - `sample`: Sample Names (ex.: GM232823, 24-00666-T1, MO-24-003708,...)
+        - Returns : [str] ex.: EMG107903188, None (not found) or HTTPErrorCode
+        """
+        # TODO: Add different domain servers
+        url = f"{self.prag_server}/api/sample/?query={sample}&sampleType=fastq"
+        resp = requests.get(url, headers={'Authorization': self.authenticate()})
+        if resp.status_code == 200:
+            if resp.json()['total'] == 1:
+                return resp.json()['hits'][0]['note']
+            elif resp.json()['total'] == 0:
+                return None
+            else:
+                logging.warning(f"More than one result found: {resp.json()['total']}")
+                return resp.json()
+        elif resp.status_code == 401 or resp.status_code == 403:
+            logging.warning(f"Unauthorized: please authenticate yourself")
+            return resp.status_code
+        else:
+            logging.warning(f"While fetching EMG ID, got the HTTP Error Code: [{resp.status_code}]\n{resp.text}")
+            return resp.status_code
 
 
 def test():

@@ -78,7 +78,11 @@ class TestEmedgene(unittest.TestCase):
 
     def test_authenticate_emedgene(self):
         auth = self.emg.authenticate()
-        self.assertIsNotNone(auth)
+        self.assertIsInstance(auth, str, '`auth key must be instance of str`')
+        self.assertTrue(auth.startswith('Bearer '))
+
+    def test_get_emg_id_GM221763(self):
+        self.assertEqual(self.emg.get_emg_id('GM221763'), 'EMG398184424')
 
     def tearDown(self):
         pass
