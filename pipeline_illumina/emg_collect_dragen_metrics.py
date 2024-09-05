@@ -139,7 +139,7 @@ def write_html_report(df, fc_short):
         layout={
             'yaxis':  {'title': 'Percentage of mapped reads'},
             'yaxis2': {'title': 'Percentage of SNPs (pass)',  'overlaying': 'y', 'side': 'right'},
-            'yaxis3': {'title': 'Number of CNVs (aplifications + deletions)', 'overlaying': 'y', 'side': 'left'},
+            'yaxis3': {'title': 'Number of CNVs (amplifications + deletions)', 'overlaying': 'y', 'side': 'left'},
             'barmode': 'group'
         }
     )
