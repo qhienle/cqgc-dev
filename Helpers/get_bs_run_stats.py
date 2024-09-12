@@ -12,6 +12,7 @@ import argparse
 import logging
 import subprocess
 import json
+import pandas as pd
 
 __version__ = "0.1"
 
@@ -26,7 +27,10 @@ def parse_args():
                         help="[str] Filter for items that are newer than the \
                         given duration, ex: 5m (5 minutes), 12h. Permitted \
                         suffixes are s, m, h, d, w, y. Assumes that run='all'")
-    return(parser.parse_args())
+    parser.add_argument('--logging-level', '-l', dest='level', default='info',
+                        help="Logging level [str]: 'debug', 'info', 'warning'.\
+                        Default='info'")
+    return parser.parse_args()
 
 
 def configure_logging(level):
@@ -63,14 +67,15 @@ def bs_list_runs(run, newer=None):
         bs = subprocess.run(['bs', '-c', 'cac1', 'run', 'list', '--format', 'json', '--filter-term', run],
                             capture_output=True, text=True).stdout
     runs = json.loads(bs)
-    print(f"bs command returned {runs}")    
+    logging.debug(f"bs command returned object {type(runs)} which contains: {runs}")    
     
     # `bs` returns a run as a dict. If more than one is found, we get a list of
     # dicts. For consistency, we always return a list of zero or more dicts.
     #
-    if runs is list:
+    print(f"bs command returned object {type(runs)} which contains: {runs}")    
+    if type(runs) is list:
         return runs
-    elif runs is dict:
+    elif type(runs) is dict:
         return [runs]
     else:
         return []
@@ -78,16 +83,41 @@ def bs_list_runs(run, newer=None):
 
 def main(args):
     """
-    Define Function1, _e.g._ for testing stuff here
-    - arguments:
-    - returns:
+    Main function. See args from parse_args().
     """
+    data = {
+        'Name'          : [],
+        'Id'            : [],
+        'ExperimentName': [],
+        'Clusters'      : [],
+        'ClustersPf'    : [],
+        'ReadsPfTotal'  : [],
+        'ReadsTotal'    : [],
+        'PercentAligned': [],
+        'ErrorRate'     : [],
+        'PercentGtQ30'  : [],
+        'PercentPf'     : []
+    }
     logging.info(f"Listing runs from BaseSpace {args}")
-    print(f"Value for newer is {args.newer}.")
     runs = bs_list_runs(run=args.run, newer=args.newer)
+    logging.debug(f"List of runs: {runs}")
+    print(f"List of runs: {runs}")
     for run in runs:
-        pass
-    
+        data['Name'].append(run['Name'])
+        data['Id'].append(run['Id'])
+        data['ExperimentName'].append(run['ExperimentName'])
+        data['Clusters'].append(run['SequencingStats']['Clusters'])
+        data['ClustersPf'].append(run['SequencingStats']['ClustersPf'])
+        data['ReadsPfTotal'].append(run['SequencingStats']['ReadsPfTotal'])
+        data['ReadsTotal'].append(run['SequencingStats']['ReadsTotal'])
+        data['PercentAligned'].append(run['SequencingStats']['PercentAligned'])
+        data['ErrorRate'].append(run['SequencingStats']['ErrorRate'])
+        data['PercentGtQ30'].append(run['SequencingStats']['PercentGtQ30'])
+        data['PercentPf'].append(run['SequencingStats']['PercentPf'])
+
+    print(data)
+    df = pd.DataFrame(data)
+    print(df)
 
 if __name__ == '__main__':
     main(parse_args())
