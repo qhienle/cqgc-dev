@@ -21,21 +21,30 @@ def parse_args():
     """
     parser = argparse.ArgumentParser(description="Get statistics for Runs from BaseSpace")
     parser.add_argument('run', help="Run name or 'all', ex: 20240911_LH00336_0096_B22NJCNLT3 [str, REQUIRED]")
+    parser.add_argument('--newer-than', '-n', 
+                        dest='newer', default='1d', 
+                        help="[str] Filter for items that are newer than the given duration, ex: 5m (5 minutes), 12h. Permitted suffixes are s, m, h, d, w, y. Assumes that run='all'")
     return(parser.parse_args())
 
 
-def bs_list_runs():
+def bs_list_runs(run, newer=None):
     """
     Get statistics from BaseSpace using `bs`
-    - arguments:
-    - returns:
+    - run:     [str] Run name, or all
+    - newer:   [str] Filter items that are newer than [str]. See parse_args().
+    - returns: [list]
     """
-    run_json = json.loads(
+    runs_json = json.loads(
         subprocess.run(['bs', '-c', 'cac1', 'run', 'list', '--format', 'json', '--newer-than', '1d'], 
                        capture_output=True, 
                        text=True
                        ).stdout)
-    return run_json
+    if runs_json is list:
+        return runs_json
+    elif runs_json is dict:
+        return [runs_json]
+    else:
+        return []
 
 
 def main(args):
@@ -44,7 +53,8 @@ def main(args):
     - arguments:
     - returns:
     """
-    bs_list_runs()
+    runs_json = bs_list_runs(run=all)
+    print(runs_json)
     return 1
 
 
