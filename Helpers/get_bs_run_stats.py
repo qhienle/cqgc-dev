@@ -13,6 +13,9 @@ import logging
 import subprocess
 import json
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+
 
 __version__ = "0.1"
 
@@ -27,6 +30,7 @@ def parse_args():
                         help="[str] Filter for items that are newer than the \
                         given duration, ex: 5m (5 minutes), 12h. Permitted \
                         suffixes are s, m, h, d, w, y. Assumes that run='all'")
+    parser.add_argument('--report', '-r', action='store_true')
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level [str]: 'debug', 'info', 'warning'.\
                         Default='info'")
@@ -72,23 +76,83 @@ def bs_list_runs(run, newer=None):
     # `bs` returns a run as a dict. If more than one is found, we get a list of
     # dicts. For consistency, we always return a list of zero or more dicts.
     #
-    print(f"bs command returned object {type(runs)} which contains: {runs}")    
     if type(runs) is list:
         return runs
     elif type(runs) is dict:
         return [runs]
     else:
         return []
+    
+    
+def generate_plots(df):
+    """
+    Generate a report that plots the dataset in df
+    - df: [str] a Pandas DataFrame
+    - returns: None, outputs an HTML file
+    """
+    logging.info(f"Generating report")
+    fig = px.scatter(df, x='DateCreated', y=['PercentGtQ30', 'PercentPf'],
+                title=f"Validation metrics for runs")
+    css = """
+            html body {
+                background: #f8f9f9;
+                font-size: 11px;
+            }
+            table { 
+                background: white;
+                width: 100%;
+                max-width: 800px;
+                margin: 50px auto;
+                border-collapse: collapse; 
+                border-spacing: 1; 
+                border-radius: 6px;
+                overflow: hidden;
+                position: relative;
+                font-family: Arial;
+                font-size: 11px;
+            }
+            /* Zebra striping */
+            tr:nth-of-type(odd) { 
+                background: #eee; 
+            }
+            th { 
+                background: #3498db; 
+                color: white; 
+                font-weight: bold; 
+            }
+            td, th { 
+                padding: 10px; 
+                border: 1px solid #ccc; 
+                text-align: left; 
+                font-size: 18px;
+            }
+    """
+    out_html = f"runs_metrics.html"
+    title    = f"Runs Metrics"
+
+    with open(out_html, 'w') as fh:
+        fh.write('<!doctype html>\n<html>\n\t<head>\n')
+        fh.write(f'\t\t<title>{title}</title>\n\t\t<meta charset="UTF-8">\n')
+        fh.write(f'\t\t<style type="text/css">{css}\t\t</style>\n')
+        fh.write('\t</head>\n\t<body>\n')
+        fh.write(f'\t\t<h1>{title}</h1>\n\t\t')
+        fh.write(fig.to_html(full_html=False, include_plotlyjs='cdn'))
+        fh.write(df.to_html(index=False))
+        fh.write('\n\t</body>\n</html>')
+
+    return out_html
 
 
 def main(args):
     """
     Main function. See args from parse_args().
     """
+    logging.info(f"Listing runs from BaseSpace {args}")
     data = {
         'Name'          : [],
         'Id'            : [],
         'ExperimentName': [],
+        'DateCreated'   : [],
         'Clusters'      : [],
         'ClustersPf'    : [],
         'ReadsPfTotal'  : [],
@@ -98,27 +162,36 @@ def main(args):
         'PercentGtQ30'  : [],
         'PercentPf'     : []
     }
-    logging.info(f"Listing runs from BaseSpace {args}")
     runs = bs_list_runs(run=args.run, newer=args.newer)
     logging.debug(f"List of runs: {runs}")
-    print(f"List of runs: {runs}")
     for run in runs:
         data['Name'].append(run['Name'])
         data['Id'].append(run['Id'])
+        data['DateCreated'].append(pd.to_datetime(run['DateCreated']))
         data['ExperimentName'].append(run['ExperimentName'])
-        data['Clusters'].append(run['SequencingStats']['Clusters'])
-        data['ClustersPf'].append(run['SequencingStats']['ClustersPf'])
         data['ReadsPfTotal'].append(run['SequencingStats']['ReadsPfTotal'])
         data['ReadsTotal'].append(run['SequencingStats']['ReadsTotal'])
         data['PercentAligned'].append(run['SequencingStats']['PercentAligned'])
         data['ErrorRate'].append(run['SequencingStats']['ErrorRate'])
         data['PercentGtQ30'].append(run['SequencingStats']['PercentGtQ30'])
         data['PercentPf'].append(run['SequencingStats']['PercentPf'])
-
-    print(data)
+        try:
+            data['Clusters'].append(run['SequencingStats']['Clusters'])
+        except KeyError as err:
+            data['Clusters'].append(None)
+        try:
+            data['ClustersPf'].append(run['SequencingStats']['ClustersPf'])
+        except KeyError as err:
+            data['ClustersPf'].append(None)
+            
     df = pd.DataFrame(data)
+    df['DateCreated'] = df['DateCreated'].dt.strftime('%Y-%m-%d')
     print(df)
+    
+    if args.report:
+        generate_plots(df)
 
+    
 if __name__ == '__main__':
     main(parse_args())
     logging.info("Done.\n")
