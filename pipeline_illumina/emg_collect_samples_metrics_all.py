@@ -262,6 +262,9 @@ def main(args):
     except FileNotFoundError as e:
         logging.error(f"{e}; workdir={workdir}")
 
+    # Create Pandas DataFrames containing various metrics collected by the 
+    # following functions
+    #
     df_metrics   = get_metrics_from_log('')
     df_coverages = get_coverage_metrics('')
     df_cnvs      = count_cnv('')
