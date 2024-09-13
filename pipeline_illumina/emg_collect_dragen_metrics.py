@@ -62,30 +62,6 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def list_dragengermline_samples(samplesheet):
-    """
-    Get list of samples from [DragenGermline] section in Nanuq a SampleSheet
-    - `samplesheet`: [str] path to file SampleSheet.csv.
-    - Returns: [list] of samples
-    """
-    samples = []
-    try:
-        with open(samplesheet, 'r') as fh:
-            content = fh.read().splitlines()
-    except FileNotFoundError as err:
-        logging.error(f"Could not open {samplesheet}: {err}")
-    else:
-        for line in content:
-            if line.startswith('['):
-                section = line
-            else:
-                if section.startswith('[DragenGermline_Data]'):
-                    cols = line.split(',')
-                    if not line.startswith('Sample_ID') and len(cols) >= 1:
-                        samples.append(cols[0]) if line != '' else None
-    return samples
-
-
 def get_nanuq_sample_data(cqgc_id):
     """
     Get from Nanuq family information for biosample `cqgc_id`.
@@ -250,16 +226,15 @@ def main(args):
         os.chdir(work_dir)
 
     # List samples and collect information from Nanuq into "samples_list.csv"
-    # If reading from [DragenGermline] section in the SampleSheet fails, use
-    # list SampleNames from Nanuq
+    # Maybe more precise to list samples from SampleSheet's [DragenGermline]
+    # But not very resilient.
     #
-    # biosamples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
-    # total      = len(biosamples)
-    # if total == 0:
-    logging.warning(f"No DragenGermline samples in SampleSheet. Trying SampleNames...")
+    logging.info(f'Creating "samples_list.csv"')
     biosamples = []
     for tuple in nq.list_samples(fc_short):
         biosamples.append(tuple[0])
+    total = len(biosamples)
+    logging.debug(f"Found {total} samples")
 
     # Collect data from "*.metrics.json" for all the samples into a Pandas 
     # DataFrame. List of samples is taken from [DragenGermline_Data] section of
