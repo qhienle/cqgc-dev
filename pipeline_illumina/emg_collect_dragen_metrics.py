@@ -249,14 +249,23 @@ def main(args):
     finally:
         os.chdir(work_dir)
 
+    # List samples and collect information from Nanuq into "samples_list.csv"
+    # If reading from [DragenGermline] section in the SampleSheet fails, use
+    # list SampleNames from Nanuq
+    #
+    # biosamples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
+    # total      = len(biosamples)
+    # if total == 0:
+    logging.warning(f"No DragenGermline samples in SampleSheet. Trying SampleNames...")
+    biosamples = []
+    for tuple in nq.list_samples(fc_short):
+        biosamples.append(tuple[0])
+
     # Collect data from "*.metrics.json" for all the samples into a Pandas 
     # DataFrame. List of samples is taken from [DragenGermline_Data] section of
     # "SampleSheet.csv". NOTE: SampleSheet from Nanuq GET API doesn't yet have 
     # [DragenGermline_Data] section.
     #
-    biosamples = list_dragengermline_samples(f"{data_dir}/SampleSheet.csv")
-    total      = len(biosamples)
-
     samples_metrics  = {} # {biosample: {metric1: value, metric2: value2, ...}}
     samples_families = [] # [{sample: val, gender: val, relation: val,...}, {...},...]
 
