@@ -186,6 +186,7 @@ def main(args):
             
     df = pd.DataFrame(data)
     df['DateCreated'] = df['DateCreated'].dt.strftime('%Y-%m-%d')
+    df['PercentPf']   = df['PercentPf'] * 100 # Make 'percent' really %
     print(df)
     
     if args.report:
