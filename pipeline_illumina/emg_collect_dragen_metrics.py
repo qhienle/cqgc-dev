@@ -41,6 +41,8 @@ def parse_args():
     parser.add_argument('run', help="Run ID for flowcell, ex: '20240130_LH00336_0009_A22GNV2LT3'")
     parser.add_argument('--data-dir', '-d', dest = 'data_dir', 
                         help="Path to DragenGermline output. Ex: /staging/hiseq_raw/LH00336/20240130_LH00336_0009_A22GNV2LT3/Analysis/1/Data/DragenGermline")
+    parser.add_argument('--samples-list-only', '-s', action='store_true', dest = 'samples_list_only', 
+                        help="Only create the file 'samples_list.csv'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level, can be 'debug', 'info', 'warning'. Default='info' [str]")
     return parser.parse_args()
@@ -210,14 +212,9 @@ def main(args):
     fc_date  = fc_parts[0]
     fc_instr = fc_parts[1]
     fc_short = fc_parts[4]
+    work_dir = f"/staging2/dragen/{fc_short}"
     print(f"# Logging run {fc_parts}")
     
-    if args.data_dir is not None:
-        data_dir = args.data_dir
-    else:
-        # If there is more than one dir under "./Analysis/", use --data-dir"
-        data_dir = f"/staging/hiseq_raw/{fc_instr}/{args.run}/Analysis/1/Data/DragenGermline"
-    work_dir = f"/staging2/dragen/{fc_short}"
     try:
         os.mkdir(work_dir)
     except FileExistsError as err:
@@ -225,9 +222,8 @@ def main(args):
     finally:
         os.chdir(work_dir)
 
-    # List samples and collect information from Nanuq into "samples_list.csv"
-    # Maybe more precise to list samples from SampleSheet's [DragenGermline]
-    # But not very resilient.
+    # List samples. Maybe more precise to use the SampleSheet's [DragenGermline]
+    # section, but not very resilient.
     #
     logging.info(f'Creating "samples_list.csv"')
     biosamples = []
@@ -236,19 +232,46 @@ def main(args):
     total = len(biosamples)
     logging.debug(f"Found {total} samples")
 
-    # Collect data from "*.metrics.json" for all the samples into a Pandas 
-    # DataFrame. List of samples is taken from [DragenGermline_Data] section of
-    # "SampleSheet.csv". NOTE: SampleSheet from Nanuq GET API doesn't yet have 
-    # [DragenGermline_Data] section.
+    # Build Pandas DataFrames from collected data for easier manipulations
+
+    # Collect family information from Nanuq for biosample (to build Case)
+    # Save DataFrame for samples to samples_list.csv, for later use
+    #
+    samples_families = [] # [{sample: val, gender: val, relation: val,...}, {...},...]
+    for count, biosample in enumerate(biosamples, start=1):
+        logging.info(f"Collecting family information for {biosample}, {count}/{total}")
+        samples_families.append(get_nanuq_sample_data(biosample))
+
+    df_samples_families = pd.DataFrame(samples_families)
+    df_samples_families = df_samples_families.sort_values(by=['family_id', 'relation'], ascending=[True, False])
+    df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='mixed') # format='%d/%m/%Y')
+    df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y%m%d')
+    df_samples_families['flowcell'] = args.run
+    df_samples_families.to_csv('samples_list.csv', index=None)
+    logging.info(f"Collected family information into file 'samples_list.csv'")
+
+    sys.exit() if args.samples_list_only else None
+
+    # Collect samples metrics from DragenGermline analyses
+    # Save DataFrame so that we can merge metrics with family information
     #
     samples_metrics  = {} # {biosample: {metric1: value, metric2: value2, ...}}
-    samples_families = [] # [{sample: val, gender: val, relation: val,...}, {...},...]
+
+    if args.data_dir is not None:
+        data_dir = args.data_dir
+    else:
+        # Check if there is more than one dir under "./Analysis/". If yes, 
+        # we ask to use --data-dir so that we don't have to guess.
+        #
+        analyses = os.listdir()
+        if len(analyses) == 1 and analyses[0] == 1:
+            data_dir = f"/staging/hiseq_raw/{fc_instr}/{args.run}/Analysis/1/Data/DragenGermline"
+        else:
+            logging.info(f"More than one Analysis directory found.")
+            sys.exit('Please specify which one to use with option `--data-dir`')
 
     for count, biosample in enumerate(biosamples, start=1):
-        logging.info(f"Processing {biosample}, {count}/{total}")
-
-        # Collect metrics for this biosample
-        #
+        logging.info(f"Collecting family information for {biosample}, {count}/{total}")
         metrics_file = f"{data_dir}/{biosample}/germline_seq/{biosample}.metrics.json"
         try:
             with open(metrics_file, 'r') as fh:
@@ -260,24 +283,10 @@ def main(args):
             samples_metrics[biosample] = metrics
             logging.info(f"Collected metrics for {biosample}")
 
-        # Collect family information from Nanuq for biosample (to build Case)
-        #
-        samples_families.append(get_nanuq_sample_data(biosample))
-
-    # Build Pandas DataFrames from collected data for easier manipulations
-    # Save DataFrame for samples to samples_list.csv, for later use
-    #
-    df_samples_families = pd.DataFrame(samples_families)
-    df_samples_families = df_samples_families.sort_values(by=['family_id', 'relation'], ascending=[True, False])
-    df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='mixed') # format='%d/%m/%Y')
-    df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y%m%d')
-    df_samples_families['flowcell'] = args.run
-    df_samples_families.to_csv('samples_list.csv', index=None)
-
     df_samples_metrics  = pd.DataFrame.from_dict(samples_metrics, orient="index")
     df_samples_metrics['biosample'] = df_samples_metrics.index
     df_samples_metrics['cnvs_number'] = df_samples_metrics['cnv_number_of_amplifications'] + df_samples_metrics['cnv_number_of_deletions']
-    logging.info(f"Built DataFrames from metrics and family information")
+    logging.info(f"Collected DragenGermline metrics")
 
     # Subset columns for report, join infos for sample name and site label
     #
