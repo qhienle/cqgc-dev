@@ -215,13 +215,6 @@ def main(args):
     work_dir = f"/staging2/dragen/{fc_short}"
     print(f"# Logging run {fc_parts}")
     
-    try:
-        os.mkdir(work_dir)
-    except FileExistsError as err:
-        logging.info(err)
-    finally:
-        os.chdir(work_dir)
-
     # List samples. Maybe more precise to use the SampleSheet's [DragenGermline]
     # section, but not very resilient.
     #
@@ -247,15 +240,24 @@ def main(args):
     df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='mixed') # format='%d/%m/%Y')
     df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y%m%d')
     df_samples_families['flowcell'] = args.run
-    df_samples_families.to_csv('samples_list.csv', index=None)
-    logging.info(f"Collected family information into file 'samples_list.csv'")
 
-    sys.exit() if args.samples_list_only else None
+    if args.samples_list_only:
+        df_samples_families.to_csv('samples_list.csv', index=None)
+        logging.info(f"Collected family information into file 'samples_list.csv'")
+        sys.exit()
 
     # Collect samples metrics from DragenGermline analyses
     # Save DataFrame so that we can merge metrics with family information
     #
     samples_metrics  = {} # {biosample: {metric1: value, metric2: value2, ...}}
+    try:
+        os.mkdir(work_dir)
+    except FileExistsError as err:
+        logging.info(err)
+    finally:
+        os.chdir(work_dir)
+        df_samples_families.to_csv('samples_list.csv', index=None)
+        logging.info(f"Collected family information into file 'samples_list.csv'")
 
     if args.data_dir is not None:
         data_dir = args.data_dir
