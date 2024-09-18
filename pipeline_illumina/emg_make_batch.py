@@ -8,9 +8,6 @@ to work for projects PRAG, AOH and Q1K.
 USAGE: emg_make_batch.py --file samples_list.csv
        emg_make_batch.py --help
 
-List of samples can either be the "SampleNames.txt" downloaded from Nanuq, 
-or a one-column listing of CQGC IDs.
-
 Credentials to access Emedgene, Phenotips and REDCap should be stored in a 
 configuration file in JSON format. The default `gapp_conf.json` must contain:
 

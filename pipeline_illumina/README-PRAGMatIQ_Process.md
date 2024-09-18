@@ -267,6 +267,20 @@ Une fois que les analyses sont terminées et archivées, il faut libérer l'espa
     - `create_batch_cases_v2.py --help`
     - "create_batch_cases_v2_template.csv"
 
+
+### Liste des scripts et leur usage
+
+- `archive_PRAGMatIQ.sh`: Copier les résultats des analyses PRAGMatIQ du AWS d'Emedgene vers Narval.
+- `create_batch_cases_v2.py`:  OBSOLETE - Script d'Emedgene pour soumettre des lots de cas (batch), utilisé à titre d'exemple de code.
+- `emg_collect_dragen_metrics.py`: Générer les métriques pour les échantillons d'une _Run_ et créer le fichier `samples_list.csv`.
+- `emg_collect_samples_metrics_all.py`: Générer les métriques pour _tous_ les échantillons dans le dossier d'archivage sur Narval.
+- `emg_collect_samples_metrics.py`: Générer les métriques pour les échantillons d'une _Run_ à partir des résultats sur AWS.
+- `emg_create_cases.py`: DEV - Prototype pour créer des cas à partir de JSON et des appels API à Emedgene.
+- `emg_make_batch_from_nanuq.py`: Générer le manifeste pour créer des cas par lot dans Emedgene, à partir des donnes SampleNames de Nanuq.
+- `emg_make_batch.py`: Générer le manifeste pour créer des cas par lot dans Emedgene, à partir d'une `samples_list.csv`.
+- `emg_upload_fastqs.py`: Téléverser des FASTQs sur BaseSpace
+
+
 ## Annexe
 
 ### A. Rechercher les termes HPOs
