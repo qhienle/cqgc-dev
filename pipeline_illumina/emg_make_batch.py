@@ -197,7 +197,11 @@ def add_hpos_redcap(sample_name):
 
 
 def add_hpos_aoh():
-    pass
+    """
+    Add HPO terms for AOH cases (same fixed terms for every cases).
+    - Returns: [str] HPO identifiers, separated by semi-columns
+    """
+    return 'HP:0003270;HP:0002027;HP:0100665;HP:0007514;HP:0002574;HP:0010783;HP:0000282;HP:0007430;HP:0012027;HP:0025349;HP:0001004;HP:0005225;HP:0011855;HP:0000988;HP:0031244;HP:0002781'
 
 
 def df_to_manifest(df):
