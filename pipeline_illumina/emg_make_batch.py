@@ -333,7 +333,7 @@ def main(args):
 
     # 2. Get the corresponding HPO Identifiers and add HPO terms
     #
-    logging.info(f"Fetching HPO terms for project '{args.project}'")
+    logging.debug(f"Fetching HPO terms for project '{args.project}'")
     if args.project == 'prag' or args.project == 'eval':
         # HPO terms are stored in Phenotips for project PRAG. 
         # Also grab 'PID', which will populate 'Clinical Notes'
@@ -348,10 +348,13 @@ def main(args):
         df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_redcap(row.sample_name) if row.status == 'AFF' else '', axis=1)
     elif args.project == 'aoh':
         # HPO terms are fixed.
+        # add_hpos_aoh() returns a semi-column-separated FIXED list of HPO terms.
         #
-        pass
+        df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_aoh(row.sample_name) if row.status == 'AFF' else '', axis=1)
     else:
-        logging.warn(f"Project '{args.project}' is not defined")
+        logging.warning(f"Project '{args.project}' is not defined")
+    logging.info(f"Added HPO terms for project '{args.project}'")
+    logging.debug(df_samples_list[['sample_name', 'biosample', 'status', 'hpos']])
 
 
     # 3. Use case PID instead of surname to sort and connect family members.
