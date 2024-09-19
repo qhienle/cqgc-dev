@@ -407,10 +407,9 @@ Family Id,Case Type,Files Names,Sample Type,BioSample Name,Visualization Files,S
 18-4493-T1,Whole Genome,/projects/3703703/biosamples/4407404/datasets/ds.08fa2204208a409191b54c23829d5826/sequenced files/297927646;/projects/3703703/biosamples/4407404/datasets/ds.08fa2204208a409191b54c23829d5826/sequenced files/297927647;,FASTQ,24-07358-T1,,10126,PRAGMatIQ_CHUS,False,mother,F,Healthy,,1985-04-11,,,,Default,12,,,
 18-4493-T1,Whole Genome,/projects/3703703/biosamples/4407405/datasets/ds.c55aa956bd9342b1a0eb1388dd91be5b/sequenced files/297928186;/projects/3703703/biosamples/4407405/datasets/ds.c55aa956bd9342b1a0eb1388dd91be5b/sequenced files/297928187;,FASTQ,24-07574-T1,,10126,PRAGMatIQ_CHUS,False,father,M,Healthy,,1975-07-04,,,,Default,12,,,
 
-```python
+```
 from lib.nanuq import Nanuq
-nq = Nanuq()
-samplenames = nq.get_samplenames("LH00336_0100")
+samplenames = Nanuq().get_samplenames("LH00336_0100")
 print(samplenames.text)
 ```
 ##2024-09-18
@@ -434,25 +433,24 @@ print(samplenames.text)
 ##frame of this project.
 
 
-Example of Nanuq sample: `json.loads(nq.get_sample(22283))`
-[{'ldmSampleId': '23-06383-T1',
-  'ldm': 'LDM-CHUS',
-  'patient': {'designFamily': 'TRIO',
-   'familyId': '23-05982-T1',
-   'familyMember': 'FTH',
-   'firstName': 'Andre-Philippe',
-   'lastName': 'Belley',
-   'ramq': 'BELA93092213',
+Example of Nanuq sample: `json.loads(Nanuq().get_sample(22283))`
+[{'ldmSampleId': 'MO-24-012091',
+  'ldm': 'LDM-CHUSM',
+  'patient': {'familyId': '24-38716',
+   'familyMember': 'PROBAND',
+   'firstName': 'BB DE ROXANE',
+   'lastName': 'DUMONT-CORBEIL',
+   'ramq': 'DERR00580911',
    'sex': 'MALE',
-   'mrn': '00000000',
-   'ep': 'CHUS',
-   'birthDate': '22/09/1993',
+   'mrn': 'MCH_5994855',
+   'ep': 'CUSM',
+   'birthDate': '22/06/2024',
    'fetus': False,
-   'status': 'UNK'},
-  'ldmServiceRequestId': '23-06383-T1',
-  'labAliquotId': '22283',
+   'status': 'AFF'},
+  'ldmServiceRequestId': 'MO-24-012091',
+  'labAliquotId': '28978',
   'panelCode': 'PRAGMATIQ',
   'specimenType': 'NBL',
   'sampleType': 'DNA',
-  'ldmSpecimenId': '23-06383-T1'}]
-"""
+  'ldmSpecimenId': 'MO-24-012091'}]
+  """
