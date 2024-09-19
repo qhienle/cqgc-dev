@@ -317,18 +317,18 @@ def main(args):
 
     # Read samples in --file and retrieve required information to build Cases:
     #
-    df_samples_list = pd.read_csv(args.file)
+    df_batch = pd.read_csv(args.file)
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
-    print(f"\n# Log run {','.join(df_samples_list['flowcell'].unique())}\n")
+    print(f"\n# Log run {','.join(df_batch['flowcell'].unique())}\n")
 
 
     # 1. Add BaseSpace FASTQ file paths for each sample
     #
     logging.info(f"Add BaseSpace FASTQ file paths for each sample")
-    df_samples_list['filenames'] = df_samples_list.apply(lambda row: add_fastqs(row.biosample), axis=1)
-    logging.debug(f"Lookup FASTQ files for biosample {df_samples_list['biosample'][0]}:\n{add_fastqs(df_samples_list['biosample'][0])}")
-    logging.debug(f"Filenames added as new column:\n{df_samples_list['filenames']}")
+    df_batch['filenames'] = df_batch.apply(lambda row: add_fastqs(row.biosample), axis=1)
+    logging.debug(f"Lookup FASTQ files for biosample {df_batch['biosample'][0]}:\n{add_fastqs(df_batch['biosample'][0])}")
+    logging.debug(f"Filenames added as new column:\n{df_batch['filenames']}")
 
 
     # 2. Get the corresponding HPO Identifiers and add HPO terms
@@ -338,29 +338,30 @@ def main(args):
         # HPO terms are stored in Phenotips for project PRAG. 
         # Also grab 'PID', which will populate 'Clinical Notes'
         #
-        df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[2] if row.status == 'AFF' else '', axis=1)
-        df_samples_list['pid']  = df_samples_list.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[0] if row.status == 'AFF' else '', axis=1)
-        logging.debug(f"Subset of DataFrame to show PIDs and HPO terms:\n{df_samples_list[['biosample', 'sample_name', 'status', 'pid', 'hpos']]}")
+        df_batch['hpos'] = df_batch.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[2] if row.status == 'AFF' else '', axis=1)
+        df_batch['pid']  = df_batch.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[0] if row.status == 'AFF' else '', axis=1)
+        logging.debug(f"Subset of DataFrame to show PIDs and HPO terms:\n{df_batch[['biosample', 'sample_name', 'status', 'pid', 'hpos']]}")
     elif args.project == 'q1k':
         # HPO terms are stored in REDCap for project Q1K.
         # add_hpos_redcap(sample_name) returns a semi-column-separated list of HPO terms.
         #
-        df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_redcap(row.sample_name) if row.status == 'AFF' else '', axis=1)
+        df_batch['hpos'] = df_batch.apply(lambda row: add_hpos_redcap(row.sample_name) if row.status == 'AFF' else '', axis=1)
     elif args.project == 'aoh':
         # HPO terms are fixed.
         # add_hpos_aoh() returns a semi-column-separated FIXED list of HPO terms.
         #
-        df_samples_list['hpos'] = df_samples_list.apply(lambda row: add_hpos_aoh(row.sample_name) if row.status == 'AFF' else '', axis=1)
+        df_batch['hpos'] = df_batch.apply(lambda row: add_hpos_aoh(row.sample_name) if row.status == 'AFF' else '', axis=1)
     else:
         logging.warning(f"Project '{args.project}' is not defined")
     logging.info(f"Added HPO terms for project '{args.project}'")
-    logging.debug(df_samples_list[['sample_name', 'biosample', 'status', 'hpos']])
+    logging.debug(df_batch[['sample_name', 'biosample', 'status', 'hpos']])
 
 
     # 3. Use case PID instead of surname to sort and connect family members.
     #
     logging.info(f"Sorting samples by families")
-    #df = df.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
+    #df_batch = df_batch.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
+    print(df_batch)
 
 
     # 4. Add storage provider and label ID's based on project
