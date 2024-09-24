@@ -314,16 +314,13 @@ def main(args):
     TODO: Add participants to cases
     TODO: Archive samples for this run
     """
-
     # Read samples in --file and retrieve required information to build Cases:
     #
-    logging.info(f"Loading {args.file}...")
+    logging.info(f"Loading list of samples from file '{args.file}'...")
     try:
         df_batch = pd.read_csv(args.file)
-    except FileNotFoundError as err:
-        sys.exit(logging.error(f"{err} Could not load list of samples because we did not find '{args.file}'."))
     except Exception as err:
-        sys.exit(logging.error(f"Could not load list of samples in file '{args.file}' because of {err}."))
+        sys.exit(logging.error(f"Could not load list of samples in file '{args.file}' because {err}."))
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
     print(f"\n# Log run {','.join(df_batch['flowcell'].unique())}\n")
