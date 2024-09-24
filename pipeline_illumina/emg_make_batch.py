@@ -58,7 +58,7 @@ __version__ = "0.1"
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Make Emedgene batch file for case creation from samples_list.")
-    parser.add_argument('--file',    '-f', default='samples_list.csv', help="List of samples with Case information")
+    parser.add_argument('--file',    '-f', nargs='?', default='samples_list.csv', help="List of samples with Case information")
     parser.add_argument('--project', '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
@@ -317,7 +317,12 @@ def main(args):
 
     # Read samples in --file and retrieve required information to build Cases:
     #
-    df_batch = pd.read_csv(args.file)
+    logging.info(f"Loading {args.file}...")
+    try:
+        df_batch = pd.read_csv(args.file)
+    except FileNotFoundError as err:
+        logging.error(err)
+        sys.exit(f"Could not find list of samples in file: {args.file}.")
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
     print(f"\n# Log run {','.join(df_batch['flowcell'].unique())}\n")
@@ -379,6 +384,7 @@ def main(args):
         'q1k' : {'storage_id': '10219', 'label_ids': {'CHUSJ': '1'}},
         'aoh' : {'storage_id': '10220', 'label_ids': {'CHUSJ': '1'}}
     }
+    df_batch['Storage Provider Id'] = projects_ids[args.project]['storage_id']
 
     # Return a CSV file to be used as input for Emedgene's batch upload script
     #
