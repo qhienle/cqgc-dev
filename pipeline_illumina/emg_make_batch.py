@@ -321,8 +321,9 @@ def main(args):
     try:
         df_batch = pd.read_csv(args.file)
     except FileNotFoundError as err:
-        logging.error(err)
-        sys.exit(f"Could not find list of samples in file: {args.file}.")
+        sys.exit(logging.error(f"{err} Could not load list of samples because we did not find file: {args.file}."))
+    except Exception as err:
+        sys.exit(logging.error(f"Could not load list of samples in file '{args.file}' because of {err}."))
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
     print(f"\n# Log run {','.join(df_batch['flowcell'].unique())}\n")
