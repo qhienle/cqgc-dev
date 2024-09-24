@@ -321,7 +321,7 @@ def main(args):
     try:
         df_batch = pd.read_csv(args.file)
     except FileNotFoundError as err:
-        sys.exit(logging.error(f"{err} Could not load list of samples because we did not find file: {args.file}."))
+        sys.exit(logging.error(f"{err} Could not load list of samples because we did not find '{args.file}'."))
     except Exception as err:
         sys.exit(logging.error(f"Could not load list of samples in file '{args.file}' because of {err}."))
     workdir = os.path.dirname(os.path.abspath(args.file))
