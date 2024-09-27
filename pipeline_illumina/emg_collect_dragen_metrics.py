@@ -102,7 +102,7 @@ def get_nanuq_sample_data(cqgc_id):
     return sample_infos
 
 
-def write_html_report(df, fc_short):
+def write_html_report(df, run):
     """
     Write HTML report from data in `df`.
     - `df`: Pandas DataFrame.
@@ -178,15 +178,15 @@ def write_html_report(df, fc_short):
                 font-size: 18px;
             }
     """
-    out_html = f"{fc_short}_metrics.html"
-    title    = f"{fc_short} Samples Metrics"
+    out_html = f"{run}_metrics.html"
+    title    = f"{run} Samples Metrics"
 
     with open(out_html, 'w') as fh:
         fh.write('<!doctype html>\n<html>\n\t<head>\n')
         fh.write(f'\t\t<title>{title}</title>\n\t\t<meta charset="UTF-8">\n')
         fh.write(f'\t\t<style type="text/css">{css}\t\t</style>\n')
         fh.write('\t</head>\n\t<body>\n')
-        fh.write(f'\t\t<h1>{fc_short}</h1>\n\t\t')
+        fh.write(f'\t\t<h1>{run}</h1>\n\t\t')
         fh.write(df.to_html(index=False))
         fh.write(fig1.to_html(full_html=False, include_plotlyjs='cdn'))
         fh.write(fig2.to_html(full_html=False, include_plotlyjs='cdn'))
@@ -212,7 +212,7 @@ def main(args):
     fc_date  = fc_parts[0]
     fc_instr = fc_parts[1]
     fc_short = fc_parts[4]
-    work_dir = f"/staging2/dragen/{fc_short}"
+    work_dir = f"/staging2/dragen/{args.run}"
     print(f"# Logging run {fc_parts}")
     
     # List samples. Maybe more precise to use the SampleSheet's [DragenGermline]
@@ -220,7 +220,7 @@ def main(args):
     #
     logging.info(f'Creating "samples_list.csv"')
     biosamples = []
-    for tuple in nq.list_samples(fc_short):
+    for tuple in nq.list_samples(args.run):
         biosamples.append(tuple[0])
     total = len(biosamples)
     logging.debug(f"Found {total} samples")
@@ -237,7 +237,9 @@ def main(args):
 
     df_samples_families = pd.DataFrame(samples_families)
     df_samples_families = df_samples_families.sort_values(by=['family_id', 'relation'], ascending=[True, False])
-    df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='mixed') # format='%d/%m/%Y')
+    # Fix dates out of bounds with pd.Timestamp.min (eg: 11/11/1111) with errors='coerce'.
+    # TODO: Check that downstream processes will accept null DateTime, 'NaT'. 
+    df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='mixed', errors='coerce') # format='%d/%m/%Y')
     df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y%m%d')
     df_samples_families['flowcell'] = args.run
 
@@ -311,7 +313,7 @@ def main(args):
                    ]
     df_subset_metrics = df_samples_metrics[subset_cols]
     df_report = pd.merge(df_subset_metrics, df_samples_families[['biosample', 'sample_name', 'ep_label']], on='biosample', how="outer")
-    logging.info(f"Writing report for {fc_short}:\n{df_report}")
+    logging.info(f"Writing report for {args.run}:\n{df_report}")
     df_report.to_csv(f'{fc_short}_metrics.csv', index=None)
     write_html_report(df_report, fc_short)
 
