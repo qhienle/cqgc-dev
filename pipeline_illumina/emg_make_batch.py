@@ -213,13 +213,13 @@ def df_to_manifest(df):
     - Returns: File 'emg_batch_manifest.csv' in current folder
     """
     df_manifest = pd.DataFrame({
-        'Family Id': df['Family Id'],
+        'Family Id': df['family_id'],
         'Case Type': 'Whole Genome',
         'Files Names': df['filenames'],
         'Sample Type': 'FASTQ',
         'BioSample Name': df['sample_name'],
         'Visualization Files': '',
-        'Storage Provider Id': 10126, # =prod. 10123=eval
+        'Storage Provider Id': df['Storage Provider Id'],
         'Default Project': '',
         'Execute_now':  'False',
         'Relation': df['relation'],
@@ -360,14 +360,7 @@ def main(args):
     logging.debug(df_batch[['sample_name', 'biosample', 'status', 'hpos']])
 
 
-    # 3. Use case PID instead of surname to sort and connect family members.
-    #
-    logging.info(f"Sorting samples by families")
-    df_batch = df_batch.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
-    print(df_batch)
-
-
-    # 4. Add storage provider and label ID's based on project
+    # 3. Add storage provider and label ID's based on project
     #
     logging.info(f"Add storage provider and label ID's based for project {args.project}")
     
@@ -384,9 +377,19 @@ def main(args):
     }
     df_batch['Storage Provider Id'] = projects_ids[args.project]['storage_id']
 
-    # Return a CSV file to be used as input for Emedgene's batch upload script
+
+    # 4. Use case PID instead of surname to sort and connect family members.
     #
-    df_batch.to_csv('emg_batch_manifest.csv', index=None)
+    logging.info(f"Sorting samples by families")
+    print(f"Columns:\n{df_batch.columns}")
+    df_batch = df_batch.sort_values(by=['family_id', 'relation'], ascending=[True, False])
+    print(df_batch)
+
+
+    # 5. Return a CSV file to be used as input for Emedgene's batch upload script
+    #
+    df_manifest = df_to_manifest(df_batch)
+    df_manifest.to_csv('emg_batch_manifest.csv', index=None)
     logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
     logging.info(f"Done.\n")
 

@@ -258,7 +258,7 @@ def df_to_manifest(df):
         'Phenotypes': 'Healthy',
         'Phenotypes Id': df['hpos'],
         #'Date Of Birth': pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y'),
-        'Date Of Birth': df['date_of_birth(YYYY-MM-DD)'],
+        'Date Of Birth': df['birthdate'],
         'Boost Genes': '',
         'Gene List Id': '',
         'Kit Id': '',
