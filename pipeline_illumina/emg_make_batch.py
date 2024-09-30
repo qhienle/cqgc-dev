@@ -279,6 +279,8 @@ def df_to_manifest(df):
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
         fh.write(df_manifest.to_csv(index=None, lineterminator='\n'))
+    
+    return 1
 
 
 def print_case_by_case(df):
@@ -400,8 +402,7 @@ def main(args):
 
     # 6. Return a CSV file to be used as input for Emedgene's batch upload script
     #
-    df_manifest = df_to_manifest(df_batch)
-    df_manifest.to_csv('emg_batch_manifest.csv', index=None)
+    df_to_manifest(df_batch)
     logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
     logging.info(f"Done.\n")
 
