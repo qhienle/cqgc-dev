@@ -75,11 +75,17 @@ def get_nanuq_sample_data(cqgc_id):
     try:
         data = json.loads(nq.get_sample(cqgc_id))
     except Exception as e:
-        logging.warning(f"JSONDecodeError {e} could not decode biosample {cqgc_id}")
+        logging.error(f"JSONDecodeError {e} could not decode biosample {cqgc_id}")
     else:
         logging.info(f"Got information for biosample {cqgc_id}")
-    if len(data) != 1:
+
+    if len(data) == 0:
+        logging.error(f"No samples retrieved from Nanuq for {cqgc_id}!")
+    elif len(data) > 1:
         logging.debug(f"Number of samples retrieved from Nanuq is not 1.\n{data}")
+    else: # len(data) == 1
+        pass
+
     try:
         data[0]["patient"]["mrn"]
     except Exception as err:
@@ -233,7 +239,11 @@ def main(args):
     samples_families = [] # [{sample: val, gender: val, relation: val,...}, {...},...]
     for count, biosample in enumerate(biosamples, start=1):
         logging.info(f"Collecting family information for {biosample}, {count}/{total}")
-        samples_families.append(get_nanuq_sample_data(biosample))
+        try:
+            samples_families.append(get_nanuq_sample_data(biosample))
+        except Exception as e:
+            logging.error(f"In `get_nanuq_sample_data({biosample})`: {e}")
+            logging.warning(f"COULD NOT RETRIEVE INFO FOR biosample {biosample}`. SKIPPING...")
 
     df_samples_families = pd.DataFrame(samples_families)
     df_samples_families = df_samples_families.sort_values(by=['family_id', 'relation'], ascending=[True, False])
