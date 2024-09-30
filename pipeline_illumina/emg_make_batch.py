@@ -226,18 +226,18 @@ def df_to_manifest(df):
         'Gender': df['gender'],
         'Phenotypes': 'Healthy',
         'Phenotypes Id': df['hpos'],
-        #'Date Of Birth': pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y'),
-        'Date Of Birth': df['date_of_birth(YYYY-MM-DD)'],
+        'Date Of Birth': df['birthdate'],
         'Boost Genes': '',
         'Gene List Id': '',
         'Kit Id': '',
         'Selected Preset': 'Default',
-        'Label Id': df['label'],
-        'Clinical Notes': df['pid'],
+        'Label Id': df['Label Id'],
+        'Clinical Notes': df['Clinical Notes'],
         'Due Date': '',
         'Opt In': ''
     })
     # Convert Date of Birth to DateTime
+    # Still useful? Done beforehand by emg_collect_dragen_metrics.py
     #
     try:
         df_manifest['Date Of Birth'] =  pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y')
@@ -268,13 +268,13 @@ def df_to_manifest(df):
     # Use a correspondance table used to convert Labels to Label ID 
     # TODO: Use API to get list of codes instead of hard-coding the data
     #
-    if args.site == 'prod':
-        label2ID = {'CHUS': 12, 'CHUSJ': 13, 'CHUQ': 14, 'CUSM': 15}
-    elif args.site == 'eval':
-        label2ID = {'CHUS': 14, 'CHUSJ': 15, 'CHUQ': 16, 'CUSM': 17}
-    else:
-        logging.error(f"Option `--site|-s` ( '{args.site}') is not one of 'prod' or 'eval'")
-    df_manifest['Label Id'] = df_manifest['Label Id'].apply(lambda x: label2ID[x])
+    # if args.site == 'prod':
+    #     label2ID = {'CHUS': 12, 'CHUSJ': 13, 'CHUQ': 14, 'CUSM': 15}
+    # elif args.site == 'eval':
+    #     label2ID = {'CHUS': 14, 'CHUSJ': 15, 'CHUQ': 16, 'CUSM': 17}
+    # else:
+    #     logging.error(f"Option `--site|-s` ( '{args.site}') is not one of 'prod' or 'eval'")
+    # df_manifest['Label Id'] = df_manifest['Label Id'].apply(lambda x: label2ID[x])
 
     with open('emg_batch_manifest.csv', 'w') as fh:
         fh.write('[Data],,,,,,,,,,,,,,,,,,,,,\n')
@@ -376,9 +376,13 @@ def main(args):
         'aoh' : {'storage_id': '10220', 'label_ids': {'CHUSJ': '1'}}
     }
     df_batch['Storage Provider Id'] = projects_ids[args.project]['storage_id']
+    
+    # Convert ep_label (institution) into its corresponding ID in EMG domain
+    df_batch['Label Id'] = df_batch.apply(lambda x: projects_ids[args.project]['label_ids'][x['ep_label']], axis=1)
 
 
     # 4. Use case PID instead of surname to sort and connect family members.
+    # Still useful? Done beforehand by emg_collect_dragen_metrics.py
     #
     logging.info(f"Sorting samples by families")
     print(f"Columns:\n{df_batch.columns}")
@@ -386,7 +390,15 @@ def main(args):
     print(df_batch)
 
 
-    # 5. Return a CSV file to be used as input for Emedgene's batch upload script
+    # 5. Add 'Clinical Notes'
+    # TODO: Move this section to df_to_manifest(df)
+    #
+    if args.project == 'prag' or args.project == 'eval':
+        df_batch['Clinical Notes'] = df_batch['pid']
+    else:
+        df_batch['Clinical Notes'] = ''
+
+    # 6. Return a CSV file to be used as input for Emedgene's batch upload script
     #
     df_manifest = df_to_manifest(df_batch)
     df_manifest.to_csv('emg_batch_manifest.csv', index=None)
