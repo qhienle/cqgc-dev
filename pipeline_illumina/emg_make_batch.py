@@ -363,7 +363,7 @@ def main(args):
     # 3. Use case PID instead of surname to sort and connect family members.
     #
     logging.info(f"Sorting samples by families")
-    #df_batch = df_batch.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
+    df_batch = df_batch.sort_values(by=['Family Id', 'relation'], ascending=[True, False])
     print(df_batch)
 
 
@@ -386,6 +386,7 @@ def main(args):
 
     # Return a CSV file to be used as input for Emedgene's batch upload script
     #
+    df_batch.to_csv('emg_batch_manifest.csv', index=None)
     logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
     logging.info(f"Done.\n")
 
