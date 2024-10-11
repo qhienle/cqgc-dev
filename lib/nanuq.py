@@ -186,10 +186,10 @@ class Nanuq:
         """
         fc_short = self.check_run_name(run) # ex: LH00336_0043
         fc_parts = run.split('_')
-        if fc_parts == 2:
+        if len(fc_parts) == 2:
             logging.warning(f"Run name {run} appears to be in short format")
-            return date, None, None, None, fc_short
-        elif fc_parts == 4:
+            return None, fc_parts[0], fc_parts[1], None, fc_short
+        elif len(fc_parts) == 4:
             # Better to convert DateTime based on the instrument ID (fc_parts[1])?
             # NovaSeqX (LH00336) has 8 digits for dates (yyyymmdd), 
             # whereas NovaSeq6000 (A00516, A00977) have 6 (yymmdd).
