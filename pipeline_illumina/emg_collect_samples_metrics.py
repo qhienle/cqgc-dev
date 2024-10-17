@@ -466,6 +466,7 @@ def main(args):
     # Combine dataframe with samples_list.csv and generate figures for the HTML report
     #
     df_samples = pd.read_csv('samples_list.csv', encoding="latin-1")
+    df_samples.rename(columns={'sample_name': 'Sample', 'ep_label': 'Site'}, inplace=True)
     df = df3.merge(df_samples, how='inner')
     df.to_csv(f'{args.run}_metrics.csv', index=None)
     write_html_report(df, args.run)
