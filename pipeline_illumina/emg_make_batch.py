@@ -355,7 +355,7 @@ def main(args):
         # HPO terms are fixed.
         # add_hpos_aoh() returns a semi-column-separated FIXED list of HPO terms.
         #
-        df_batch['hpos'] = df_batch.apply(lambda row: add_hpos_aoh(row.sample_name) if row.status == 'AFF' else '', axis=1)
+        df_batch['hpos'] = df_batch.apply(lambda row: add_hpos_aoh() if row.status == 'AFF' else '', axis=1)
     else:
         logging.warning(f"Project '{args.project}' is not defined")
     logging.info(f"Added HPO terms for project '{args.project}'")
