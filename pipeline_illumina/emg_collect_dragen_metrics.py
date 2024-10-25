@@ -248,9 +248,9 @@ def main(args):
     df_samples_families = pd.DataFrame(samples_families)
     df_samples_families = df_samples_families.sort_values(by=['family_id', 'relation'], ascending=[True, False])
     # Fix dates out of bounds with pd.Timestamp.min (eg: 11/11/1111) with errors='coerce'.
-    # TODO: Check that downstream processes will accept null DateTime, 'NaT'. 
+    # TODO: Check that downstream processes will accept null DateTime, 'NaT'.
     df_samples_families['birthdate'] = pd.to_datetime(df_samples_families['birthdate'], format='mixed', errors='coerce') # format='%d/%m/%Y')
-    df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y%m%d')
+    df_samples_families['flowcell_date'] = pd.to_datetime(fc_date, format='%Y-%m-%d')
     df_samples_families['flowcell'] = args.run
 
     if args.samples_list_only:
