@@ -258,7 +258,7 @@ def df_to_manifest(df):
     df_manifest['Relation'].replace('MTH', 'mother', inplace=True)
     df_manifest['Relation'].replace('FTH', 'father', inplace=True)
     df_manifest['Relation'].replace('BRO', 'sibling', inplace=True)
-    df_manifest['Relation'].replace('SIB', 'sibling', inplace=True) # TODO: Verify 'SIB', or SIS?
+    df_manifest['Relation'].replace('SIS', 'sibling', inplace=True)
 
     df_manifest['Gender'].replace('FEMALE', 'F', inplace=True)
     df_manifest['Gender'].replace('MALE', 'M', inplace=True)
