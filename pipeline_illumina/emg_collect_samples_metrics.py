@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument('-l', '--logging-level', dest='level', default='info',
                         help="Logging level, can be 'debug', 'info', 'warning'. Default='info' [str]")
     parser.add_argument('-p', '--profile', default='emedgene',
-                        help="Emedgene profile, can be 'emedgene' or 'emedgene-eval'. Default='emedgene' [str]")
+                        help="Emedgene profile, can be 'emedgene', 'emedgene-eval', 'chusj-aoh', 'q1k-recherche' or 'q1k-clinique'. Default='emedgene' [str]")
     return(parser.parse_args())
 
 
