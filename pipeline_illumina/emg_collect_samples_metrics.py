@@ -97,7 +97,9 @@ def download_emg_s3_logs(sample, profile='emedgene', logsdir='emg_logs'):
 
     os.mkdir(logsdir) if not os.path.isdir(logsdir) else None
     site = 's3://cac1-prodca-emg-auto-results'
-    domains = {'emedgene': 'CHU_Sainte_Justine', 'emedgene-eval': 'Ste_Justine_eval'}
+    domains = {'emedgene': 'CHU_Sainte_Justine', 'emedgene-eval': 'Ste_Justine_eval',
+               'q1k-recherche': 'Q1K_Recherche', 'q1k-clinique': 'Q1K_Clinique',
+               'chusj-aoh': 'CHUSJ_AOH'}
     url = f"{site}/{domains[profile]}/{sample}"
         
     ls = subprocess.run(['aws', 's3', '--profile', profile, 'ls', '--recursive', url], capture_output=True, text=True)
