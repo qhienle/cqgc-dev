@@ -5,7 +5,7 @@ Get files from Nanuq
 Download `SampleSheet.csv`, `SampleNames.txt` and `SamplePools.csv` for a given
 _Run_ from _Nanuq_.
 
-USAGE: get_nanuq_files.py
+USAGE: get_nanuq_files.py -r LH00336_0043
        get_nanuq_files.py [-u USERNAME -p PASSWORD] -r RUN
        get_nanuq_files.py --help
 
@@ -20,16 +20,19 @@ Replace USERNAME and PASSWORD with actual values.
 Files are saved to the current working directory, or to `${WORKDIR}/${FC}`, 
 if these environment variables are set globally _e.g._:
 `export FC="220224_A00516_0331_AHKLTJDRXY"`.
+
+## OPTIONS
+
+--orient-index2|-o: Orient index2 in the SampleSheet for NovaSeqX (sense) as 
+    well as for the NovaSeq6000 (reverse-complement). If this flag is not 
+    present, index2 in the SampleSheet will be in reverse-complement (for the
+    NovaSeq6000)
 """
 
 import os, sys, subprocess
 import argparse
 
-
-# TODO: Move functionalities to Nanuq Class, instead of subprocess
-# 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
+sys.path.append('/staging2/soft/CQGC-utils')
 from lib.nanuq import Nanuq
 
 
@@ -43,10 +46,22 @@ def parse_args():
     parser.add_argument('-r', '--run',      help="FC_SHORT Run ID, ex: 'A00516_339'")
     parser.add_argument('-u', '--username', help="Nanuq username")
     parser.add_argument('-p', '--password', help="Nanuq password")
+    parser.add_argument('-o', '--orient-index2', action="store_true", 
+                        help="Orient index2 in the SampleSheet for NovaSeqX as well as NovaSeq6k")
     return(parser.parse_args())
 
-def download_files(run, credentials, out_sheet, out_names, out_pools):
+def download_files(run, credentials, out_sheet, out_names, out_pools, orient_index2=False):
     """
+    Download SampleSheet.csv, SampleNames.txt and SamplePools.csv from Nanuq
+    - run [str]: short Run name, ex: LH00336_0043
+    - credentials [str]: username&password. See below
+    - out_sheet: SampleSheet file. Default=SampleSheet.csv
+    - out_names: SampleNames file. Default=SampleNames.txt
+    - out_sheet: SamplePools file. Default=SamplePools.csv
+    - orient_index2: API call to select the version of the SampleSheet, with 
+        index2 in sense (NovaSeqX) or reverse-complement (NovaSeq600).
+        Default=False (reverse-complement, for the NovaSeq6000)
+        
     Examples from Nanuq
     wget --post-data "j_username=USER&j_password=PASS" --no-cookies https://cigcp-nanuq.calculquebec.ca/nanuqMPS/sampleSheet/NovaSeq/A00516_0295/ -O 'SampleSheet.csv'
     wget --post-data "j_username=${2}&j_password=${3}" --no-cookies "${server}/nanuqMPS/sampleSheetV2/NovaSeq/A00516_0339/" -O "SampleSheet.csv"
@@ -58,9 +73,12 @@ def download_files(run, credentials, out_sheet, out_names, out_pools):
     server = 'https://nanuq.cqgc.hsj.rtss.qc.ca'
 
     # Index2 in reverse-complement for NovaSeq6000
-    # url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}/'
     # New API decides whether Index2 is rc for NovaSeq6000, or forward for NovaSeqX
-    url_sheet = f'{server}/nanuqMPS/dragenSampleSheet/NovaSeq/{run}/'
+    #
+    if orient_index2 is False:
+        url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}/'
+    else:
+        url_sheet = f'{server}/nanuqMPS/dragenSampleSheet/NovaSeq/{run}/'
     url_names = f'{server}/nanuqMPS/sampleConversionTable/run/{run}/technology/NovaSeq/'
     url_pools = f'{server}/nanuqMPS/poolingSampleSheet/run/{run}/technology/NovaSeq/'
 
@@ -68,33 +86,34 @@ def download_files(run, credentials, out_sheet, out_names, out_pools):
     subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_names, '-O', out_names])
     subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_pools, '-O', out_pools])
 
-def main(run=None, username=None, password=None):
+def main():
     """
     Connect to Nanuq web API and download three files.
     If Nanuq credentials provided as params, download files.
     Otherwise, look for them in config file `~/.nanuq`.
     """
+    args = parse_args()
     auth = '~/.nanuq'
 
     # If RUN identifier not defined by option -r/--run, try to get this info
     # from env var ${FC_SHORT}, if set as part of the bcl-convert procedure.
     #
-    if run is None:
+    if args.run is None:
         print(f"\nWARNING: Option -r/--run not provided. Get FC_SHORT from environment settings.")
         try:
-            run = os.environ['FC_SHORT']
+            args.run = os.environ['FC_SHORT']
         except KeyError:
             raise SystemExit("ERROR: Option -r/--run not provided and ${FC_SHORT} not set.\n")
         except Exception as err:
             raise SystemExit(f"Caught an unexpected Exception:\n{err}\n")
     else:
-        print(f"Got FC_SHORT '{run}' from command line argument.")
+        print(f"Got FC_SHORT '{args.run}' from command line argument.")
 
     # Connect and download, using Nanuq authentication with credentials from 
     # either the command-line arguments or from the config file ./nanuq
     #
-    if username is not None or password is not None:
-        credentials = f"j_username={username}&j_password={password}"
+    if args.username is not None or args.password is not None:
+        credentials = f"j_username={args.username}&j_password={args.password}"
     else:
         # Username and password not provided. Look for them in ~/.nanuq
         #
@@ -131,22 +150,20 @@ def main(run=None, username=None, password=None):
     out_names = outdir + os.sep + 'SampleNames.txt'
     out_pools = outdir + os.sep + 'SamplePools.csv'
 
-    download_files(run, credentials, out_sheet, out_names, out_pools)
+    download_files(args.run, credentials, out_sheet, out_names, out_pools, args.orient_index2)
 
     # If files downloaded files are empty (size == 0), no run could be found 
     # with ${FC_SHORT} identifier. Try with ${XP}, if set, else warn and quit. 
     #
     if os.stat(out_sheet).st_size == 0 and os.stat(out_names).st_size == 0 and os.stat(out_pools).st_size == 0:
-        print(f"ERROR: Empty files downloaded with {run}. Trying with ${{XP}}.\n")
+        print(f"ERROR: Empty files downloaded with {args.run}. Trying with ${{XP}}.\n")
         if 'XP' in os.environ:
-            run = os.environ['XP']
-            download_files(run, credentials, out_sheet, out_names, out_pools)
+            download_files(os.environ['XP'], credentials, out_sheet, out_names, out_pools, args.orient_index2)
         else:
-            print(f"ERROR: Empty files downloaded with {run} and ${{XP}} not set.")
+            print(f"ERROR: Empty files downloaded with {args.run} and ${{XP}} not set.")
             print(f"Please check identifier for RUN.")
 
     print(f"First lines of downloaded files:")
-    #subprocess.run(['head', out_sheet, out_names, out_pools])
     for file in [out_sheet, out_names, out_pools]:
         print(f"\n===> {file}:\n")
         with open(file, 'r', encoding='ISO-8859-1') as fh:
@@ -154,6 +171,5 @@ def main(run=None, username=None, password=None):
                 print(line.rstrip())
 
 if __name__ == '__main__':
-    args = parse_args()
-    main(args.run, args.username, args.password)
+    main()
     print("\nDone.\n")
