@@ -532,7 +532,7 @@ class BSSH:
     def get_biosampleid(self, biosamplename):
         """
         Get BSSH ID for biosamplename
-        - `biosamplename`: `str`, name of biosample
+        - `biosamplename`: `str`, name of biosample (e.g. '28849')
         - Returns id as `int` or NoneType if not found 
         """
         endpoint = '/v2/biosamples/'
@@ -548,7 +548,7 @@ class BSSH:
         """
         Get BSSH dataset ID, project ID and project Name for `biosampleid`.
         - `biosampleid`: [str], Id of biosample
-        - Returns: [list] of tuples 
+        - Returns: [list] of tuples ['ds.id', 'project.id', project.name]
         """
         endpoint = '/v2/datasets/'
         url      = self.server + endpoint
