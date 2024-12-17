@@ -6,14 +6,10 @@
 # Submit BCL-convert by DRAGEN on spxp-app04, from spxp-app02.
 # qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl_convert.sh <FLOWCELL>
 
-# Or rely on a global variable passed to qsub
-# export FC="export FC="20241210_LH00336_0140_A22V7CNLT3""
-# qsub -V /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl_convert.sh
-
 FC=$1
 if [ -z ${FC} ]; then
     echo "ERROR: Flowcell or run name not provided!"
-    #exit
+    exit
 else
     a=($(echo ${FC} | tr '_' '\n'))
     FC_SHORT="${a[1]}_${a[2]}"
@@ -23,7 +19,7 @@ else
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
         INSTR="NoveSeq6000"
         echo "Get Nanuq files for ${INSTR} run ${FC}"
-        # python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py
+        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${FC_SHORT}
         echo "Run dragen BCL-convert for ${FC}"
         # dragen \
         #     --bcl-conversion-only true \
@@ -37,7 +33,7 @@ else
     elif [[ "${FC_SHORT}" =~ ^LH00* ]]; then
         INSTR="NoveSeqXPlus"
         echo "Get Nanuq files for ${INSTR} run ${FC}"
-        # python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --orient-index2
+        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --orient-index2 --run ${FC_SHORT}
         echo "Run dragen BCL-convert for ${FC}"
         # dragen \
         #     --bcl-conversion-only true \
@@ -49,7 +45,7 @@ else
         #     >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     else
         echo "ERROR: Could not determine instrument series for ${FC}"
-        #exit
+        exit
     fi
     mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
     mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
