@@ -4,9 +4,13 @@
 #$ -l dragen=1
 
 # Submit BCL-convert by DRAGEN on spxp-app04, from spxp-app02.
+# qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl_convert.sh <FLOWCELL>
+
+# Or rely on a global variable passed to qsub
 # export FC="export FC="20241210_LH00336_0140_A22V7CNLT3""
 # qsub -V /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl_convert.sh
 
+FC=$1
 if [ -z ${FC} ]; then
     echo "ERROR: Flowcell or run name not provided!"
     #exit
