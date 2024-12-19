@@ -33,7 +33,7 @@ while true; do
            fi
         done
     done
-    echo "Napping for ${NAP}..."
+    if [ "${1}" = 'debug' ]; then echo "Napping for ${NAP}..."; fi
     sleep ${NAP}
 done
 
