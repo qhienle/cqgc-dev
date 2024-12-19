@@ -25,10 +25,10 @@ while true; do
             if [ -f ${path_to_run}/CopyComplete.txt ]; then
                 if [ -d ${WORKDIR}/${run} ]; then
                     # Extract stats from demux
-                    echo "Extracting demux stats from ${WORKDIR}/${run}/1.fastq/Reports/DemultiplexStats.csv"
+                    if [ "${1}" = 'debug' ]; then echo "Extracting demux stats from ${WORKDIR}/${run}/1.fastq/Reports/DemultiplexStats.csv"; fi
                 else
                     # TODO: Check SampleSheets ? 
-                    echo "qsub dragen_bcl-convert_launcher.sh ${run}"
+                    if [ "${1}" = 'debug' ]; then echo "qsub dragen_bcl-convert_launcher.sh ${run}"; fi
                 fi
            fi
         done
