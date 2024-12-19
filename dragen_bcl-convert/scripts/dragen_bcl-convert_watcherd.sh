@@ -39,19 +39,19 @@ done
 
 ## Using systemd:
 # sudo chmod +x /path/to/script.sh
-# sudo vi /etc/systemd/system/myexample.service
+# sudo vi /etc/systemd/system/dragen_bcl-convert_watcherd.service
 # Example content of a service file:
 #
 # [Unit]
-# Description=My Script Daemon
-#
+# Description=Watch sequencing BCL folders for new runs to demux
+
 # [Service]
-# ExecStart=/path/to/script.sh
+# ExecStart=/staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcherd.sh
 # Restart=always
 # User=root
 # StandardOutput=null
 # StandardError=null
-#
+
 # [Install]
 # WantedBy=multi-user.target
 #

@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch sequencing BCL folders for new runs to demux
+
+[Service]
+ExecStart=/staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcherd.sh
+Restart=always
+User=root
+StandardOutput=null
+StandardError=null
+
+[Install]
+WantedBy=multi-user.target
