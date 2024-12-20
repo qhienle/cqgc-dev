@@ -8,8 +8,8 @@ USAGE: emg_upload_fastqs.py
 
 Use run and samples information contained in `--file=samples_list.csv` to look 
 for FASTQs for uploading to BaseSpace. "samples_list.csv" is normally created 
-by the script `emg_collect_dragen_metrics.py` which should have been executed
-beforehand. "samples_list.csv" has the following 12 columns:
+by the script `list_run_samples.py` which should have been executed beforehand.
+File "samples_list.csv" has the following 12 columns:
 
 sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,
 family_id,birthdate,flowcell_date,flowcell
@@ -62,7 +62,7 @@ project_ids = {'CHUSJ': '3703702',
                'AOH'  : '6050046'}
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Upload FASTQ files to BaseSpace. for a given Run.")
+    parser = argparse.ArgumentParser(description="Upload FASTQs to BaseSpace for samples listed in --file(=samples_list.csv).")
     parser.add_argument('--file',     '-f', default="samples_list.csv", help="Get samples from file. Default='samples_list.csv'.")
     parser.add_argument('--data-dir', '-d', help="Get FASTQs from --data-dir. Default='fastq folder'.")
     parser.add_argument('--project',  '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
@@ -117,7 +117,7 @@ def main(args):
         if args.data_dir is not None:
             fastqdir = args.data_dir
         else:
-            fastqdir = f"/staging/hiseq_raw/{row.flowcell.split('_')[1]}/{row.flowcell}/Analysis/1/Data/DragenGermline/fastq"
+            fastqdir = f"/staging2/dragen/{row.flowcell}/1.fastq"
         os.chdir(fastqdir)
 
         # glob() does not create ordered list of files, so we sort()for `bs`
