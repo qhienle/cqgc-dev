@@ -30,13 +30,13 @@ echo "Sequencing has completed. Launching BCL-convert"
 python /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh
 
 ### 2.2. Téléverser les FASTQs sur BaseSpace
-python ${SOFTDIR}/emg_upload_fastqs.py --data-dir ${WORKDIR}/${FC}/1.fastq/
+# python ${SOFTDIR}/emg_upload_fastqs.py --data-dir ${WORKDIR}/${FC}/1.fastq/
 
 
 ## 3. Créer les cas sur Emedgene 
 ###  3.1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
 ###  3.2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
-python ${SOFTDIR}/emg_make_batch_from_nanuq.py ${FC_SHORT} 2>&1 | tee ${FC_SHORT}/emg_make_batch.log
+# python ${SOFTDIR}/emg_make_batch_from_nanuq.py ${FC_SHORT} 2>&1 | tee ${FC_SHORT}/emg_make_batch.log
 
 
 ## 4. Collecter les metriques
