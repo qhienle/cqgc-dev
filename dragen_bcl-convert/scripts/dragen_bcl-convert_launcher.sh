@@ -16,6 +16,7 @@ else
     BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
     WORKDIR="/mnt/spxp-app02/staging2/dragen"
     OUTDIR="${WORKDIR}/${FC}/1.fastq"
+    cd ${WORKDIR}/${FC}
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
         INSTR="NoveSeq6000"
         echo "Get Nanuq files for ${INSTR} run ${FC}"
