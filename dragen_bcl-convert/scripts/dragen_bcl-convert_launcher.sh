@@ -22,28 +22,28 @@ else
         echo "Get Nanuq files for ${INSTR} run ${FC}"
         python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${FC_SHORT}
         echo "Run dragen BCL-convert for ${FC}"
-        # dragen \
-        #     --bcl-conversion-only true \
-        #     --bcl-input-directory ${BASEDIR}/${FC} \
-        #     --output-directory ${OUTDIR} \
-        #     --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
-        #     --bcl-only-matched-reads true \
-        #     --bcl-sampleproject-subdirectories true \
-        #     --force \
-        #     >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
+        dragen \
+            --bcl-conversion-only true \
+            --bcl-input-directory ${BASEDIR}/${FC} \
+            --output-directory ${OUTDIR} \
+            --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
+            --bcl-only-matched-reads true \
+            --bcl-sampleproject-subdirectories true \
+            --force \
+            >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     elif [[ "${FC_SHORT}" =~ ^LH00* ]]; then
         INSTR="NoveSeqXPlus"
         echo "Get Nanuq files for ${INSTR} run ${FC}"
         python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --orient-index2 --run ${FC_SHORT}
         echo "Run dragen BCL-convert for ${FC}"
-        # dragen \
-        #     --bcl-conversion-only true \
-        #     --bcl-input-directory ${BASEDIR}/${FC} \
-        #     --output-directory ${OUTDIR} \
-        #     --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
-        #     --bcl-only-matched-reads true \
-        #     --force \
-        #     >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
+        dragen \
+            --bcl-conversion-only true \
+            --bcl-input-directory ${BASEDIR}/${FC} \
+            --output-directory ${OUTDIR} \
+            --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
+            --bcl-only-matched-reads true \
+            --force \
+            >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     else
         echo "ERROR: Could not determine instrument series for ${FC}"
         exit

@@ -37,7 +37,7 @@ do
     sleep 60
 done
 echo "Demux has completed. Uploading samples to BaseSpace"
-# python ${SOFTDIR}/emg_upload_fastqs.py
+python ${SOFTDIR}/emg_upload_fastqs.py
 touch ${WORKDIR}/${FC}/UploadBsComplete.txt
 
 
