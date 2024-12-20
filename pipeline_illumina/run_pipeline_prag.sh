@@ -11,7 +11,7 @@ BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
 WORKDIR="/mnt/spxp-app02/staging2/dragen"
 SOFTDIR="/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/"
 
-cd ${WORKDIR}
+mkdir ${WORKDIR}/${FC} && cd $_
 
 ## 1. Collecter les informations sur les familles
 echo "Get list of samples for run ${FC}"
