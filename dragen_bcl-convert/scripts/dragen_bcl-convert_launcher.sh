@@ -48,6 +48,7 @@ else
         echo "ERROR: Could not determine instrument series for ${FC}"
         exit
     fi
+    touch ${WORKDIR}/${FC}/DemuxComplete.txt
     mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
     mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
 fi

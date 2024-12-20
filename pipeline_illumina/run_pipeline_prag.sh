@@ -11,7 +11,8 @@ BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
 WORKDIR="/mnt/spxp-app02/staging2/dragen"
 SOFTDIR="/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/"
 
-mkdir ${WORKDIR}/${FC} && cd $_
+mkdir ${WORKDIR}/${FC}
+cd ${WORKDIR}/${FC}
 
 ## 1. Collecter les informations sur les familles
 echo "Get list of samples for run ${FC}"
@@ -30,7 +31,13 @@ echo "Sequencing has completed. Launching BCL-convert"
 bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
 
 ### 2.2. Téléverser les FASTQs sur BaseSpace
-# python ${SOFTDIR}/emg_upload_fastqs.py --data-dir ${WORKDIR}/${FC}/1.fastq/
+until [ -f ${WORKDIR}/${FC}/DemuxComplete.txt ]
+do
+    printf '.'
+    sleep 60
+done
+echo "Demux has completed. Uploading samples to BaseSpace"
+# python ${SOFTDIR}/emg_upload_fastqs.py
 
 
 ## 3. Créer les cas sur Emedgene 
