@@ -3,7 +3,7 @@
 # Watch for new sequencing runs to launch DRAGEN BCL-Convert and extract stats.
 # USAGE (see end of this script for systemd):
 #       sudo systemctl start dragen_bcl-convert_watcherd.service
-#       nohup path/to/script.sh > /dev/null 2>&1 &
+#       nohup /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcherd.sh > /dev/null 2>&1 &
 
 BASEDIR="/staging/hiseq_raw"
 WORKDIR="/staging2/dragen"
@@ -12,6 +12,7 @@ INSTRUMENTS=(A00516 A00977 LH00336 LH00207R)
 
 umask 0002
 cd /
+# TODO: Log to file instead of default /var/log/messages ?
 # touch /var/log/bcl-convert/dragen_bcl-convert_watcherd.log
 
 while true; do
@@ -33,6 +34,7 @@ while true; do
                     # TODO: Check SampleSheets ? 
                     if [ "${1}" = 'debug' ]; then echo "qsub dragen_bcl-convert_launcher.sh ${run}"; fi
                     #qsub dragen_bcl-convert_launcher.sh ${run}
+                    logger "Submitted demux job for ${run}"
                 fi
            fi
         done
@@ -42,7 +44,7 @@ while true; do
 done
 
 ## Using systemd:
-# sudo chmod +x /path/to/script.sh
+# sudo chmod +x /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcherd.sh
 # sudo vi /etc/systemd/system/dragen_bcl-convert_watcherd.service
 # Example content of a service file:
 #
