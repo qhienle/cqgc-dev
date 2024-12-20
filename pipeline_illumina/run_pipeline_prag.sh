@@ -10,6 +10,7 @@ FC_SHORT="${a[1]}_${a[2]}"
 BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
 WORKDIR="/mnt/spxp-app02/staging2/dragen"
 SOFTDIR="/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/"
+NAPTIME=900
 
 mkdir ${WORKDIR}/${FC}
 cd ${WORKDIR}/${FC}
@@ -21,12 +22,13 @@ python ${SOFTDIR}/list_run_samples.py ${FC}
 
 ## 2. Préparer les FASTQs
 ### 2.1. Déconvoluer et convertir les BCLs en FASTQs
-printf "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
+echo "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
 until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
 do
     printf '.'
-    sleep 60
+    sleep ${NAPTIME}
 done
+echo
 echo "Sequencing has completed. Launching BCL-convert"
 bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
 
@@ -34,8 +36,9 @@ bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-co
 until [ -f ${WORKDIR}/${FC}/DemuxComplete.txt ]
 do
     printf '.'
-    sleep 60
+    sleep ${NAPTIME}
 done
+echo
 echo "Demux has completed. Uploading samples to BaseSpace"
 python ${SOFTDIR}/emg_upload_fastqs.py
 touch ${WORKDIR}/${FC}/UploadBsComplete.txt
