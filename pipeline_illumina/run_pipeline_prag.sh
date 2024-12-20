@@ -27,7 +27,7 @@ do
     sleep 60
 done
 echo "Sequencing has completed. Launching BCL-convert"
-python /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
+bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
 
 ### 2.2. Téléverser les FASTQs sur BaseSpace
 # python ${SOFTDIR}/emg_upload_fastqs.py --data-dir ${WORKDIR}/${FC}/1.fastq/
