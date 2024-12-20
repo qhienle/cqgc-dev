@@ -7,8 +7,8 @@
 
 BASEDIR="/staging/hiseq_raw"
 WORKDIR="/staging2/dragen"
+NAPTIME=5
 INSTRUMENTS=(A00516 A00977 LH00336 LH00207R)
-NAP=5
 
 umask 0002
 cd /
@@ -29,12 +29,13 @@ while true; do
                 else
                     # TODO: Check SampleSheets ? 
                     if [ "${1}" = 'debug' ]; then echo "qsub dragen_bcl-convert_launcher.sh ${run}"; fi
+                    #qsub dragen_bcl-convert_launcher.sh ${run}
                 fi
            fi
         done
     done
     if [ "${1}" = 'debug' ]; then echo "Napping for ${NAP}..."; fi
-    sleep ${NAP}
+    sleep ${NAPTIME}
 done
 
 ## Using systemd:
