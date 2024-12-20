@@ -12,8 +12,6 @@ INSTRUMENTS=(A00516 A00977 LH00336 LH00207R)
 
 umask 0002
 cd /
-# TODO: Log to file instead of default /var/log/messages ?
-# touch /var/log/bcl-convert/dragen_bcl-convert_watcherd.log
 
 while true; do
     # 'CopyComplete.txt' in the run folder marks that sequencing is complete
@@ -33,7 +31,10 @@ while true; do
                 else
                     # TODO: Check SampleSheets ? 
                     if [ "${1}" = 'debug' ]; then echo "qsub dragen_bcl-convert_launcher.sh ${run}"; fi
-                    #qsub dragen_bcl-convert_launcher.sh ${run}
+                    # qsub dragen_bcl-convert_launcher.sh ${run}
+                    # TODO: logger to file instead of default /var/log/messages ?
+                    # touch /var/log/bcl-convert/dragen_bcl-convert_watcherd.log
+                    # logger -f /var/log/bcl-convert/dragen_bcl-convert_watcherd.log "Submitted demux job for ${run}"
                     logger "Submitted demux job for ${run}"
                 fi
            fi
