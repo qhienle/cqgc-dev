@@ -25,7 +25,10 @@ while true; do
             if [ -f ${path_to_run}/CopyComplete.txt ]; then
                 if [ -d ${WORKDIR}/${run} ]; then
                     # Extract stats from demux
-                    if [ "${1}" = 'debug' ]; then echo "Extracting demux stats from ${WORKDIR}/${run}/1.fastq/Reports/DemultiplexStats.csv"; fi
+                    if [ -f "${WORKDIR}/${run}/1.fastq/Reports/Demultiplex_Stats.csv" ]; then
+                        if [ "${1}" = 'debug' ]; then echo "Extracting demux stats from ${WORKDIR}/${run}/1.fastq/Reports/Demultiplex_Stats.csv"; fi
+                        # TODO: python script.py ${run}
+                    fi
                 else
                     # TODO: Check SampleSheets ? 
                     if [ "${1}" = 'debug' ]; then echo "qsub dragen_bcl-convert_launcher.sh ${run}"; fi
