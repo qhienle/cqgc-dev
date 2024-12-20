@@ -38,6 +38,7 @@ do
 done
 echo "Demux has completed. Uploading samples to BaseSpace"
 # python ${SOFTDIR}/emg_upload_fastqs.py
+touch ${WORKDIR}/${FC}/UploadBsComplete.txt
 
 
 ## 3. Créer les cas sur Emedgene 
