@@ -258,7 +258,7 @@ def df_to_manifest(df):
         'Phenotypes': 'Healthy',
         'Phenotypes Id': df['hpos'],
         #'Date Of Birth': pd.to_datetime(df['date_of_birth(YYYY-MM-DD)'], format='%d/%m/%Y'),
-        'Date Of Birth': df['birthdate'],
+        'Date Of Birth': df['date_of_birth(YYYY-MM-DD)'],
         'Boost Genes': '',
         'Gene List Id': '',
         'Kit Id': '',
@@ -477,6 +477,7 @@ def main(args):
 
     # 4. Output manifest for batch upload, by script or through the UI
     #
+    logging.debug(df)
     df_to_manifest(df)
     logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
 
