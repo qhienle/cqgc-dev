@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Run pipeline for PRAGMatIQ
-# USAGE: bash run_pipeline_prag.sh <RUN> # ex: 20241220_LH00336_0145_B22MKV5LT3
+# USAGE: bash run_pipeline_prag.sh <RUN>
+#        bash run_pipeline_prag.sh 20241220_LH00336_0145_B22MKV5LT3
+#        bash run_pipeline_prag.sh ${FC} >>${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
 
 ## 0. Mise en place de l'environnement de travail
 FC=${1}
