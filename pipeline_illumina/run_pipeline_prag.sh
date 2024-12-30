@@ -30,7 +30,7 @@ do
 done
 echo
 echo "Sequencing has completed. Launching BCL-convert"
-bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
+qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
 
 ### 2.2. Téléverser les FASTQs sur BaseSpace
 until [ -f ${WORKDIR}/${FC}/DemuxComplete.txt ]
