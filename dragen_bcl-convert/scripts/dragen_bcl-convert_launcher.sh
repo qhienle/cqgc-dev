@@ -16,10 +16,9 @@ else
     BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
     WORKDIR="/mnt/spxp-app02/staging2/dragen"
     OUTDIR="${WORKDIR}/${FC}/1.fastq"
-    cd ${WORKDIR}/${FC}
+    mkdir ${WORKDIR}/${FC}
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
-        INSTR="NoveSeq6000"
-        echo "Get Nanuq files for ${INSTR} run ${FC}"
+        echo "Get Nanuq files for NoveSeq6000 run ${FC}"
         python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${FC_SHORT}
         echo "Run dragen BCL-convert for ${FC}"
         dragen \
@@ -32,8 +31,7 @@ else
             --force \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     elif [[ "${FC_SHORT}" =~ ^LH00* ]]; then
-        INSTR="NoveSeqXPlus"
-        echo "Get Nanuq files for ${INSTR} run ${FC}"
+        echo "Get Nanuq files for NoveSeqXPlus run ${FC}"
         python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --orient-index2 --run ${FC_SHORT}
         echo "Run dragen BCL-convert for ${FC}"
         dragen \
