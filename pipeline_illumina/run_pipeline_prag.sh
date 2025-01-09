@@ -14,7 +14,9 @@ WORKDIR="/mnt/spxp-app02/staging2/dragen"
 SOFTDIR="/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/"
 NAPTIME=900
 
-mkdir ${WORKDIR}/${FC}
+if [ ! -d ${WORKDIR}/${FC} ]; then
+    mkdir ${WORKDIR}/${FC}
+fi
 cd ${WORKDIR}/${FC}
 
 ## 1. Collecter les informations sur les familles
@@ -49,7 +51,7 @@ touch ${WORKDIR}/${FC}/UploadBsComplete.txt
 ## 3. Créer les cas sur Emedgene 
 ###  3.1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
 ###  3.2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
-# python ${SOFTDIR}/emg_make_batch_from_nanuq.py ${FC_SHORT} >> ${WORKDIR}/${FC}/emg_make_batch.log  2>&1
+# python ${SOFTDIR}/emg_make_batch_from_nanuq.py ${FC_SHORT} >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
 
 
 ## 4. Collecter les metriques
