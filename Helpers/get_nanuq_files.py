@@ -23,10 +23,9 @@ if these environment variables are set globally _e.g._:
 
 ## OPTIONS
 
---orient-index2|-o: Orient index2 in the SampleSheet for NovaSeqX (sense) as 
-    well as for the NovaSeq6000 (reverse-complement). If this flag is not 
-    present, index2 in the SampleSheet will be in reverse-complement (for the
-    NovaSeq6000)
+--orient-index2|-o: [DEPRECATED] Orient index2 in the SampleSheet for NovaSeqX
+    (sense). If FALSE (not present), index2 in the SampleSheet will be in 
+    reverse-complement (for the NovaSeq6000). 
 """
 
 import os, sys, subprocess
@@ -47,7 +46,7 @@ def parse_args():
     parser.add_argument('-u', '--username', help="Nanuq username")
     parser.add_argument('-p', '--password', help="Nanuq password")
     parser.add_argument('-o', '--orient-index2', action="store_true", 
-                        help="Orient index2 in the SampleSheet for NovaSeqX as well as NovaSeq6k")
+                        help="Orient index2 in the SampleSheet for NovaSeqX (deprecated)")
     return(parser.parse_args())
 
 def download_files(run, credentials, out_sheet, out_names, out_pools, orient_index2=False):
@@ -71,10 +70,22 @@ def download_files(run, credentials, out_sheet, out_names, out_pools, orient_ind
     """
     #server = 'http://spxp-app07'
     server = 'https://nanuq.cqgc.hsj.rtss.qc.ca'
+    nq = Nanuq()
 
-    # Index2 in reverse-complement for NovaSeq6000
-    # New API decides whether Index2 is rc for NovaSeq6000, or forward for NovaSeqX
+    # Different Nanuq API endpoints determine whether Index2 is in reverse-
+    # complement for NovaSeq6000 (A00 series of instrument IDs), or forward 
+    # for NovaSeqX (LH00 series)
     #
+    instrument = nq.parse_run_name(run)[1]
+    if instrument.startswith('A00'):
+        url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}/'
+    elif instrument.startswith('LH00'):
+        url_sheet = f'{server}/nanuqMPS/dragenSampleSheet/NovaSeq/{run}/'
+    else:
+        print(f"ERROR: Could not determine index2 orientation for {instrument}")
+
+    # Deprecated
+    # 
     if orient_index2 is False:
         url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}/'
     else:
