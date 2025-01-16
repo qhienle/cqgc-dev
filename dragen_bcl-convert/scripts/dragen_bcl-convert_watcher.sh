@@ -7,41 +7,63 @@
 #       launch in crontab
 #       nohup /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcherd.sh > /dev/null 2>&1 &
 
-BASEDIR="/staging/hiseq_raw"
-WORKDIR="/staging2/dragen"
-NAPTIME=5
-INSTRUMENTS=(A00516 A00977 LH00336 LH00207R)
+# Scan BCL output dirs (BASEDIR) for new runs (FC) to demux
+# Skip runs for LowPass (check if SampleSheet exists (LowPass))
+# File ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
+# Demux outputs are written to ${WORKDIR}/dragen/${FC}
+# File ${WORKDIR}/dragen/${FC}/DemuxComplete.txt marks end of BCL-conversion
 
-umask 0002
-cd /
 
-while true; do
-    # 'CopyComplete.txt' in the run folder marks that sequencing is complete
-    # and that all files have been copied to ${BASEDIR}.
-    # Launch DRAGEN BCL-Convert if the run folder contains 'CopyComplete.txt', 
-    # and if results have not been generated, i.e. output folder exists.
-    for instr in ${INSTRUMENTS[@]}; do
-        for path_to_run in $( ls -d ${BASEDIR}/${instr}/* ); do
-            run=$( echo ${path_to_run} | cut -d / -f 5 )
-            if [ -f ${path_to_run}/CopyComplete.txt ]; then
-                if [ -d ${WORKDIR}/${run} ]; then
-                    # Extract stats from demux
-                    if [ -f "${WORKDIR}/${run}/1.fastq/Reports/Demultiplex_Stats.csv" ]; then
-                        if [ "${1}" = 'debug' ]; then echo "Extracting demux stats from ${WORKDIR}/${run}/1.fastq/Reports/Demultiplex_Stats.csv"; fi
-                        # TODO: python script.py ${run}
-                    fi
-                else
-                    # TODO: Check SampleSheets ? 
-                    if [ "${1}" = 'debug' ]; then echo "qsub dragen_bcl-convert_launcher.sh ${run}"; fi
-                    # qsub dragen_bcl-convert_launcher.sh ${run}
-                    # TODO: logger to file instead of default /var/log/messages ?
-                    # touch /var/log/bcl-convert/dragen_bcl-convert_watcherd.log
-                    # logger -f /var/log/bcl-convert/dragen_bcl-convert_watcherd.log "Submitted demux job for ${run}"
-                    logger "Submitted demux job for ${run}"
-                fi
-           fi
+BASEDIR='/staging/hiseq_raw'
+WORKDIR='/staging2/dragen'
+WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/A00977" "${BASEDIR}/LH00207R" "/mnt/vs_nas_chusj/SPXP_APP02_NFS/LH00336")
+NAPTIME=900
+
+launch_run() {
+    # Check if sequencing is finished (CopyComplete.txt) and that run
+    # is not already being processed by another instance of this script
+    local dir="$1"
+    local fc="$2"
+    parts=($(echo ${fc} | tr '_' '\n'))
+    fc_short="${parts[1]}_${parts[2]}"
+    if [[ -d ${WORKDIR}/${fc} ]]; then
+        echo "PASS: Run already processed in ${WORKDIR}/${fc}"
+    else
+        echo "Processing run in ${dir}/${fc}/..."
+        echo "Waiting for ${dir}/${fc}/CopyComplete.txt"
+        until [ -f "${dir}/${fc}/CopyComplete.txt" ]
+        do
+            printf '.'
+            sleep ${NAPTIME}
         done
+        echo "Sequencing has completed. Launching BCL-convert"
+        qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${fc}
+    fi
+}
+
+for dir in ${WATCHDIRS[@]}; do
+    echo "Scanning ${dir}..."
+    for FC in $( ls ${dir} ); do
+        parts=($(echo ${FC} | tr '_' '\n'))
+        if [[ ${#parts[@]} -eq 4 ]]; then
+            # Check SampleSheet if run is LowPass.
+            # If no SampleSheet is found, then run is not LowPass
+            if [[ -f "${dir}/${FC}/SampleSheet.csv" ]]; then
+                if grep -q "LowPass" "${dir}/${FC}/SampleSheet.csv"; then
+                    echo "PASS: ${dir}/${FC}: Found the word LowPass in SampleSheet"
+                else
+                    echo "${dir}/${FC}: SampleSheet exists and not for LowPass."
+                    launch_run ${dir} ${FC}
+                fi
+            elif [[ -f "${dir}/${FC}/LowPass*.csv" ]]; then
+                echo "PASS: ${dir}/${FC}: Found what looks like a LowPass SampleSheet."
+            else
+                echo "${dir}/${FC}: Could not find ${dir}/${FC}/SampleSheet.csv."
+                    launch_run ${dir} ${FC}
+            fi
+        fi
+        # else: ignore because format of folder name doesn't look like a run
     done
-    if [ "${1}" = 'debug' ]; then echo "Napping for ${NAP}..."; fi
-    sleep ${NAPTIME}
+    echo
 done
+exit
