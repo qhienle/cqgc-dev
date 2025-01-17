@@ -73,7 +73,7 @@ def download_files(run, credentials, out_sheet, out_names, out_pools):
     server = 'https://nanuq.cqgc.hsj.rtss.qc.ca'
     nq = Nanuq()
     fc_short = nq.check_run_name(run)
-    instrument = nq.parse_run_name(run)[1]
+    instrument = fc_short.split('_')[0]
 
     # Different Nanuq API endpoints determine whether Index2 is in reverse-
     # complement for NovaSeq6000 (A00 series of instrument IDs), or forward 
