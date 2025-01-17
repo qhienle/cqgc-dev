@@ -11,7 +11,7 @@ a=($(echo ${FC} | tr '_' '\n'))
 FC_SHORT="${a[1]}_${a[2]}"
 BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
 WORKDIR="/mnt/spxp-app02/staging2/dragen"
-SOFTDIR="/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/"
+SOFTDIR="/staging2/soft/CQGC-utils"
 NAPTIME=900
 
 if [ ! -d ${WORKDIR}/${FC} ]; then
@@ -19,8 +19,13 @@ if [ ! -d ${WORKDIR}/${FC} ]; then
 fi
 cd ${WORKDIR}/${FC}
 
-## 1. Préparer les FASTQs
-## La déconvolution et conversion des BCLs en FASTQs devrait se faire automatiquement
+## 1. Collecter les informations sur les familles
+echo "Get list of samples for run ${FC}"
+python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
+
+
+## 2. Préparer les FASTQs
+## 2.1. La déconvolution et conversion des BCLs en FASTQs devrait se faire automatiquement
 # echo "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
 # until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
 # do
@@ -28,10 +33,12 @@ cd ${WORKDIR}/${FC}
 #     sleep ${NAPTIME}
 # done
 # echo
-# echo "Sequencing has completed. Launching BCL-convert"
-# qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
+# echo "Sequencing has completed."
+# echo "Getting SampleSheet from Nanuq"
+# python ${SOFTDIR}/Helpers/get_nanuq_files.py --run ${FC_SHORT} 
+# qsub ${SOFTDIR}//Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
 
-### 1.2. Téléverser les FASTQs sur BaseSpace
+### 2.2. Téléverser les FASTQs sur BaseSpace
 until [ -f ${WORKDIR}/${FC}/DemuxComplete.txt ]
 do
     printf '.'
@@ -39,19 +46,15 @@ do
 done
 echo
 echo "Demux has completed. Uploading samples to BaseSpace"
-python ${SOFTDIR}/emg_upload_fastqs.py
+## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
+python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
 touch ${WORKDIR}/${FC}/UploadBsComplete.txt
-
-
-## 2. Collecter les informations sur les familles
-echo "Get list of samples for run ${FC}"
-python ${SOFTDIR}/list_run_samples.py ${FC}
 
 
 ## 3. Créer les cas sur Emedgene 
 ###  3.1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
 ###  3.2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
-# python ${SOFTDIR}/emg_make_batch_from_nanuq.py ${FC_SHORT} >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
+# python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT} >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
 
 
 ## 4. Collecter les metriques

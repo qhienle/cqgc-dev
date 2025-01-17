@@ -27,19 +27,23 @@ launch_run() {
     local fc="$2"
     parts=($(echo ${fc} | tr '_' '\n'))
     fc_short="${parts[1]}_${parts[2]}"
-    if [[ -d ${WORKDIR}/${fc} ]]; then
-        echo "PASS: Run already processed in ${WORKDIR}/${fc}"
+    if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
+        echo "Found file ${dir}/${fc}/CopyComplete.txt indicating that sequencing has finished"
+        if [[ -d ${WORKDIR}/${fc} ]]; then
+            echo "PASS: Run already processed in ${WORKDIR}/${fc}"
+        else
+            echo "Getting SampleSheet and other files from Nanuq..."
+            python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${FC_SHORT}
+            if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
+                echo "Launching BCL-convert for run in ${dir}/${fc}/..."
+                qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${fc}
+            else
+                echo "ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
+                exit 1
+            fi
+        fi
     else
-        echo "Processing run in ${dir}/${fc}/..."
-        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${FC_SHORT}
         echo "Waiting for ${dir}/${fc}/CopyComplete.txt"
-        until [ -f "${dir}/${fc}/CopyComplete.txt" ]
-        do
-            printf '.'
-            sleep ${NAPTIME}
-        done
-        echo "Sequencing has completed. Launching BCL-convert"
-        qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${fc}
     fi
 }
 
