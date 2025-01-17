@@ -72,20 +72,21 @@ def download_files(run, credentials, out_sheet, out_names, out_pools):
     #server = 'http://spxp-app07'
     server = 'https://nanuq.cqgc.hsj.rtss.qc.ca'
     nq = Nanuq()
+    fc_short = nq.check_run_name(run)
+    instrument = nq.parse_run_name(run)[1]
 
     # Different Nanuq API endpoints determine whether Index2 is in reverse-
     # complement for NovaSeq6000 (A00 series of instrument IDs), or forward 
     # for NovaSeqX (LH00 series)
     #
-    instrument = nq.parse_run_name(run)[1]
     if instrument.startswith('A00'):
-        url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}/'
+        url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{fc_short}/'
     elif instrument.startswith('LH00'):
-        url_sheet = f'{server}/nanuqMPS/dragenSampleSheet/NovaSeq/{run}/'
+        url_sheet = f'{server}/nanuqMPS/dragenSampleSheet/NovaSeq/{fc_short}/'
     else:
         sys.exit(f"ERROR: Could not determine index2 orientation for {instrument}")
-    url_names = f'{server}/nanuqMPS/sampleConversionTable/run/{run}/technology/NovaSeq/'
-    url_pools = f'{server}/nanuqMPS/poolingSampleSheet/run/{run}/technology/NovaSeq/'
+    url_names = f'{server}/nanuqMPS/sampleConversionTable/run/{fc_short}/technology/NovaSeq/'
+    url_pools = f'{server}/nanuqMPS/poolingSampleSheet/run/{fc_short}/technology/NovaSeq/'
 
     subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_sheet, '-O', out_sheet])
     subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_names, '-O', out_names])
@@ -113,7 +114,8 @@ def main():
         except Exception as err:
             raise SystemExit(f"Caught an unexpected Exception:\n{err}\n")
     else:
-        print(f"Got FC_SHORT '{args.run}' from command line argument.")
+        fc_short = Nanuq().check_run_name(args.run)
+        print(f"Got FC_SHORT '{fc_short}' from command line argument.")
 
     # WARN that CLI option `--orient-index2` is DEPRECATED
     #
@@ -161,17 +163,17 @@ def main():
     out_names = outdir + os.sep + 'SampleNames.txt'
     out_pools = outdir + os.sep + 'SamplePools.csv'
 
-    download_files(args.run, credentials, out_sheet, out_names, out_pools)
+    download_files(fc_short, credentials, out_sheet, out_names, out_pools)
 
     # If files downloaded files are empty (size == 0), no run could be found 
     # with ${FC_SHORT} identifier. Try with ${XP}, if set, else warn and quit. 
     #
     if os.stat(out_sheet).st_size == 0 and os.stat(out_names).st_size == 0 and os.stat(out_pools).st_size == 0:
-        print(f"ERROR: Empty files downloaded with {args.run}. Trying with ${{XP}}.\n")
+        print(f"ERROR: Empty files downloaded with {fc_short}. Trying with ${{XP}}.\n")
         if 'XP' in os.environ:
             download_files(os.environ['XP'], credentials, out_sheet, out_names, out_pools)
         else:
-            print(f"ERROR: Empty files downloaded with {args.run} and ${{XP}} not set.")
+            print(f"ERROR: Empty files downloaded with {fc_short} and ${{XP}} not set.")
             print(f"Please check identifier for RUN.")
 
     print(f"First lines of downloaded files:")
