@@ -19,7 +19,6 @@ else
     mkdir ${WORKDIR}/${FC}
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
         echo "Get Nanuq files for NoveSeq6000 run ${FC}"
-        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${FC_SHORT}
         echo "Run dragen BCL-convert for ${FC}"
         dragen \
             --bcl-conversion-only true \
@@ -32,7 +31,6 @@ else
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     elif [[ "${FC_SHORT}" =~ ^LH00* ]]; then
         echo "Get Nanuq files for NoveSeqXPlus run ${FC}"
-        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --orient-index2 --run ${FC_SHORT}
         echo "Run dragen BCL-convert for ${FC}"
         dragen \
             --bcl-conversion-only true \

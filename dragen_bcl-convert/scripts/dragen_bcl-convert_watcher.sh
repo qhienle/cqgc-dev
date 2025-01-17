@@ -22,6 +22,7 @@ NAPTIME=900
 launch_run() {
     # Check if sequencing is finished (CopyComplete.txt) and that run
     # is not already being processed by another instance of this script
+    # which creates output dir and Sample* files through `get_nanuq_files.py``
     local dir="$1"
     local fc="$2"
     parts=($(echo ${fc} | tr '_' '\n'))
@@ -30,6 +31,7 @@ launch_run() {
         echo "PASS: Run already processed in ${WORKDIR}/${fc}"
     else
         echo "Processing run in ${dir}/${fc}/..."
+        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${FC_SHORT}
         echo "Waiting for ${dir}/${fc}/CopyComplete.txt"
         until [ -f "${dir}/${fc}/CopyComplete.txt" ]
         do
