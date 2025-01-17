@@ -25,7 +25,9 @@ if these environment variables are set globally _e.g._:
 
 --orient-index2|-o: [DEPRECATED] Orient index2 in the SampleSheet for NovaSeqX
     (sense). If FALSE (not present), index2 in the SampleSheet will be in 
-    reverse-complement (for the NovaSeq6000). 
+    reverse-complement (for NovaSeq6000). 
+    Orientation of index2 is now determined by the instrument identifier in the
+    RUN name (e.g. A00516=NovaSeq6000, LH00336=NovaSeqX)
 """
 
 import os, sys, subprocess
@@ -48,10 +50,10 @@ def parse_args():
     parser.add_argument('-u', '--username', help="Nanuq username")
     parser.add_argument('-p', '--password', help="Nanuq password")
     parser.add_argument('-o', '--orient-index2', action="store_true", 
-                        help="Orient index2 in the SampleSheet for NovaSeqX (deprecated)")
+                        help="(DEPRECATED) Orient index2 in the SampleSheet for NovaSeqX")
     return(parser.parse_args())
 
-def download_files(run, credentials, out_sheet, out_names, out_pools, orient_index2=False):
+def download_files(run, credentials, out_sheet, out_names, out_pools):
     """
     Download SampleSheet.csv, SampleNames.txt and SamplePools.csv from Nanuq
     - run [str]: short Run name, ex: LH00336_0043
@@ -59,9 +61,6 @@ def download_files(run, credentials, out_sheet, out_names, out_pools, orient_ind
     - out_sheet: SampleSheet file. Default=SampleSheet.csv
     - out_names: SampleNames file. Default=SampleNames.txt
     - out_sheet: SamplePools file. Default=SamplePools.csv
-    - orient_index2: API call to select the version of the SampleSheet, with 
-        index2 in sense (NovaSeqX) or reverse-complement (NovaSeq600).
-        Default=False (reverse-complement, for the NovaSeq6000)
         
     Examples from Nanuq
     wget --post-data "j_username=USER&j_password=PASS" --no-cookies https://cigcp-nanuq.calculquebec.ca/nanuqMPS/sampleSheet/NovaSeq/A00516_0295/ -O 'SampleSheet.csv'
@@ -116,6 +115,11 @@ def main():
     else:
         print(f"Got FC_SHORT '{args.run}' from command line argument.")
 
+    # WARN that CLI option `--orient-index2` is DEPRECATED
+    #
+    if args.orient_index2:
+        print(f"WARNING: Option --orient-index2 is DEPRECATED. Orientation of index2 determined from RUN name")
+
     # Connect and download, using Nanuq authentication with credentials from 
     # either the command-line arguments or from the config file ./nanuq
     #
@@ -157,8 +161,7 @@ def main():
     out_names = outdir + os.sep + 'SampleNames.txt'
     out_pools = outdir + os.sep + 'SamplePools.csv'
 
-    print(f"\n\nCREDENTIALS: {credentials}; OUTDIR: {outdir}; OUT_SHEET: {out_sheet}\n\n")
-    download_files(args.run, credentials, out_sheet, out_names, out_pools, args.orient_index2)
+    download_files(args.run, credentials, out_sheet, out_names, out_pools)
 
     # If files downloaded files are empty (size == 0), no run could be found 
     # with ${FC_SHORT} identifier. Try with ${XP}, if set, else warn and quit. 
@@ -166,7 +169,7 @@ def main():
     if os.stat(out_sheet).st_size == 0 and os.stat(out_names).st_size == 0 and os.stat(out_pools).st_size == 0:
         print(f"ERROR: Empty files downloaded with {args.run}. Trying with ${{XP}}.\n")
         if 'XP' in os.environ:
-            download_files(os.environ['XP'], credentials, out_sheet, out_names, out_pools, args.orient_index2)
+            download_files(os.environ['XP'], credentials, out_sheet, out_names, out_pools)
         else:
             print(f"ERROR: Empty files downloaded with {args.run} and ${{XP}} not set.")
             print(f"Please check identifier for RUN.")
