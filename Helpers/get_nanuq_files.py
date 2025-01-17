@@ -31,7 +31,9 @@ if these environment variables are set globally _e.g._:
 import os, sys, subprocess
 import argparse
 
-sys.path.append('/staging2/soft/CQGC-utils')
+#sys.path.append('/staging2/soft/CQGC-utils')
+#src_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from lib.nanuq import Nanuq
 
 
@@ -82,14 +84,7 @@ def download_files(run, credentials, out_sheet, out_names, out_pools, orient_ind
     elif instrument.startswith('LH00'):
         url_sheet = f'{server}/nanuqMPS/dragenSampleSheet/NovaSeq/{run}/'
     else:
-        print(f"ERROR: Could not determine index2 orientation for {instrument}")
-
-    # Deprecated
-    # 
-    if orient_index2 is False:
-        url_sheet = f'{server}/nanuqMPS/sampleSheetV2/NovaSeq/{run}/'
-    else:
-        url_sheet = f'{server}/nanuqMPS/dragenSampleSheet/NovaSeq/{run}/'
+        sys.exit(f"ERROR: Could not determine index2 orientation for {instrument}")
     url_names = f'{server}/nanuqMPS/sampleConversionTable/run/{run}/technology/NovaSeq/'
     url_pools = f'{server}/nanuqMPS/poolingSampleSheet/run/{run}/technology/NovaSeq/'
 
@@ -104,7 +99,8 @@ def main():
     Otherwise, look for them in config file `~/.nanuq`.
     """
     args = parse_args()
-    auth = '~/.nanuq'
+    #auth = '~/.nanuq'
+    auth = f"{os.path.expanduser('~')}{os.sep}.nanuq"
 
     # If RUN identifier not defined by option -r/--run, try to get this info
     # from env var ${FC_SHORT}, if set as part of the bcl-convert procedure.
@@ -161,6 +157,7 @@ def main():
     out_names = outdir + os.sep + 'SampleNames.txt'
     out_pools = outdir + os.sep + 'SamplePools.csv'
 
+    print(f"\n\nCREDENTIALS: {credentials}; OUTDIR: {outdir}; OUT_SHEET: {out_sheet}\n\n")
     download_files(args.run, credentials, out_sheet, out_names, out_pools, args.orient_index2)
 
     # If files downloaded files are empty (size == 0), no run could be found 
