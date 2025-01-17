@@ -19,24 +19,19 @@ if [ ! -d ${WORKDIR}/${FC} ]; then
 fi
 cd ${WORKDIR}/${FC}
 
-## 1. Collecter les informations sur les familles
-echo "Get list of samples for run ${FC}"
-python ${SOFTDIR}/list_run_samples.py ${FC}
+## 1. Préparer les FASTQs
+## La déconvolution et conversion des BCLs en FASTQs devrait se faire automatiquement
+# echo "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
+# until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
+# do
+#     printf '.'
+#     sleep ${NAPTIME}
+# done
+# echo
+# echo "Sequencing has completed. Launching BCL-convert"
+# qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
 
-
-## 2. Préparer les FASTQs
-### 2.1. Déconvoluer et convertir les BCLs en FASTQs
-echo "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
-until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
-do
-    printf '.'
-    sleep ${NAPTIME}
-done
-echo
-echo "Sequencing has completed. Launching BCL-convert"
-qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
-
-### 2.2. Téléverser les FASTQs sur BaseSpace
+### 1.2. Téléverser les FASTQs sur BaseSpace
 until [ -f ${WORKDIR}/${FC}/DemuxComplete.txt ]
 do
     printf '.'
@@ -46,6 +41,11 @@ echo
 echo "Demux has completed. Uploading samples to BaseSpace"
 python ${SOFTDIR}/emg_upload_fastqs.py
 touch ${WORKDIR}/${FC}/UploadBsComplete.txt
+
+
+## 2. Collecter les informations sur les familles
+echo "Get list of samples for run ${FC}"
+python ${SOFTDIR}/list_run_samples.py ${FC}
 
 
 ## 3. Créer les cas sur Emedgene 
