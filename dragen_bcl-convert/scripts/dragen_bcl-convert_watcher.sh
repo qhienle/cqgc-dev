@@ -29,6 +29,8 @@ launch_run() {
         if [[ -d ${WORKDIR}/${fc} ]]; then
             echo "PASS: Run already processed in ${WORKDIR}/${fc}"
         else
+            mkdir ${WORKDIR}/${fc}
+            cd ${WORKDIR}/${fc}
             echo "Getting SampleSheet and other files from Nanuq..."
             python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
             if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
