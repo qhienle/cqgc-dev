@@ -30,7 +30,7 @@ launch_run() {
             echo "PASS: Run already processed in ${WORKDIR}/${fc}"
         else
             echo "Getting SampleSheet and other files from Nanuq..."
-            python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${FC_SHORT}
+            python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
             if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
                 echo "Launching BCL-convert for run in ${dir}/${fc}/..."
                 qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${fc}
