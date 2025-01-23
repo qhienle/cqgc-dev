@@ -25,24 +25,24 @@ launch_run() {
     parts=($(echo ${fc} | tr '_' '\n'))
     fc_short="${parts[1]}_${parts[2]}"
     if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
-        echo "Found file ${dir}/${fc}/CopyComplete.txt indicating that sequencing has finished"
+        echo "${dir}/${fc}: CopyComplete.txt file indicates that sequencing has finished"
         if [[ -d ${WORKDIR}/${fc} ]]; then
-            echo "PASS: Run already processed in ${WORKDIR}/${fc}"
+            echo "    PASS: Run already processed in ${WORKDIR}/${fc}"
         else
             mkdir ${WORKDIR}/${fc}
             cd ${WORKDIR}/${fc}
-            echo "Getting SampleSheet and other files from Nanuq..."
+            echo "    Getting SampleSheet and other files from Nanuq..."
             python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
             if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-                echo "Launching BCL-convert for run in ${dir}/${fc}/..."
+                echo "    ${dir}/${fc}/: Launching BCL-convert with qsub..."
                 qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${fc}
             else
-                echo "ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
+                echo "    ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
                 exit 1
             fi
         fi
     else
-        echo "Waiting for ${dir}/${fc}/CopyComplete.txt"
+        echo "    ${dir}/${fc}: Sequencing not finished. Waiting for CopyComplete.txt"
     fi
 }
 
@@ -53,17 +53,18 @@ for dir in ${WATCHDIRS[@]}; do
         if [[ ${#parts[@]} -eq 4 ]]; then
             # Check SampleSheet if run is LowPass.
             # If no SampleSheet is found, then run is not LowPass
+            echo "${FC}"
             if [[ -f "${dir}/${FC}/SampleSheet.csv" ]]; then
                 if grep -q "LowPass" "${dir}/${FC}/SampleSheet.csv"; then
-                    echo "PASS: ${dir}/${FC}: Found the word LowPass in SampleSheet"
+                    echo "    PASS: ${dir}/${FC}: Found the word LowPass in SampleSheet"
                 else
                     echo "${dir}/${FC}: SampleSheet exists and not for LowPass."
                     launch_run ${dir} ${FC}
                 fi
             elif [[ -f "${dir}/${FC}/LowPass*.csv" ]]; then
-                echo "PASS: ${dir}/${FC}: Found what looks like a LowPass SampleSheet."
+                echo "    PASS: ${dir}/${FC}: Found what looks like a LowPass SampleSheet."
             else
-                echo "${dir}/${FC}: Could not find ${dir}/${FC}/SampleSheet.csv."
+                echo "    ${dir}/${FC}: Could not find ${dir}/${FC}/SampleSheet.csv."
                     launch_run ${dir} ${FC}
             fi
         fi
