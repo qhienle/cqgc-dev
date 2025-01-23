@@ -1,18 +1,15 @@
 #!/bin/bash
 
-# Watch for new sequencing runs to launch DRAGEN BCL-Convert and extract stats.
-# This version to be launched using crontab, instead of systemd for the service
-# version of this script `dragen_bcl-convert_watcherd.sh`.
-# USAGE :
-#       launch in crontab
-#       nohup /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcherd.sh > /dev/null 2>&1 &
+# Watch for new sequencing runs to launch DRAGEN BCL-Convert
+# TODO: Extract stats when DemuxComplete.
+# USAGE: Launch in crontab
+#        bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcher.sh
 
 # Scan BCL output dirs (BASEDIR) for new runs (FC) to demux
 # Skip runs for LowPass (check if SampleSheet exists (LowPass))
-# File ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
 # Demux outputs are written to ${WORKDIR}/dragen/${FC}
+# File ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
 # File ${WORKDIR}/dragen/${FC}/DemuxComplete.txt marks end of BCL-conversion
-
 
 BASEDIR='/staging/hiseq_raw'
 WORKDIR='/staging2/dragen'
