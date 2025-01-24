@@ -12,8 +12,8 @@
 # File ${BASEDIR}/${FC}/Failed.txt marks that sequencing has failed
 # File ${WORKDIR}/dragen/${FC}/DemuxComplete.txt marks end of BCL-conversion
 
-BASEDIR='/staging/hiseq_raw'
-WORKDIR='/staging2/dragen'
+BASEDIR='/mnt/spxp-app02/staging/hiseq_raw'
+WORKDIR='/mnt/spxp-app02/staging2/dragen'
 WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/A00977" "${BASEDIR}/LH00207R" "/mnt/vs_nas_chusj/SPXP_APP02_NFS/LH00336")
 
 launch_run() {
