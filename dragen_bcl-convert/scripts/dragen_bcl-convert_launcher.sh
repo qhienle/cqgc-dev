@@ -59,7 +59,7 @@ if [ -f ${WORKDIR}/${FC}/SampleSheet.csv ]; then
         echo "ERROR: Could not determine instrument series for ${FC}" >&2
         exit 1
     fi
-    touch ${WORKDIR}/${FC}/DemuxComplete.txt
+    cp ${OUTDIR}/Logs/FastqComplete.txt ${BASEDIR}/${FC}
     mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
     mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
 else
