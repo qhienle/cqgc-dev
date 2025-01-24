@@ -34,7 +34,6 @@ OUTDIR="${WORKDIR}/${FC}/1.fastq"
 # Run bcl-convert depending on the instrument and SampleSheet
 if [ -f ${WORKDIR}/${FC}/SampleSheet.csv ]; then
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
-        echo "Get Nanuq files for NoveSeq6000 run ${FC}"
         echo "Run dragen BCL-convert for ${FC}"
         dragen \
             --bcl-conversion-only true \
@@ -46,7 +45,6 @@ if [ -f ${WORKDIR}/${FC}/SampleSheet.csv ]; then
             --force \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     elif [[ "${FC_SHORT}" =~ ^LH00* ]]; then
-        echo "Get Nanuq files for NoveSeqXPlus run ${FC}"
         echo "Run dragen BCL-convert for ${FC}"
         dragen \
             --bcl-conversion-only true \
