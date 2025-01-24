@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """
-Make a batch file for Case creation in Emedgene from list of samples.
+Make a batch file for Case creation in Emedgene from list of samples 
+(default='samples_list.csv').
 
 [2024-08-22] IN PROGRESS: This script is meant to replace emg_make_batch.py and
 to work for projects PRAG, AOH and Q1K.
 
 USAGE: emg_make_batch.py --file samples_list.csv
        emg_make_batch.py --help
+
+Reads from a CSV file listing samples from which cases are created. By default,
+searches for 'samples_list.csv' file located in the current working directory.
+This file can be generated using the script `list_run_samples.py [RUN]`.
 
 Credentials to access Emedgene, Phenotips and REDCap should be stored in a 
 configuration file in JSON format. The default `gapp_conf.json` must contain:
@@ -58,7 +63,7 @@ __version__ = "0.1"
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Make Emedgene batch file for case creation from samples_list.")
-    parser.add_argument('--file',    '-f', nargs='?', default='samples_list.csv', help="List of samples with Case information")
+    parser.add_argument('--file',    '-f', nargs='?', default='samples_list.csv', help="List of samples with Case information. Default='samples_list.csv'")
     parser.add_argument('--project', '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
