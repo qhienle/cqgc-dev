@@ -24,9 +24,10 @@ else
 fi
 
 # Set BASEDIR and WORKDIR if environment variables not exported
-if [[ -z ${BASEDIR} ]]; then
+if [[ -z ${BASEDIR} ]]; then 
     BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
-elif [[ -z ${WORKDIR} ]]; then
+fi
+if [[ -z ${WORKDIR} ]]; then
     WORKDIR="/mnt/spxp-app02/staging2/dragen"
 fi
 OUTDIR="${WORKDIR}/${FC}/1.fastq"
