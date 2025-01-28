@@ -19,7 +19,7 @@ LOGFILE="${WORKDIR}/dragen_bcl-convert_watcher.log"
 LOGPREFIX="[bcl-watcher]"
 WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/A00977" "${BASEDIR}/LH00207R" "/mnt/vs_nas_chusj/SPXP_APP02_NFS/LH00336")
 
-#printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" ) | tee -a ${LOGFILE}/
+printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" ) #| tee -a ${LOGFILE}/
 
 launch_run() {
     # Check if sequencing is finished (CopyComplete.txt) and that run
