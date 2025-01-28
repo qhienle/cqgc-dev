@@ -19,7 +19,7 @@ LOGFILE="${WORKDIR}/dragen_bcl-convert_watcher.log"
 LOGPREFIX="[bcl-watcher]"
 WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/A00977" "${BASEDIR}/LH00207R" "/mnt/vs_nas_chusj/SPXP_APP02_NFS/LH00336")
 
-printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" )
+#printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" ) | tee -a ${LOGFILE}/
 
 launch_run() {
     # Check if sequencing is finished (CopyComplete.txt) and that run
@@ -30,7 +30,7 @@ launch_run() {
     parts=($(echo ${fc} | tr '_' '\n'))
     fc_short="${parts[1]}_${parts[2]}"
     if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
-        echo "${LOGPREFIX} ${dir}/${fc}/CopyComplete.txt file indicates that sequencing has finished"
+        echo "${LOGPREFIX} CopyComplete.txt file indicates that sequencing has finished"
         if [[ -d ${WORKDIR}/${fc} ]]; then
             echo "${LOGPREFIX} PASS: Run already processed in ${WORKDIR}/${fc}"
         else
@@ -62,7 +62,7 @@ for dir in ${WATCHDIRS[@]}; do
             # Check SampleSheet if run is LowPass.
             # If no SampleSheet is found, then run is not LowPass
             echo "---------------------------------"
-            echo "${LOGPREFIX} ${dir}/${FC}"
+            echo "${LOGPREFIX} WATCH: ${FC}"
             if [[ -f "${dir}/${FC}/SampleSheet.csv" ]]; then
                 if grep -q "LowPass" "${dir}/${FC}/SampleSheet.csv"; then
                     echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
