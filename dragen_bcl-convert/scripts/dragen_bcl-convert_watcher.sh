@@ -61,27 +61,27 @@ for dir in ${WATCHDIRS[@]}; do
             # Check SampleSheet if run is LowPass.
             # If no SampleSheet is found, then run is not LowPass
             echo "---------------------------------"
-            echo "${LOGPREFIX} ${FC}"
+            echo "${LOGPREFIX} ${dir}/${FC}"
             if [[ -f "${dir}/${FC}/SampleSheet.csv" ]]; then
                 if grep -q "LowPass" "${dir}/${FC}/SampleSheet.csv"; then
-                    echo "${LOGPREFIX} PASS: ${dir}/${FC}: Found the word LowPass in SampleSheet"
+                    echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
                 else
-                    echo "${LOGPREFIX} ${dir}/${FC}: SampleSheet exists and not for LowPass."
+                    echo "${LOGPREFIX} WATCH: SampleSheet exists and not for LowPass."
                     launch_run ${dir} ${FC}
                 fi
             elif [[ -f "${dir}/${FC}/LowPass*.csv" ]]; then
-                echo "${LOGPREFIX} PASS: ${dir}/${FC} Found what looks like a LowPass SampleSheet."
+                echo "${LOGPREFIX} PASS: Found what looks like a LowPass SampleSheet."
             elif [[ -f "${dir}/${FC}/Failed.txt" ]] ||  [[ -f "${dir}/${FC}/failed.txt" ]]; then
-                echo "${LOGPREFIX} PASS: ${dir}/${FC}/Failed.txt marks a failed Run."
+                echo "${LOGPREFIX} PASS: Failed.txt marks a failed Run."
             elif [[ -f "${dir}/${FC}/FastqComplete.txt" ]]; then
-                echo "${LOGPREFIX} PASS: ${dir}/${FC}/FastqComplete.txt indicates that run has already been processed."
+                echo "${LOGPREFIX} PASS: FastqComplete.txt indicates that run has already been processed."
             else
-                echo "${LOGPREFIX} ${dir}/${FC}: Could not find ${dir}/${FC}/SampleSheet.csv."
+                echo "${LOGPREFIX} WATCH: Could not find ${dir}/${FC}/SampleSheet.csv."
                 launch_run ${dir} ${FC}
             fi
         fi
         # else: ignore because format of folder name doesn't look like a run
     done
-    echo
+    echo "================================="
 done
 exit 0
