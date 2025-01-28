@@ -62,12 +62,12 @@ for dir in ${WATCHDIRS[@]}; do
             # Check SampleSheet if run is LowPass.
             # If no SampleSheet is found, then run is not LowPass
             echo "---------------------------------"
-            echo "${LOGPREFIX} WATCH: ${FC}"
+            echo "${LOGPREFIX} ${FC}"
             if [[ -f "${dir}/${FC}/SampleSheet.csv" ]]; then
                 if grep -q "LowPass" "${dir}/${FC}/SampleSheet.csv"; then
                     echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
                 else
-                    echo "${LOGPREFIX} WATCH: SampleSheet exists and not for LowPass."
+                    echo "${LOGPREFIX} SampleSheet exists and not for LowPass."
                     launch_run ${dir} ${FC}
                 fi
             elif [[ -f "${dir}/${FC}/LowPass*.csv" ]]; then
@@ -77,7 +77,7 @@ for dir in ${WATCHDIRS[@]}; do
             elif [[ -f "${dir}/${FC}/FastqComplete.txt" ]]; then
                 echo "${LOGPREFIX} PASS: FastqComplete.txt indicates that run has already been processed."
             else
-                echo "${LOGPREFIX} WATCH: Could not find ${dir}/${FC}/SampleSheet.csv."
+                echo "${LOGPREFIX} Could not find ${dir}/${FC}/SampleSheet.csv."
                 launch_run ${dir} ${FC}
             fi
         fi
