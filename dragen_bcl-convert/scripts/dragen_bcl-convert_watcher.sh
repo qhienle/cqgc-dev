@@ -3,7 +3,8 @@
 # Watch for new sequencing runs to launch DRAGEN BCL-Convert
 # TODO: Extract stats when FastqComplete.
 # USAGE: Launch in crontab
-#        bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcher.sh
+#        bash dragen_bcl-convert_watcher.sh | tee -a ${LOGFILE}
+#        bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcher.sh | tee -a /staging2/dragen/dragen_bcl-convert_watcher.log
 
 # Scan BCL output dirs (BASEDIR) for new runs (FC) to demux
 # Skip runs for LowPass (check if SampleSheet exists (LowPass))
@@ -18,7 +19,7 @@ LOGFILE="${WORKDIR}/dragen_bcl-convert_watcher.log"
 LOGPREFIX="[bcl-watcher]"
 WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/A00977" "${BASEDIR}/LH00207R" "/mnt/vs_nas_chusj/SPXP_APP02_NFS/LH00336")
 
-printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" ) | tee ${LOGFILE}
+printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" )
 
 launch_run() {
     # Check if sequencing is finished (CopyComplete.txt) and that run
