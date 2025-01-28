@@ -41,7 +41,7 @@ launch_run() {
             # fi
             python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
             if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-                echo "${LOGPREFIX} ${dir}/${fc}/: Launching BCL-convert with qsub..."
+                echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
                 qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${fc}
             else
                 echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
@@ -49,7 +49,7 @@ launch_run() {
             fi
         fi
     else
-        echo "${LOGPREFIX} ${dir}/${fc}: Sequencing not finished. Waiting for CopyComplete.txt"
+        echo "${LOGPREFIX} PASS: Sequencing not finished. Waiting for CopyComplete.txt"
     fi
 }
 
