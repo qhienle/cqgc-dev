@@ -13,6 +13,7 @@
 #   export BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/LH00336
 #   export WORKDIR="/mnt/spxp-app02/staging2/dragen"
 
+# FastqComplete.txt file created by DRAGEN marks end of process
 # <FLOWCELL> argument is REQUIRED
 if [[ -z ${1} ]]; then
     echo "ERROR: Flowcell or run name not provided!" >&2
