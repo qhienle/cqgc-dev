@@ -41,16 +41,12 @@ launch_run() {
             mkdir ${WORKDIR}/${fc}
             cd ${WORKDIR}/${fc}
             echo "${LOGPREFIX} Getting SampleSheet and other files from Nanuq..."
-            # if [[ ! -f ${WORKDIR}/${FC} ]]; then
-            # TODO: Skip get_nanuq_files if SampleSheet already present?
-            # fi
             python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
             if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
                 echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
                 qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${fc}
             else
                 echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
-                exit 1
             fi
         fi
     else
