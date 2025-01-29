@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Watch for new sequencing runs to launch DRAGEN BCL-Convert
-# TODO: Extract stats when FastqComplete.
 # USAGE: Launch in crontab
 #        bash dragen_bcl-convert_watcher.sh | tee -a ${LOGFILE}
 #        bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcher.sh | tee -a /staging2/dragen/dragen_bcl-convert_watcher.log
@@ -12,6 +11,11 @@
 # File ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
 # File ${BASEDIR}/${FC}/Failed.txt marks that sequencing has failed
 # File ${BASEDIR}/${FC}/FastqComplete.txt marks end of BCL-conversion
+
+# DEPENDENCIES:
+#   /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh
+#   /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py
+# TODO: Extract stats when FastqComplete.
 
 BASEDIR='/mnt/spxp-app02/staging/hiseq_raw'
 WORKDIR='/mnt/spxp-app02/staging2/dragen'
