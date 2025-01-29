@@ -28,7 +28,7 @@ printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" ) #| 
 launch_run() {
     # Check if sequencing is finished (CopyComplete.txt) and that run
     # is not already being processed by another instance of this script
-    # which creates output dir and Sample* files through `get_nanuq_files.py``
+    # which creates output dir ${WORKDIR}/${FC}
     local dir="$1"
     local fc="$2"
     parts=($(echo ${fc} | tr '_' '\n'))
@@ -36,7 +36,7 @@ launch_run() {
     if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
         echo "${LOGPREFIX} CopyComplete.txt file indicates that sequencing has finished"
         if [[ -d ${WORKDIR}/${fc} ]]; then
-            echo "${LOGPREFIX} PASS: Run already processed in ${WORKDIR}/${fc}"
+            echo "${LOGPREFIX} PASS: Demux already in progress for ${WORKDIR}/${fc}"
         else
             mkdir ${WORKDIR}/${fc}
             cd ${WORKDIR}/${fc}
