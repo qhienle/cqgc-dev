@@ -36,7 +36,7 @@ python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
 # echo "Sequencing has completed."
 # echo "Getting SampleSheet from Nanuq"
 # python ${SOFTDIR}/Helpers/get_nanuq_files.py --run ${FC_SHORT} 
-# qsub ${SOFTDIR}//Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
+# qsub -V ${SOFTDIR}//Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
 
 ### 2.2. Téléverser les FASTQs sur BaseSpace
 until [ -f ${WORKDIR}/${FC}/DemuxComplete.txt ]
