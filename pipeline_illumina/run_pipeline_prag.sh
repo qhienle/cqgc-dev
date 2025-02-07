@@ -26,17 +26,14 @@ python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
 
 ## 2. Préparer les FASTQs
 ## 2.1. La déconvolution et conversion des BCLs en FASTQs devrait se faire automatiquement
-# echo "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
-# until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
-# do
-#     printf '.'
-#     sleep ${NAPTIME}
-# done
-# echo
-# echo "Sequencing has completed."
-# echo "Getting SampleSheet from Nanuq"
-# python ${SOFTDIR}/Helpers/get_nanuq_files.py --run ${FC_SHORT} 
-# qsub -V ${SOFTDIR}//Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${FC}
+echo "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
+until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
+do
+    printf '.'
+    sleep ${NAPTIME}
+done
+echo
+echo "Sequencing has completed."
 
 ### 2.2. Téléverser les FASTQs sur BaseSpace
 until [ -f ${WORKDIR}/${FC}/DemuxComplete.txt ]
