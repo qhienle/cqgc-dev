@@ -36,7 +36,7 @@ echo
 echo "Sequencing has completed."
 
 ### 2.2. Téléverser les FASTQs sur BaseSpace
-until [ -f ${WORKDIR}/${FC}/DemuxComplete.txt ]
+until [ -f "${WORKDIR}/${FC}/1.fastq/Logs/FastqComplete.txt" ]
 do
     printf '.'
     sleep ${NAPTIME}
