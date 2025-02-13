@@ -25,7 +25,8 @@ python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
 
 
 ## 2. Préparer les FASTQs
-## 2.1. La déconvolution et conversion des BCLs en FASTQs devrait se faire automatiquement
+## 2.1. La déconvolution et conversion des BCLs en FASTQs devrait se faire 
+## automatiquement par dragen_bcl-convert_watcher.sh
 echo "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
 until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
 do
