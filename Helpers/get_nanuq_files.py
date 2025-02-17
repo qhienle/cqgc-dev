@@ -108,7 +108,7 @@ def main():
     if args.run is None:
         print(f"\nWARNING: Option -r/--run not provided. Get FC_SHORT from environment settings.")
         try:
-            args.run = os.environ['FC_SHORT']
+            fc_short = os.environ['FC_SHORT']
         except KeyError:
             raise SystemExit("ERROR: Option -r/--run not provided and ${FC_SHORT} not set.\n")
         except Exception as err:
