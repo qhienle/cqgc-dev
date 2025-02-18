@@ -235,7 +235,7 @@ def df_to_manifest(df):
         'Boost Genes': '',
         'Gene List Id': '',
         'Kit Id': '',
-        'Selected Preset': 'Default',
+        'Selected Preset': 'Genome v1.1', # or 'Default'
         'Label Id': df['Label Id'],
         'Clinical Notes': df['Clinical Notes'],
         'Due Date': '',
