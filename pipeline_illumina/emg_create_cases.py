@@ -1,25 +1,14 @@
 #!/usr/bin/env python3
 """
-Create cases in Emedgene for <run> (ex.: "A00516_420").
+Create cases in Emedgene from a file listing individual and family informations 
+for samples (default='samples_list.csv').
 
-USAGE: emg_create_cases.py -r A00516_420
-       emg_create_cases.py -f SampleNames.txt
+USAGE: emg_create_cases.py
+       emg_create_cases.py -f samples_list.cav
        emg_create_cases.py --help
-
-Create cases in Emedgene for samples listed for <run> (_e.g._ LH00336_0009).
-Sample information is downloaded from Nanuq based on the CQGC ID. 
-List of samples can be provided using --file. This file can either be the 
-"SampleNames.txt" downloaded from Nanuq, or a one-column listing of CQGC IDs.
-
-Nanuq username and password have be saved in a file named '~/.nanuq', like so:
-`echo "j_username=USERNAME&j_password=PASSWORD&toto=1" > ~/.nanuq`
-Replace USERNAME and PASSWORD with actual values.
 
 Tokens to connect with Phenotips and BaseSpace (BSSH) are expected to be found 
 in ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
-
-Example for joint-genotyping:
-/staging2/soft/CQGC-utils/Analysis.pipeline_exome/pipeline.exomes.DRAGEN.joint-genotyping.sh
 """
 
 import os, sys
@@ -40,19 +29,12 @@ bssh = BSSH()
 __version__ = "0.2"
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Create cases in Emedgene for <run> (ex.: "A00516_420").')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--run',  '-r', help="FC_SHORT Run ID, ex: 'A00516_339'")
-    group.add_argument('--file', '-f', help="List of samples. Ex.:'SampleNames.txt'")
+    parser = argparse.ArgumentParser(description="Create cases in Emedgene from list of samples with information for cases")
+    parser.add_argument('--file',    '-f', nargs='?', default='samples_list.csv', help="List of samples with Case information. Default='samples_list.csv'")
+    parser.add_argument('--project', '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
-    args = parser.parse_args()
-    if args.run is None and args.file is None:
-        print(f"Please use either argument --run|-r or --file|-f. See --help.") 
-        # parser.print_help()
-        exit(1)
-    else:
-        return args
+    return parser.parse_args()
 
 
 def configure_logging(level):
@@ -221,3 +203,28 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+"""
+## EXAMPLE: A trio in 'samples_list.csv'
+
+sample_name,biosample,relation,gender,ep_label,mrn,status,family_id,birthdate,flowcell_date,flowcell
+DM250647,33641,PROBAND,FEMALE,CHUSJ,03514485,AFF,03514485,2024-04-08,2025-02-12,20250212_LH00336_0170_B22V7KMLT3
+DM250631,33643,MTH,FEMALE,CHUSJ,03381944,UNF,03514485,1992-10-12,2025-02-12,20250212_LH00336_0170_B22V7KMLT3
+DM250630,33642,FTH,MALE,CHUSJ,01483718,UNF,03514485,1984-01-27,2025-02-12,20250212_LH00336_0170_B22V7KMLT3
+
+
+## Alternative workflow:
+
+0. Setup run and Quality Check
+1. Get list of samples from Nanuq or from file in order to construct cases.
+    For each sample:
+    1.1 Get family information from Nanuq
+    1.2. Add the Phenotips ID (PID) and the corresponding HPO Identifiers;
+2. Run joint joint variant calling for each case;
+3. Upload the VCF output from joint genotyping to EMedgene AWS S3 bucket;
+4. Write Emedgene case JSON, including paths to VCFs and HPO terms;
+5. Create case on Emedgene
+
+Example for joint-genotyping:
+/staging2/soft/CQGC-utils/Analysis.pipeline_exome/pipeline.exomes.DRAGEN.joint-genotyping.sh
+"""
