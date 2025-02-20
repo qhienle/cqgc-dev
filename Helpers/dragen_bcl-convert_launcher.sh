@@ -4,11 +4,11 @@
 #$ -l dragen=1
 
 # Submit BCL-convert job to DRAGEN servers, from spxp-app02.
-# qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl_convert.sh <FLOWCELL>
+# qsub /staging2/soft/CQGC-utils/Helpers/dragen_bcl_convert.sh <FLOWCELL>
 # qsub \
 #   -v BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/LH00336
 #   -v WORKDIR="/mnt/spxp-app02/staging2/dragen" \
-#   /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl_convert.sh <FLOWCELL>
+#   /staging2/soft/CQGC-utils/Helpers/dragen_bcl_convert.sh <FLOWCELL>
 # or export environment variables:
 #   export BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/LH00336
 #   export WORKDIR="/mnt/spxp-app02/staging2/dragen"

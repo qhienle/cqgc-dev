@@ -3,7 +3,7 @@
 # Watch for new sequencing runs to launch DRAGEN BCL-Convert
 # USAGE: Launch in crontab
 #        bash dragen_bcl-convert_watcher.sh | tee -a ${LOGFILE}
-#        bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_watcher.sh | tee -a /staging2/dragen/dragen_bcl-convert_watcher.log
+#        bash /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_watcher.sh | tee -a /staging2/dragen/dragen_bcl-convert_watcher.log
 
 # Scan BCL output dirs (BASEDIR) for new runs (FC) to demux
 # Skip runs for LowPass (check if SampleSheet exists (LowPass))
@@ -13,7 +13,7 @@
 # File ${BASEDIR}/${FC}/FastqComplete.txt marks end of BCL-conversion
 
 # DEPENDENCIES:
-#   /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh
+#   /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh
 #   /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py
 # TODO: Extract stats when FastqComplete.
 
@@ -44,7 +44,7 @@ launch_run() {
             python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
             if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
                 echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
-                qsub /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/dragen_bcl-convert_launcher.sh ${fc}
+                qsub /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
             else
                 echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
             fi
