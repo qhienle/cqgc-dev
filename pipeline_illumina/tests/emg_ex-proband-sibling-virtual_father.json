@@ -6,6 +6,13 @@
         "consanguinity": false,
         "disease_severity": "",
         "diseases": [],
+        "gene_list": {
+            "genes": [],
+            "id": 0,
+            "name": "",
+            "type": "new",
+            "visible": true
+        },    
         "indication_for_testing": "string",
         "notes": "",
         "patients": {
@@ -63,8 +70,6 @@
                 "relationship": "Test Subject"
             }
         },
-        "reanalysis": false,
-        "remove_aa_tags": false,
         "sample_type": "fastq",
         "samples": [],
         "selected_preset_set": "",
