@@ -143,7 +143,7 @@ def get_metrics_from_log(sample):
                 mapped_reads_pct = line_parts[20].replace("\\n'", "")
             elif 'Number of duplicate marked reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
                 # duplicate_reads_pct = line_parts[-1].replace("\\n'", "")
-                duplicate_reads_pct = line_parts[16].replace("\\n'", "")
+                duplicate_reads_pct = line_parts[15].replace("\\n'", "")
             elif 'Estimated sample contamination' in line:
                 if line_parts[12] != 'standard':
                     contamination = line_parts[12].replace("\\n'", "")
