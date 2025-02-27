@@ -114,20 +114,24 @@ def get_metrics_from_log(sample):
             # and need to be reformatted.
             #
             if 'Number of reads:' in line:
-                reads = line_parts[-1].replace("\\n'", "")
-            # CNV?
+                # reads = line_parts[-1].replace("\\n'", "")
+                reads = line_parts[10].replace("\\n'", "")
             # elif 'Average alignment coverage over genome' in line and 'COVERAGE SUMMARY' in line:
             #     cnv_avg_coverage = line_parts[-1].replace("\\n'", "")
             elif 'Coverage uniformity' in line:
                 coverage_uniformity = line_parts[-1].replace("\\n'", "")
             elif 'Number of amplifications' in line and 'CNV SUMMARY' in line:
-                amplifications = line_parts[-1].replace("\\n'", "")
+                # amplifications = line_parts[-1].replace("\\n'", "")
+                amplifications = line_parts[12].replace("\\n'", "")
             elif 'Number of passing amplifications' in line and 'CNV SUMMARY' in line:
-                pass_amplifications = line_parts[-2].replace("\\n'", "")
+                # pass_amplifications = line_parts[-2].replace("\\n'", "")
+                pass_amplifications = line_parts[13].replace("\\n'", "")
             elif 'Number of deletions' in line and 'CNV SUMMARY' in line:
-                deletions = line_parts[-1].replace("\\n'", "")
+                # deletions = line_parts[-1].replace("\\n'", "")
+                deletions = line_parts[12].replace("\\n'", "")
             elif 'Number of passing deletions' in line and 'CNV SUMMARY' in line:
-                pass_deletions = line_parts[-2].replace("\\n'", "")
+                # pass_deletions = line_parts[-2].replace("\\n'", "")
+                pass_deletions = line_parts[13].replace("\\n'", "")
             elif 'SNPs' in line and line_parts[11] == "SNPs":
                 snps = line_parts[12].replace("\\n'", "")
             elif 'Percent Autosome Callability' in line:
@@ -135,8 +139,11 @@ def get_metrics_from_log(sample):
             elif 'Number of unique & mapped reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
                 mapped_reads     = line_parts[-2]
                 mapped_reads_pct = line_parts[-1].replace("\\n'", "")
+                # mapped_reads     = line_parts[19]
+                # mapped_reads_pct = line_parts[20].replace("\\n'", "")
             elif 'Number of duplicate marked reads' in line and 'MAPPING/ALIGNING SUMMARY' in line:
                 duplicate_reads_pct = line_parts[-1].replace("\\n'", "")
+                # duplicate_reads_pct = line_parts[16].replace("\\n'", "")
             elif 'Estimated sample contamination' in line:
                 if line_parts[12] != 'standard':
                     contamination = line_parts[12].replace("\\n'", "")
