@@ -134,7 +134,7 @@ def add_hpos_phenotips(ep, mrn):
     # Fix malformed entries.
     #
     if ep == 'CHUSJ':
-        mrn = mrn.lstrip('0')
+        mrn = str(mrn).lstrip('0')
     elif ep == 'CHUS':
         pass
     elif ep == 'CHUL':
