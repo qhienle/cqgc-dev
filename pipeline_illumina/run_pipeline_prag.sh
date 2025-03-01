@@ -53,6 +53,9 @@ touch ${WORKDIR}/${FC}/UploadBsComplete.txt
 ###  3.1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
 ###  3.2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
 # TODO: use `bs` to check if files are on BaseSpace for each sample
+# Fails if launched immediately after UploadBsComplete.
+# Wait a while for the last upload to register with BaseSpace.
+sleep ${NAPTIME}
 python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
 
 
