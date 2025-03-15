@@ -21,7 +21,7 @@ BASEDIR='/mnt/spxp-app02/staging/hiseq_raw'
 WORKDIR='/mnt/spxp-app02/staging2/dragen'
 LOGFILE="${WORKDIR}/dragen_bcl-convert_watcher.log"
 LOGPREFIX="[bcl-watcher]"
-WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/A00977" "${BASEDIR}/LH00207R" "/mnt/vs_nas_chusj/SPXP_APP02_NFS/LH00336")
+WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/A00977" "${BASEDIR}/LH00207R")
 
 printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" ) #| tee -a ${LOGFILE}/
 
