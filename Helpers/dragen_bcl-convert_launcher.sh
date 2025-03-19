@@ -26,7 +26,7 @@ fi
 
 # Set BASEDIR and WORKDIR if environment variables not exported
 if [[ -z ${BASEDIR} ]]; then 
-    BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
+    BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
 fi
 if [[ -z ${WORKDIR} ]]; then
     WORKDIR="/mnt/spxp-app02/staging2/dragen"
