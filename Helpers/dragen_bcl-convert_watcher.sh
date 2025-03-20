@@ -29,7 +29,7 @@ printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" ) #| 
 
 launch_run() {
     # Run dragen_bcl-convert_launcher.sh if not already being processed by 
-    # another instance of this script which creates output dir ${WORKDIR}/${FC}
+    # another instance of this script which creates output dir ${WORKDIR}/${fc}
     # FastqComplete.txt is copied to ${BASEDIR} by dragen_bcl-convert_launcher.sh
     # and marks the run as done.
     local dir="$1"
@@ -54,33 +54,33 @@ launch_run() {
 
 for dir in ${WATCHDIRS[@]}; do
     echo "${LOGPREFIX} Scanning ${dir}..."
-    for FC in $( ls ${dir} ); do
-        parts=($(echo ${FC} | tr '_' '\n'))
+    for fc in $( ls ${dir} ); do
+        parts=($(echo ${fc} | tr '_' '\n'))
         if [[ ${#parts[@]} -eq 4 ]]; then
             echo "---------------------------------"
-            echo "${LOGPREFIX} ${FC}"
+            echo "${LOGPREFIX} ${fc}"
             if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
                 echo "${LOGPREFIX} CopyComplete.txt indicates that sequencing has finished"
                 # Check if bcl-convert needed (not previously demuxed, not failed, not LowPass)
-                if [[ -f "${dir}/${FC}/FastqComplete.txt" ]]; then
+                if [[ -f "${dir}/${fc}/FastqComplete.txt" ]]; then
                     echo "${LOGPREFIX} PASS: FastqComplete.txt indicates that run has already been processed."
-                elif [[ -f "${dir}/${FC}/Failed.txt" ]] ||  [[ -f "${dir}/${FC}/failed.txt" ]]; then
+                elif [[ -f "${dir}/${fc}/Failed.txt" ]] ||  [[ -f "${dir}/${fc}/failed.txt" ]]; then
                     echo "${LOGPREFIX} PASS: Failed.txt marks a failed Run."
-                elif [[ -f "${dir}/${FC}/LowPass*.csv" ]]; then
+                elif [[ -f "${dir}/${fc}/LowPass*.csv" ]]; then
                     echo "${LOGPREFIX} PASS: Found what looks like a LowPass SampleSheet."
                 else
                     # Check SampleSheet if run is LowPass.
                     # If no SampleSheet is found, then run is not LowPass
-                    if [[ -f "${dir}/${FC}/SampleSheet.csv" ]]; then
-                        if grep -q "LowPass" "${dir}/${FC}/SampleSheet.csv"; then
+                    if [[ -f "${dir}/${fc}/SampleSheet.csv" ]]; then
+                        if grep -q "LowPass" "${dir}/${fc}/SampleSheet.csv"; then
                             echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
                         else
                             echo "${LOGPREFIX} SampleSheet exists and not for LowPass."
-                            launch_run ${dir} ${FC}
+                            launch_run ${dir} ${fc}
                         fi
                     else
-                        echo "${LOGPREFIX} Could not find ${dir}/${FC}/SampleSheet.csv."
-                        launch_run ${dir} ${FC}
+                        echo "${LOGPREFIX} Could not find ${dir}/${fc}/SampleSheet.csv."
+                        launch_run ${dir} ${fc}
                     fi
                 fi
             else
