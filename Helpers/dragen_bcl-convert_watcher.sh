@@ -74,6 +74,8 @@ for dir in ${WATCHDIRS[@]}; do
                     if [[ -f "${dir}/${fc}/SampleSheet.csv" ]]; then
                         if grep -q "LowPass" "${dir}/${fc}/SampleSheet.csv"; then
                             echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
+                        elif grep -q "Cloud_Workflow," "${dir}/${fc}/SampleSheet.csv"; then
+                            echo "${LOGPREFIX} PASS: SampleSheet indicates a Cloud_Workflow"
                         else
                             echo "${LOGPREFIX} SampleSheet exists and not for LowPass."
                             launch_run ${dir} ${fc}
@@ -92,3 +94,34 @@ for dir in ${WATCHDIRS[@]}; do
     echo "================================="
 done
 exit 0
+
+# CopyComplete.txt ? --Y--> FastqComplete.txt ? --Y--> PASS
+#       |                         |
+#       N                         N
+#       |                         |
+#       V                         V
+#      PASS                 Failed.txt ? ---------Y--> PASS
+#                                 |
+#                                 N
+#                                 |
+#                                 V
+#                           LowPass.csv ? --------Y--> PASS
+#                                 |
+#                                 N
+#                                 |
+#                                 V
+#                           SampleSheet.csv ? ----Y--> grep LowPass SampleSheet.csv ? ---------Y--> PASS
+#                                 |                          |
+#                                 |                    grep Cloud_Workflow SampleSheet.csv ? --Y--> PASS
+#                                 |                          |
+#                                 N                          N
+#                                 |__________________________|
+#                                               |
+#                                               v
+#                                           launch_run():
+#                                           CopyComplete.txt ? --N--> PASS
+#                                               |
+#                                               Y
+#                                               |
+#                                               v
+#                                 qsub dragen_bcl-convert_launcher.sh ${fc}
