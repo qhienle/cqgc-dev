@@ -28,34 +28,27 @@ WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${HISEQ_R}/LH00336" "${HISE
 printf "\n\n######\n%s %s %s\n######\n\n" $0 ${LOGPREFIX} $( date "+%F@%T" ) #| tee -a ${LOGFILE}/
 
 launch_run() {
-    # Run dragen_bcl-convert_launcher.sh under certain conditions:
-    # Check if sequencing is finished (CopyComplete.txt) and that run
-    # is not already being processed by another instance of this script
-    # which creates output dir ${WORKDIR}/${FC}
+    # Run dragen_bcl-convert_launcher.sh if not already being processed by 
+    # another instance of this script which creates output dir ${WORKDIR}/${FC}
     # FastqComplete.txt is copied to ${BASEDIR} by dragen_bcl-convert_launcher.sh
     # and marks the run as done.
     local dir="$1"
     local fc="$2"
     parts=($(echo ${fc} | tr '_' '\n'))
     fc_short="${parts[1]}_${parts[2]}"
-    if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
-        echo "${LOGPREFIX} CopyComplete.txt file indicates that sequencing has finished"
-        if [[ -d ${WORKDIR}/${fc} ]]; then
-            echo "${LOGPREFIX} PASS: Demux already in progress for ${WORKDIR}/${fc}"
-        else
-            mkdir ${WORKDIR}/${fc}
-            cd ${WORKDIR}/${fc}
-            echo "${LOGPREFIX} Getting SampleSheet and other files from Nanuq..."
-            python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
-            if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-                echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
-                qsub /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
-            else
-                echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
-            fi
-        fi
+    if [[ -d ${WORKDIR}/${fc} ]]; then
+        echo "${LOGPREFIX} PASS: Demux appears to be in progress for ${WORKDIR}/${fc}"
     else
-        echo "${LOGPREFIX} PASS: Sequencing not finished. Waiting for CopyComplete.txt"
+        mkdir ${WORKDIR}/${fc}
+        cd ${WORKDIR}/${fc}
+        echo "${LOGPREFIX} Getting SampleSheet and other files from Nanuq..."
+        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
+        if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
+            echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
+            qsub /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
+        else
+            echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
+        fi
     fi
 }
 
@@ -64,29 +57,34 @@ for dir in ${WATCHDIRS[@]}; do
     for FC in $( ls ${dir} ); do
         parts=($(echo ${FC} | tr '_' '\n'))
         if [[ ${#parts[@]} -eq 4 ]]; then
-            # Check SampleSheet if run is LowPass.
-            # If no SampleSheet is found, then run is not LowPass
             echo "---------------------------------"
             echo "${LOGPREFIX} ${FC}"
-            if [[ -f "${dir}/${FC}/FastqComplete.txt" ]]; then
-                # FastqComplete.txt marks the run as done by dragen_bcl-convert_launcher.sh
-                echo "${LOGPREFIX} PASS: FastqComplete.txt indicates that run has already been processed."
-            elif [[ -f "${dir}/${FC}/LowPass*.csv" ]]; then
-                echo "${LOGPREFIX} PASS: Found what looks like a LowPass SampleSheet."
-            elif [[ -f "${dir}/${FC}/Failed.txt" ]] ||  [[ -f "${dir}/${FC}/failed.txt" ]]; then
-                echo "${LOGPREFIX} PASS: Failed.txt marks a failed Run."
-            else
-                if [[ -f "${dir}/${FC}/SampleSheet.csv" ]]; then
-                    if grep -q "LowPass" "${dir}/${FC}/SampleSheet.csv"; then
-                        echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
+            if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
+                echo "${LOGPREFIX} CopyComplete.txt indicates that sequencing has finished"
+                # Check if bcl-convert needed (not previously demuxed, not failed, not LowPass)
+                if [[ -f "${dir}/${FC}/FastqComplete.txt" ]]; then
+                    echo "${LOGPREFIX} PASS: FastqComplete.txt indicates that run has already been processed."
+                elif [[ -f "${dir}/${FC}/Failed.txt" ]] ||  [[ -f "${dir}/${FC}/failed.txt" ]]; then
+                    echo "${LOGPREFIX} PASS: Failed.txt marks a failed Run."
+                elif [[ -f "${dir}/${FC}/LowPass*.csv" ]]; then
+                    echo "${LOGPREFIX} PASS: Found what looks like a LowPass SampleSheet."
+                else
+                    # Check SampleSheet if run is LowPass.
+                    # If no SampleSheet is found, then run is not LowPass
+                    if [[ -f "${dir}/${FC}/SampleSheet.csv" ]]; then
+                        if grep -q "LowPass" "${dir}/${FC}/SampleSheet.csv"; then
+                            echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
+                        else
+                            echo "${LOGPREFIX} SampleSheet exists and not for LowPass."
+                            launch_run ${dir} ${FC}
+                        fi
                     else
-                        echo "${LOGPREFIX} SampleSheet exists and not for LowPass."
+                        echo "${LOGPREFIX} Could not find ${dir}/${FC}/SampleSheet.csv."
                         launch_run ${dir} ${FC}
                     fi
-                else
-                    echo "${LOGPREFIX} Could not find ${dir}/${FC}/SampleSheet.csv."
-                    launch_run ${dir} ${FC}
                 fi
+            else
+                echo "${LOGPREFIX} PASS: Sequencing not finished. Waiting for CopyComplete.txt"
             fi
         fi
         # else: ignore because format of folder name doesn't look like a run
