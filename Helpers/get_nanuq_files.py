@@ -33,8 +33,6 @@ if these environment variables are set globally _e.g._:
 import os, sys, subprocess
 import argparse
 
-#sys.path.append('/staging2/soft/CQGC-utils')
-#src_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from lib.nanuq import Nanuq
 
@@ -69,8 +67,7 @@ def download_files(run, credentials, out_sheet, out_names, out_pools):
     echo "j_username=USERNAME&j_password=PASSWORD&toto=1" > ~/.nanuq
     wget --post-file ~/.nanuq --no-cookies "https://nanuq.cqgc.hsj.rtss.qc.ca/nanuqMPS/sampleSheetV2/NovaSeq/A00516_0339/" -O "SampleSheet.csv"
     """
-    #server = 'http://spxp-app07'
-    server = 'https://nanuq.cqgc.hsj.rtss.qc.ca'
+    server = 'https://nanuq.cqgc.hsj.rtss.qc.ca' # 'http://spxp-app07'
     nq = Nanuq()
     fc_short = nq.check_run_name(run)
     instrument = fc_short.split('_')[0]
@@ -99,7 +96,6 @@ def main():
     Otherwise, look for them in config file `~/.nanuq`.
     """
     args = parse_args()
-    #auth = '~/.nanuq'
     auth = f"{os.path.expanduser('~')}{os.sep}.nanuq"
 
     # If RUN identifier not defined by option -r/--run, try to get this info
