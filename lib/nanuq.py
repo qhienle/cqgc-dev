@@ -152,7 +152,7 @@ class Nanuq:
         - run: RunID (ex: "200302_A00516_0106_BHNKHFDMXX" or "A00516_0106")
         - Returns: valid short format for RunID (ex: "A00516_0106")
         """
-        sequencers = ['LH00336', 'A00516', 'A00977', 'NB551410']
+        sequencers = ['LH00336', 'A00516', 'A00977', 'NB551410', 'LH00207R']
         fc_parts = run.split('_')
         if len(fc_parts) == 4 and fc_parts[0] == 'Seq':
             # Format "Seq_S2_PRAG_20230811"
@@ -172,7 +172,7 @@ class Nanuq:
                 logging.info(f"Run name {run} in long format. Converted to short form {fc_short}")
                 return(fc_short)
             else:
-                raise ValueError(f"Incorrect format for RunID {run}. Please use something like 'A00516_0106' or skip_check with `--no-check-run-name`.")
+                raise ValueError(f"Incorrect format for RunID {run}. Please use a value like 'A00516_0106'.")
     
 
     def parse_run_name(self, run):
