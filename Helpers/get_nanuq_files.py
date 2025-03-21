@@ -2,16 +2,12 @@
 """
 Get files from Nanuq
 
-Download `SampleSheet.csv`, `SampleNames.txt` and `SamplePools.csv` for a given
-_Run_ from _Nanuq_.
+Download from Nanuq `SampleSheet.csv`, `SampleNames.txt` and `SamplePools.csv` 
+for a given Run (a.k.a FLOWCELL).
 
-USAGE: get_nanuq_files.py -r LH00336_0043
-       get_nanuq_files.py [-u USERNAME -p PASSWORD] -r RUN
+USAGE: get_nanuq_files.py [-u <USERNAME> -p <PASSWORD>] -r <RUN>
+       get_nanuq_files.py -r 20250314_LH00336_0185_B22WGWFLT3
        get_nanuq_files.py --help
-
-<RUN> has to be in FC_SHORT format, _e.g._ 'A00516_0339'. If not provided, the
-shell's global environment variable ${FC_SHORT} is used (defined at the start 
-of the procedure for bcl-convert).
 
 Nanuq username and password can be saved to a file named '~/.nanuq':
 `echo "j_username=USERNAME&j_password=PASSWORD&toto=1" > ~/.nanuq`
@@ -43,8 +39,8 @@ def parse_args():
     """
     Parse command-line options
     """
-    parser = argparse.ArgumentParser(description="Download files for a Run from Nanuq")
-    parser.add_argument('-r', '--run',      help="FC_SHORT Run ID, ex: 'A00516_339'")
+    parser = argparse.ArgumentParser(description="Download from Nanuq files for a Run/Flowcell")
+    parser.add_argument('-r', '--run',      help="Run ID, ex: '250115_A00516_0640_BHLJG3DSXC'")
     parser.add_argument('-u', '--username', help="Nanuq username")
     parser.add_argument('-p', '--password', help="Nanuq password")
     parser.add_argument('-o', '--orient-index2', action="store_true", 
@@ -102,16 +98,16 @@ def main():
     # from env var ${FC_SHORT}, if set as part of the bcl-convert procedure.
     #
     if args.run is None:
-        print(f"\nWARNING: Option -r/--run not provided. Get FC_SHORT from environment settings.")
+        print(f"\nWARNING: Option -r/--run not provided. Get Run ID (FC) from environment settings.")
         try:
-            fc_short = os.environ['FC_SHORT']
+            fc = os.environ['FC']
         except KeyError:
-            raise SystemExit("ERROR: Option -r/--run not provided and ${FC_SHORT} not set.\n")
+            raise SystemExit("ERROR: Option -r/--run not provided and ${FC} not set.\n")
         except Exception as err:
             raise SystemExit(f"Caught an unexpected Exception:\n{err}\n")
     else:
-        fc_short = Nanuq().check_run_name(args.run)
-        print(f"Got FC_SHORT '{fc_short}' from command line argument.")
+        fc = args.run
+        print(f"Got Run ID (FC) '{fc}' from command line argument.")
 
     # WARN that CLI option `--orient-index2` is DEPRECATED
     #
@@ -159,17 +155,17 @@ def main():
     out_names = outdir + os.sep + 'SampleNames.txt'
     out_pools = outdir + os.sep + 'SamplePools.csv'
 
-    download_files(fc_short, credentials, out_sheet, out_names, out_pools)
+    download_files(fc, credentials, out_sheet, out_names, out_pools)
 
     # If files downloaded files are empty (size == 0), no run could be found 
     # with ${FC_SHORT} identifier. Try with ${XP}, if set, else warn and quit. 
     #
     if os.stat(out_sheet).st_size == 0 and os.stat(out_names).st_size == 0 and os.stat(out_pools).st_size == 0:
-        print(f"ERROR: Empty files downloaded with {fc_short}. Trying with ${{XP}}.\n")
+        print(f"ERROR: Empty files downloaded with {fc}. Trying with ${{XP}}.\n")
         if 'XP' in os.environ:
             download_files(os.environ['XP'], credentials, out_sheet, out_names, out_pools)
         else:
-            print(f"ERROR: Empty files downloaded with {fc_short} and ${{XP}} not set.")
+            print(f"ERROR: Empty files downloaded with {fc} and ${{XP}} not set.")
             print(f"Please check identifier for RUN.")
 
     print(f"First lines of downloaded files:")
