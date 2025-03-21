@@ -55,11 +55,11 @@ sleep ${NAPTIME}
 python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
 
 
-## 4. Collecter les metriques
+## 5. Collecter les metriques
 # python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_samples_metrics.py ${FC}
 
 
-## 5. Archiver les résultats
+## 6. Archiver les résultats
 # ssh hien@narval.calculquebec.ca
 
 # samples=()
