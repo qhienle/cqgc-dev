@@ -14,44 +14,40 @@ WORKDIR="/mnt/spxp-app02/staging2/dragen"
 SOFTDIR="/staging2/soft/CQGC-utils"
 NAPTIME=900
 
-if [ ! -d ${WORKDIR}/${FC} ]; then
-    mkdir ${WORKDIR}/${FC}
-fi
-cd ${WORKDIR}/${FC}
-
-## 1. Collecter les informations sur les familles
-echo "Get list of samples for run ${FC}"
-python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
-
-
-## 2. Préparer les FASTQs
-## 2.1. La déconvolution et conversion des BCLs en FASTQs devrait se faire 
+## 1. Déconvolution et conversion des BCLs en FASTQs: devrait se faire 
 ## automatiquement par dragen_bcl-convert_watcher.sh
-echo "Waiting for ${BASEDIR}/${FC}/CopyComplete.txt"
+echo "Waiting for sequencing to finish"
 until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
 do
     printf '.'
     sleep ${NAPTIME}
 done
-echo
 echo "Sequencing has completed. Waiting for Demux to finish"
-
-### 2.2. Téléverser les FASTQs sur BaseSpace
 until [ -f "${WORKDIR}/${FC}/1.fastq/Logs/FastqComplete.txt" ]
 do
     printf '.'
     sleep ${NAPTIME}
 done
-echo
-echo "Demux has completed. Uploading samples to BaseSpace"
+echo "Demux has completed"
+
+
+## 2. Collecter les informations sur les familles dans samples_list.csv,
+## fournit aussi la liste des échantillons pour l'étape 3
+echo "Get list of samples for run ${FC}"
+cd ${WORKDIR}/${FC}
+python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
+
+
+### 3. Téléverser les FASTQs sur BaseSpace
+echo "Uploading samples to BaseSpace"
 ## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
 python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
 touch ${WORKDIR}/${FC}/UploadBsComplete.txt
 
 
-## 3. Créer les cas sur Emedgene 
-###  3.1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
-###  3.2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
+## 4. Créer les cas sur Emedgene 
+###  4.1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
+###  4.2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
 # TODO: use `bs` to check if files are on BaseSpace for each sample
 # Fails if launched immediately after UploadBsComplete.
 # Wait a while for the last upload to register with BaseSpace.
