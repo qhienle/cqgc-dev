@@ -36,7 +36,7 @@ launch_run() {
     local fc="$2"
     parts=($(echo ${fc} | tr '_' '\n'))
     fc_short="${parts[1]}_${parts[2]}"
-    if [[ -d ${WORKDIR}/${fc} ]]; then
+    if [[ -d "${WORKDIR}/${fc}/1.fastq" ]]; then
         echo "${LOGPREFIX} PASS: Demux appears to be in progress for ${WORKDIR}/${fc}"
     else
         mkdir ${WORKDIR}/${fc}
