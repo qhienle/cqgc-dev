@@ -3,12 +3,11 @@
 # Run pipeline for PRAGMatIQ
 # USAGE: bash run_pipeline_prag.sh <RUN>
 #        bash run_pipeline_prag.sh 20241220_LH00336_0145_B22MKV5LT3
-#        bash run_pipeline_prag.sh ${FC} >>${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
+#        bash run_pipeline_prag.sh ${FC} >>${WORKDIR}/${FC}/${FC}.pipeline_prag.log 2>&1
 
 ## 0. Mise en place de l'environnement de travail
 FC=${1}
 a=($(echo ${FC} | tr '_' '\n'))
-FC_SHORT="${a[1]}_${a[2]}"
 BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
 WORKDIR="/mnt/spxp-app02/staging2/dragen"
 SOFTDIR="/staging2/soft/CQGC-utils"
@@ -32,7 +31,7 @@ echo "Demux has completed"
 
 
 ## 2. Collecter les informations sur les familles dans samples_list.csv,
-## fournit aussi la liste des échantillons pour l'étape 3
+## fournit aussi la liste des échantillons à téléverser sur BaseSpace (étape 3)
 echo "Get list of samples for run ${FC}"
 cd ${WORKDIR}/${FC}
 python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
