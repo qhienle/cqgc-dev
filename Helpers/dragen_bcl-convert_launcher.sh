@@ -31,10 +31,15 @@ fi
 if [[ -z ${WORKDIR} ]]; then
     WORKDIR="/mnt/spxp-app02/staging2/dragen"
 fi
+# Set OUTDIR and check that there aren't a prior demux
 OUTDIR="${WORKDIR}/${FC}/1.fastq"
+if [[ -d ${OUTDIR} ]]; then
+    echo "ERROR: ${OUTDIR} already exists!\n" >&2
+    exit 1
+fi 
 
 # Run bcl-convert depending on the instrument and SampleSheet
-if [ -f ${WORKDIR}/${FC}/SampleSheet.csv ]; then
+if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
         echo "Run dragen BCL-convert for ${FC}"
         dragen \
@@ -64,7 +69,7 @@ if [ -f ${WORKDIR}/${FC}/SampleSheet.csv ]; then
     mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
     mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
 else
-    echo "Did you forget to setup environment variables or provide the SampleSheet?\n" >&2
+    echo "ERROR: Did you forget to setup environment variables or provide the SampleSheet?\n" >&2
     exit 1
 fi
 
