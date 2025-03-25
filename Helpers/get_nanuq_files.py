@@ -43,11 +43,13 @@ def parse_args():
     parser.add_argument('-r', '--run',      help="Run ID, ex: '250115_A00516_0640_BHLJG3DSXC'")
     parser.add_argument('-u', '--username', help="Nanuq username")
     parser.add_argument('-p', '--password', help="Nanuq password")
+    parser.add_argument('-n', '--no-check-run-name', dest='no_check', action="store_true", 
+                        help="Do not verify validity of -r/--run name")
     parser.add_argument('-o', '--orient-index2', action="store_true", 
                         help="(DEPRECATED) Orient index2 in the SampleSheet for NovaSeqX")
     return(parser.parse_args())
 
-def download_files(run, credentials, out_sheet, out_names, out_pools):
+def download_files(run, credentials, out_sheet, out_names, out_pools, no_check=False):
     """
     Download SampleSheet.csv, SampleNames.txt and SamplePools.csv from Nanuq
     - run [str]: short Run name, ex: LH00336_0043
@@ -55,6 +57,7 @@ def download_files(run, credentials, out_sheet, out_names, out_pools):
     - out_sheet: SampleSheet file. Default=SampleSheet.csv
     - out_names: SampleNames file. Default=SampleNames.txt
     - out_sheet: SamplePools file. Default=SamplePools.csv
+    - no_check : Do not verify validity of run name
         
     Examples from Nanuq
     wget --post-data "j_username=USER&j_password=PASS" --no-cookies https://cigcp-nanuq.calculquebec.ca/nanuqMPS/sampleSheet/NovaSeq/A00516_0295/ -O 'SampleSheet.csv'
@@ -65,7 +68,10 @@ def download_files(run, credentials, out_sheet, out_names, out_pools):
     """
     server = 'https://nanuq.cqgc.hsj.rtss.qc.ca' # 'http://spxp-app07'
     nq = Nanuq()
-    fc_short = nq.check_run_name(run)
+    if no_check:
+        fc_short = run
+    else:
+        fc_short = nq.check_run_name(run)
     instrument = fc_short.split('_')[0]
 
     # Different Nanuq API endpoints determine whether Index2 is in reverse-
@@ -155,7 +161,7 @@ def main():
     out_names = outdir + os.sep + 'SampleNames.txt'
     out_pools = outdir + os.sep + 'SamplePools.csv'
 
-    download_files(fc, credentials, out_sheet, out_names, out_pools)
+    download_files(fc, credentials, out_sheet, out_names, out_pools, no_check=args.no_check)
 
     # If files downloaded files are empty (size == 0), no run could be found 
     # with ${FC_SHORT} identifier. Try with ${XP}, if set, else warn and quit. 
