@@ -1,9 +1,14 @@
 #!/bin/bash
 
 # Watch for new sequencing runs to launch DRAGEN BCL-Convert
-# USAGE: Launch in crontab
+# USAGE: Scheduled launch in /etc/cron.d/dragen_bcl-convert_watcher (see below)
 #        bash dragen_bcl-convert_watcher.sh | tee -a ${LOGFILE}
 #        bash /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_watcher.sh | tee -a /staging2/dragen/dragen_bcl-convert_watcher.log
+
+# /etc/cron.d/dragen_bcl-convert_watcher file content:
+# # Run dragen_bcl-convert_watcher.sh and rotate its' log every Sunday
+# */30 * * * * root /usr/bin/bash /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_watcher.sh >> /staging2/dragen/dragen_bcl-convert_watcher.log
+# 59 23 * * Sun root if [[ -f /staging2/dragen/dragen_bcl-convert_watcher.log ]]; then mv /staging2/dragen/dragen_bcl-convert_watcher.log /staging2/dragen/dragen_bcl-convert_watcher.previous_week.log; fi
 
 # Scan BCL output dirs (BASEDIR) for new runs (FC) to demux
 # Skip runs for LowPass (check if SampleSheet exists (LowPass))
