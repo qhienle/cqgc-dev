@@ -26,7 +26,19 @@ fi
 
 # Set BASEDIR and WORKDIR if environment variables not exported
 if [[ -z ${BASEDIR} ]]; then 
-    BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
+    if [[ -f "/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}/${FC}/CopyComplete.txt" ]]; then
+        BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
+    elif [[ -f "/mnt/spxp-app02/staging/hiseq_raw/${a[1]}/${FC}/CopyComplete.txt" ]]; then
+        BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
+    else
+        echo "ERROR: Could not find: '${BASEDIR}/${FC}/CopyComplete.txt'"
+        exit 1
+    fi
+else
+    if [[ ! -f "${BASEDIR}/${FC}/CopyComplete.txt" ]]; then
+        echo "ERROR: Could not find '${FC}/CopyComplete.txt' in specified BASEDIR '${BASEDIR}'"
+        exit 1
+    fi
 fi
 if [[ -z ${WORKDIR} ]]; then
     WORKDIR="/mnt/spxp-app02/staging2/dragen"
