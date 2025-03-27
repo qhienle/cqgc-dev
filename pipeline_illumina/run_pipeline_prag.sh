@@ -8,7 +8,7 @@
 ## 0. Mise en place de l'environnement de travail
 FC=${1}
 a=($(echo ${FC} | tr '_' '\n'))
-BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
+BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
 WORKDIR="/mnt/spxp-app02/staging2/dragen"
 SOFTDIR="/staging2/soft/CQGC-utils"
 NAPTIME=900
