@@ -7,7 +7,7 @@
 
 # /etc/cron.d/dragen_bcl-convert_watcher file content:
 # # Run dragen_bcl-convert_watcher.sh and rotate its' log every Sunday
-# */30 * * * * root /usr/bin/bash /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_watcher.sh >> /mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher.log
+# */30 * * * * root /usr/bin/bash /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_watcher.sh >> /mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher.log 2>&1
 # 59 23 * * Sun root path='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher'; flog="${path}.log"; dlog="${path}-$( date +"%Y%m%d" ).log"; mv ${flog} ${dlog}; gunzip ${flog}.tar.gz; tar -rf ${flog}.tar ${dlog}; gzip ${flog}.tar; rm -f ${dlog};
 
 # Scan BCL output dirs (BASEDIR) for new runs (FC) to demux
