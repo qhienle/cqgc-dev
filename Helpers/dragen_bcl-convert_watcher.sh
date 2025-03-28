@@ -49,7 +49,7 @@ launch_run() {
         if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
             echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
             . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
-            /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/bin/linux-x64/qsub -V /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
+            qsub -V /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
         else
             echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
         fi
