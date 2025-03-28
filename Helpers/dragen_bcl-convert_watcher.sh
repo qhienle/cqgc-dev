@@ -39,8 +39,8 @@ launch_run() {
     # and marks the run as done.
     local dir="$1"
     local fc="$2"
-    if [[ -d "${WORKDIR}/${fc}/1.fastq" ]]; then
-        echo "${LOGPREFIX} PASS: Demux appears to be in progress for ${WORKDIR}/${fc}"
+    if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
+        echo "${LOGPREFIX} PASS: Found ${WORKDIR}/${fc}/SampleSheet.csv. Demux appears to be in progress."
     else
         mkdir ${WORKDIR}/${fc}
         cd ${WORKDIR}/${fc}
