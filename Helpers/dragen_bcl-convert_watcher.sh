@@ -39,15 +39,13 @@ launch_run() {
     # and marks the run as done.
     local dir="$1"
     local fc="$2"
-    parts=($(echo ${fc} | tr '_' '\n'))
-    fc_short="${parts[1]}_${parts[2]}"
     if [[ -d "${WORKDIR}/${fc}/1.fastq" ]]; then
         echo "${LOGPREFIX} PASS: Demux appears to be in progress for ${WORKDIR}/${fc}"
     else
         mkdir ${WORKDIR}/${fc}
         cd ${WORKDIR}/${fc}
         echo "${LOGPREFIX} Getting SampleSheet and other files from Nanuq..."
-        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc_short}
+        python /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
         if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
             echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
             qsub /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
