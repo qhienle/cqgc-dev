@@ -15,6 +15,7 @@
 
 # FastqComplete.txt file created by DRAGEN marks end of process
 # <FLOWCELL> argument is REQUIRED
+
 if [[ -z ${1} ]]; then
     echo "ERROR: Flowcell or run name not provided!" >&2
     exit 1
@@ -61,7 +62,6 @@ if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
             --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
             --bcl-only-matched-reads true \
             --bcl-sampleproject-subdirectories true \
-            --force \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     elif [[ "${FC_SHORT}" =~ ^LH00* ]]; then
         echo "Run dragen BCL-convert for ${FC}"
@@ -71,7 +71,6 @@ if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
             --output-directory ${OUTDIR} \
             --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
             --bcl-only-matched-reads true \
-            --force \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     else
         echo "ERROR: Could not determine instrument series for ${FC}" >&2
