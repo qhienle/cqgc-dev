@@ -25,7 +25,8 @@
 
 BASEDIR='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs'
 HISEQ_R='/mnt/spxp-app02/staging/hiseq_raw'
-WORKDIR='/mnt/spxp-app02/staging2/dragen'
+#WORKDIR='/mnt/spxp-app02/staging2/dragen'
+WORKDIR='/mnt/vs_nas_chusj/CQGC_PROD/fastqs'
 LOGFILE="${WORKDIR}/dragen_bcl-convert_watcher.log"
 LOGPREFIX="[bcl-watcher]"
 WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/LH00207R" "${HISEQ_R}/LH00336" "${HISEQ_R}/A00977" "${HISEQ_R}/LH00207R")
@@ -71,6 +72,8 @@ for dir in ${WATCHDIRS[@]}; do
                     echo "${LOGPREFIX} PASS: FastqComplete.txt indicates that run has already been processed."
                 elif [[ -f "${dir}/${fc}/Failed.txt" ]] ||  [[ -f "${dir}/${fc}/failed.txt" ]]; then
                     echo "${LOGPREFIX} PASS: Failed.txt marks a failed Run."
+                elif [[ -f "${dir}/${fc}/DemuxStarted.txt" ]]; then
+                    echo "${LOGPREFIX} PASS: DemuxStarted.txt marks a bcl-convert process in progress."
                 elif [[ -f "${dir}/${fc}/LowPass*.csv" ]]; then
                     echo "${LOGPREFIX} PASS: Found what looks like a LowPass SampleSheet."
                 else
