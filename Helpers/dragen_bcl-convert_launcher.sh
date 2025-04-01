@@ -13,8 +13,9 @@
 #   export BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/LH00336
 #   export WORKDIR="/mnt/spxp-app02/staging2/dragen"
 
-# FastqComplete.txt file created by DRAGEN marks end of process
 # <FLOWCELL> argument is REQUIRED
+# DemuxStarted.txt file in ${BASEDIR}/${FC}/ marks a bcl-convert in progress
+# FastqComplete.txt file created by DRAGEN marks end of process
 
 if [[ -z ${1} ]]; then
     echo "ERROR: Flowcell or run name not provided!" >&2
@@ -42,17 +43,19 @@ else
     fi
 fi
 if [[ -z ${WORKDIR} ]]; then
-    WORKDIR="/mnt/spxp-app02/staging2/dragen"
+    # WORKDIR="/mnt/spxp-app02/staging2/dragen"
+    WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs"
 fi
-# Set OUTDIR and check that there aren't a prior demux
+# Set OUTDIR and check that there isn't a prior demux in progress
 OUTDIR="${WORKDIR}/${FC}/1.fastq"
-if [[ -d ${OUTDIR} ]]; then
-    echo "ERROR: ${OUTDIR} already exists!\n" >&2
-    exit 1
-fi 
+#if [[ -d ${OUTDIR} ]]; then
+#    echo "ERROR: ${OUTDIR} already processed or in progress!\n" >&2
+#    exit 1
+#fi 
 
 # Run bcl-convert depending on the instrument and SampleSheet
 if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
+    touch ${BASEDIR}/${FC}/DemuxStarted.txt
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
         echo "Run dragen BCL-convert for ${FC}"
         dragen \
