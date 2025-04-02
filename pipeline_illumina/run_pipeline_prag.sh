@@ -9,7 +9,7 @@
 FC=${1}
 a=($(echo ${FC} | tr '_' '\n'))
 BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
-WORKDIR="/mnt/spxp-app02/staging2/dragen"
+WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs"
 SOFTDIR="/staging2/soft/CQGC-utils"
 NAPTIME=900
 
