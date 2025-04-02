@@ -74,6 +74,7 @@ if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
             --output-directory ${OUTDIR} \
             --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
             --bcl-only-matched-reads true \
+            --first-tile-only true\
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     else
         echo "ERROR: Could not determine instrument series for ${FC}" >&2

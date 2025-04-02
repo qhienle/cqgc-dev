@@ -113,12 +113,17 @@ exit 0
 #                                 N
 #                                 |
 #                                 V
+#                         DemuxStarted.txt ? -----Y--> PASS
+#                                 |
+#                                 N
+#                                 |
+#                                 V
 #                           LowPass.csv ? --------Y--> PASS
 #                                 |
 #                                 N
 #                                 |
 #                                 V
-#                           SampleSheet.csv ? ----Y--> grep LowPass SampleSheet.csv ? ---------Y--> PASS
+#                          SampleSheet.csv ? -----Y--> grep LowPass SampleSheet.csv ? ---------Y--> PASS
 #                                 |                          |
 #                                 |                    grep Cloud_Workflow SampleSheet.csv ? --Y--> PASS
 #                                 |                          |
