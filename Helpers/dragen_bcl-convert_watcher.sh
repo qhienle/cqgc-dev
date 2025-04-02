@@ -15,6 +15,9 @@
 # Demux outputs are written to ${WORKDIR}/dragen/${FC}
 # File ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
 # File ${BASEDIR}/${FC}/Failed.txt marks that sequencing has failed
+# File ${BASEDIR}/${FC}/DemuxStarted.txt marks that bcl-convert is in progress
+#   DemuxStarted.txt is written to ${BASEDIR} by dragen_bcl-convert_launcher.sh
+# File ${WORKDIR}/${FC}/SampleSheet.csv also marks that bcl-convert is in progress
 # File ${BASEDIR}/${FC}/FastqComplete.txt marks end of BCL-conversion
 #   FastqComplete.txt is copied to ${BASEDIR} by dragen_bcl-convert_launcher.sh
 
