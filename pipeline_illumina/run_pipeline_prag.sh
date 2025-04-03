@@ -21,9 +21,10 @@ do
     printf '.'
     sleep ${NAPTIME}
 done
-echo "Sequencing has completed. Launching Demux"
-qsub -V -o "${WORKDIR}/${FC}/qsub_out.txt" -e "${WORKDIR}/${FC}/qsub_err.txt" ${SOFTDIR}/Helpers/dragen_bcl-convert_launcher.sh ${FC}
-echo "Waiting for Demux to finish"
+# echo "Sequencing has completed. Launching Demux"
+# ${SOFTDIR}/Helpers/dragen_bcl-convert_watcher.sh | tee -a /mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher.log
+# echo "Waiting for Demux to finish"
+echo "Sequencing has completed. Waiting for Demux to finish"
 until [ -f "${WORKDIR}/${FC}/1.fastq/Logs/FastqComplete.txt" ]
 do
     printf '.'
