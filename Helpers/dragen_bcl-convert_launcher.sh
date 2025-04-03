@@ -48,10 +48,6 @@ if [[ -z ${WORKDIR} ]]; then
 fi
 # Set OUTDIR and check that there isn't a prior demux in progress
 OUTDIR="${WORKDIR}/${FC}/1.fastq"
-#if [[ -d ${OUTDIR} ]]; then
-#    echo "ERROR: ${OUTDIR} already processed or in progress!\n" >&2
-#    exit 1
-#fi 
 
 # Run bcl-convert depending on the instrument and SampleSheet
 if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
