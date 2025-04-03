@@ -117,7 +117,8 @@ def main(args):
         if args.data_dir is not None:
             fastqdir = args.data_dir
         else:
-            fastqdir = f"/staging2/dragen/{row.flowcell}/1.fastq"
+            #fastqdir = f"/staging2/dragen/{row.flowcell}/1.fastq"
+            fastqdir = f"/mnt/vs_nas_chusj/CQGC_PROD/fastqs/{row.flowcell}/1.fastq"
         os.chdir(fastqdir)
 
         # glob() does not create ordered list of files, so we sort()for `bs`
