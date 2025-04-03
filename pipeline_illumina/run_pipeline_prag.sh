@@ -25,7 +25,7 @@ done
 # ${SOFTDIR}/Helpers/dragen_bcl-convert_watcher.sh | tee -a /mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher.log
 # echo "Waiting for Demux to finish"
 echo "Sequencing has completed. Waiting for Demux to finish"
-until [ -f "${WORKDIR}/${FC}/1.fastq/Logs/FastqComplete.txt" ]
+until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]
 do
     printf '.'
     sleep ${NAPTIME}
