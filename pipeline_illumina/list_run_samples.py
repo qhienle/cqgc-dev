@@ -94,7 +94,8 @@ def get_nanuq_sample_data(cqgc_id):
             'mrn'        : data[0]["patient"]["mrn"],
             'status'     : data[0]["patient"]["status"],
             'family_id'  : data[0]["patient"].get("familyId", "-"),
-            'birthdate'  : data[0]["patient"]["birthDate"]
+            'birthdate'  : data[0]["patient"]["birthDate"],
+            'project'    : data[0]["projectName"]
         }
     return sample_infos
 
