@@ -32,23 +32,12 @@ def parse_args():
     """
     Parse command-line options
     """
-    parser = argparse.ArgumentParser(description="Template for Python developments")
-    parser.add_argument('arg', help="Mandatory argument [REQUIRED]")
-    parser.add_argument('-o', '--optional', help="Optional argument")
-    parser.add_argument('-f', '--flag', action="store_true", help="Optional flag")
-    parser.add_argument('--logging-level', '-l', dest='level', default='info',
-                        help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
-    return parser.parse_args()
-
-def parse_args():
     parser = argparse.ArgumentParser(description="Assemble DRAGEN CSV Reports into sheets of an Excel file.")
     parser.add_argument("reports_dir", help="Reports folder with CSV files")
     parser.add_argument("-p", "--pools", help="File containing the pooling fractions. Default=`SamplePools.csv`.")
-    parser.add_argument("-s","--standard-mode", action="store_true", help="Use standard mode, same pools on two lanes")
-    args = parser.parse_args()
-    return(args)
-
-
+    parser.add_argument('--logging-level', '-l', dest='level', default='info',
+                        help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
+    return parser.parse_args()
 
 
 def configure_logging(level):
