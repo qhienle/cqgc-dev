@@ -56,24 +56,12 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def _test(arg, opt="."):
-    """
-    Define Function1, _e.g._ for testing stuff here
-    - arguments:
-    - returns:
-    """
-    print(f"Required command-line argument is: {arg}")
-    print(os.stat(opt))
-    print("\nDone.\n")
-
-
 def main(args):
     """
     Main function
     """
     args = parse_args()
     configure_logging(args.level)
-    _test(args)
 
 
 if __name__ == '__main__':
