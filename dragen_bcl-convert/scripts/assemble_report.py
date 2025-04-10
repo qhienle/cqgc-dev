@@ -17,16 +17,6 @@ import logging
 
 __version__ = "0.2"
 
-class Class:
-    """
-    Define Class here
-    """
-    def __init__(self):
-        """
-        Initialize Class
-        """
-        pass
-
 
 def parse_args():
     """
