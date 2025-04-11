@@ -15,8 +15,6 @@ import argparse
 import logging
 import json
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 
 # Set source path to CQGC-utils so that we can use relative imports
 #
