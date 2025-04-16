@@ -14,5 +14,7 @@ conda create --name "dev" python=3.13.2
 conda activate dev
 
 conda install requests
-conda install jupyter pandas
+conda install jupyterlab pandas openpyxl seaborn
+conda install -c conda-forge plotly
+conda install -c plotly python-kaleido
 ```
