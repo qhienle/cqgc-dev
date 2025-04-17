@@ -36,6 +36,9 @@ echo "Demux has completed"
 ## 2. Collecter les informations sur les familles dans samples_list.csv,
 ## fournit aussi la liste des échantillons à téléverser sur BaseSpace (étape 3)
 echo "Get list of samples for run ${FC}"
+if [[ ! -d "${WORKDIR}/${FC}" ]]; then
+    mkdir ${WORKDIR}/${FC};
+fi
 cd ${WORKDIR}/${FC}
 python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
 
