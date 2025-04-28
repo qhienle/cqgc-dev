@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Watch for new sequencing runs to launch DRAGEN BCL-Convert
-# USAGE: Scheduled launch in /etc/cron.d/dragen_bcl-convert_watcher (see below)
+# USAGE: Schedule launch with `crontab -e`, as `cqgc_user` (see below)
 #        bash dragen_bcl-convert_watcher.sh | tee -a ${LOGFILE}
 #        bash /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_watcher.sh | tee -a /mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher.log
 
-# /etc/cron.d/dragen_bcl-convert_watcher file content:
-# # Run dragen_bcl-convert_watcher.sh and rotate its' log every Sunday
-# */30 * * * * root /usr/bin/bash /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_watcher.sh >> /mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher.log 2>&1
-# 59 23 * * Sun root path='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher'; flog="${path}.log"; dlog="${path}-$( date +"%Y%m%d" ).log"; mv ${flog} ${dlog}; gunzip ${flog}.tar.gz; tar -rf ${flog}.tar ${dlog}; gzip ${flog}.tar; rm -f ${dlog};
+# # As "cqgc_user", run dragen_bcl-convert_watcher.sh and rotate its' log every Sunday
+# # sudo su cqgc_user --login && crontab -l|-e
+# */30 * * * * /usr/bin/bash -l -c "/staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_watcher.sh >> /mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher.log 2>&1"
+# 59 23 * * Sun path='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher'; flog="${path}.log"; dlog="${path}-$( date +"%Y%m%d" ).log"; mv ${flog} ${dlog}; gunzip ${flog}.tar.gz; tar -rf ${flog}.tar ${dlog}; gzip ${flog}.tar; rm -f ${dlog};
 
 # Scan BCL output dirs (BASEDIR) for new runs (FC) to demux
 # Skip runs for LowPass (check if SampleSheet exists (LowPass))
