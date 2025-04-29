@@ -43,22 +43,22 @@ launch_run() {
     # and marks the run as done.
     local dir="$1"
     local fc="$2"
+    # if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
+    #     echo "${LOGPREFIX} PASS: Found ${WORKDIR}/${fc}/SampleSheet.csv. Demux appears to be in progress."
+    # else
+    mkdir ${WORKDIR}/${fc}
+    cd ${WORKDIR}/${fc}
+    echo "${LOGPREFIX} Getting SampleSheet and other files from Nanuq..."
+    python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
     if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-        echo "${LOGPREFIX} PASS: Found ${WORKDIR}/${fc}/SampleSheet.csv. Demux appears to be in progress."
+        echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
+        . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
+        # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
+        qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
     else
-        mkdir ${WORKDIR}/${fc}
-        cd ${WORKDIR}/${fc}
-        echo "${LOGPREFIX} Getting SampleSheet and other files from Nanuq..."
-        python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
-        if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-            echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
-            . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
-            # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
-            qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
-        else
-            echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
-        fi
+        echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
     fi
+    # fi
 }
 
 for dir in ${WATCHDIRS[@]}; do
