@@ -125,7 +125,7 @@ def main():
     # from env var ${FC_SHORT}, if set as part of the bcl-convert procedure.
     #
     if args.run is None:
-        print(f"\nWARNING: Option -r/--run not provided. Get Run ID (FC) from environment settings.")
+        logging.info(f"Option -r/--run not provided. Get Run ID (FC) from environment settings.")
         try:
             fc = os.environ['FC']
         except KeyError:
@@ -134,12 +134,12 @@ def main():
             raise SystemExit(f"Caught an unexpected Exception:\n{err}\n")
     else:
         fc = args.run
-        print(f"Got Run ID (FC) '{fc}' from command line argument.")
+        logging.info(f"Got Run ID (FC) '{fc}' from command line argument.")
 
     # WARN that CLI option `--orient-index2` is DEPRECATED
     #
     if args.orient_index2:
-        print(f"WARNING: Option --orient-index2 is DEPRECATED. Orientation of index2 determined from RUN name")
+        logging.info(f"Option --orient-index2 is DEPRECATED. Orientation of index2 determined from RUN name")
 
     # Connect and download, using Nanuq authentication with credentials from 
     # either the command-line arguments or from the config file ./nanuq
@@ -150,7 +150,7 @@ def main():
         # Username and password not provided. Look for them in ~/.nanuq
         #
         try:
-            print(f"\nLooking for credentials in file '{auth}'")
+            logging.info(f"Looking for credentials in file '{auth}'")
             with open(os.path.expanduser(auth), 'r') as fh:
                 line = fh.readline().rstrip()
         except FileNotFoundError as fnf:
@@ -173,7 +173,7 @@ def main():
         outdir = os.environ['WORKDIR'] + os.sep + os.environ['FC']
         os.makedirs(outdir, exist_ok=True)
     else:
-        print(f"\nWARNING: Environment not set. Downloads in: {os.getcwd()}.\n")
+        logging.info(f"Environment not set. Downloads in: {os.getcwd()}.\n")
         outdir = os.getcwd() + os.sep
 
     # Download the three files, with the parameters gathered above.
@@ -188,15 +188,15 @@ def main():
     # with ${FC_SHORT} identifier. Try with ${XP}, if set, else warn and quit. 
     #
     if os.stat(out_sheet).st_size == 0 and os.stat(out_names).st_size == 0 and os.stat(out_pools).st_size == 0:
-        print(f"ERROR: Empty files downloaded with {fc}. Trying with ${{XP}}.\n")
+        logging.info(f"Empty files downloaded with {fc}. Trying with ${{XP}}.\n")
         if 'XP' in os.environ:
             download_files(os.environ['XP'], credentials, out_sheet, out_names, out_pools)
         else:
-            print(f"ERROR: Empty files downloaded with {fc} and ${{XP}} not set.")
-            print(f"Please check identifier for RUN.")
+            logging.info(f"ERROR: Empty files downloaded with {fc} and ${{XP}} not set.")
+            logging.info(f"Please check identifier for RUN.")
 
     if args.level == 'debug':
-        print(f"First lines of downloaded files:")
+        logging.debug(f"First lines of downloaded files:")
         for file in [out_sheet, out_names, out_pools]:
             print(f"\n===> {file}:\n")
             with open(file, 'r', encoding='ISO-8859-1') as fh:
