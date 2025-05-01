@@ -6,12 +6,20 @@
 #        bash run_pipeline_prag.sh ${FC} >>${WORKDIR}/${FC}/${FC}.pipeline_prag.log 2>&1
 
 ## 0. Mise en place de l'environnement de travail
-FC=${1}
-a=($(echo ${FC} | tr '_' '\n'))
-BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
-WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs"
 SOFTDIR="/staging2/soft/CQGC-utils"
 NAPTIME=900
+FC=${1}
+a=($(echo ${FC} | tr '_' '\n'))
+if [[ -z ${BASEDIR} ]]; then
+    BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
+else
+    BASEDIR=${BASEDIR} # export BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
+fi
+if [[ -z ${WORKDIR} ]]; then
+    WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs"
+else
+    WORKDIR=${WORKDIR} # export WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs"
+fi
 
 ## 1. Déconvolution et conversion des BCLs en FASTQs: devrait se faire 
 ## automatiquement par dragen_bcl-convert_watcher.sh
