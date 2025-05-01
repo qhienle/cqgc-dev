@@ -28,6 +28,7 @@ if these environment variables are set globally _e.g._:
 
 import os, sys, subprocess
 import argparse
+import logging
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from lib.nanuq import Nanuq
@@ -47,7 +48,26 @@ def parse_args():
                         help="Do not verify validity of -r/--run name")
     parser.add_argument('-o', '--orient-index2', action="store_true", 
                         help="(DEPRECATED) Orient index2 in the SampleSheet for NovaSeqX")
+    parser.add_argument('--logging-level', '-l', dest='level', default='info',
+                        help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
+
+
+def configure_logging(level):
+    """
+    Set logging level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
+    """
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
+
 
 def download_files(run, credentials, out_sheet, out_names, out_pools, no_check=False):
     """
@@ -98,6 +118,7 @@ def main():
     Otherwise, look for them in config file `~/.nanuq`.
     """
     args = parse_args()
+    configure_logging(args.level)
     auth = f"{os.path.expanduser('~')}{os.sep}.nanuq"
 
     # If RUN identifier not defined by option -r/--run, try to get this info
@@ -181,6 +202,8 @@ def main():
             for line in fh.readlines()[:5]:
                 print(line.rstrip())
 
-if __name__ == '__main__':
-    main()
     print("\nDone.\n")
+
+if __name__ == '__main__':
+    sys.exit(main())
+
