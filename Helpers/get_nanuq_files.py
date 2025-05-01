@@ -174,7 +174,7 @@ def main():
         outdir = os.environ['WORKDIR'] + os.sep + os.environ['FC']
         os.makedirs(outdir, exist_ok=True)
     else:
-        logging.info(f"Environment not set. Downloads in: {os.getcwd()}.\n")
+        logging.info(f"Environment not set. Downloads in: {os.getcwd()}.")
         outdir = os.getcwd() + os.sep
 
     # Download the three files, with the parameters gathered above.
@@ -196,7 +196,7 @@ def main():
             logging.info(f"ERROR: Empty files downloaded with {fc} and ${{XP}} not set.")
             logging.info(f"Please check identifier for RUN.")
     else:
-        logging.info(f"Sizes of wget downloaded files are greater than zero")
+        logging.info(f"Downloaded files are not empty")
 
     if args.level == 'debug':
         logging.debug(f"First lines of downloaded files:")
