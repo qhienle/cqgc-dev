@@ -194,6 +194,8 @@ def main():
         else:
             logging.info(f"ERROR: Empty files downloaded with {fc} and ${{XP}} not set.")
             logging.info(f"Please check identifier for RUN.")
+    else:
+        logging.info(f"Sizes of wget downloaded files are greater than zero")
 
     if args.level == 'debug':
         logging.debug(f"First lines of downloaded files:")
