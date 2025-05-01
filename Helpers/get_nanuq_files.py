@@ -69,7 +69,7 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def download_files(run, credentials, out_sheet, out_names, out_pools, no_check=False):
+def download_files(run, credentials, out_sheet, out_names, out_pools, no_check=False, debug=''):
     """
     Download SampleSheet.csv, SampleNames.txt and SamplePools.csv from Nanuq
     - run [str]: short Run name, ex: LH00336_0043
@@ -107,9 +107,15 @@ def download_files(run, credentials, out_sheet, out_names, out_pools, no_check=F
     url_names = f'{server}/nanuqMPS/sampleConversionTable/run/{fc_short}/technology/NovaSeq/'
     url_pools = f'{server}/nanuqMPS/poolingSampleSheet/run/{fc_short}/technology/NovaSeq/'
 
-    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_sheet, '-O', out_sheet, '--quiet'])
-    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_names, '-O', out_names, '--quiet'])
-    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_pools, '-O', out_pools, '--quiet'])
+    if debug == 'debug':
+        subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_sheet, '-O', out_sheet])
+        subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_names, '-O', out_names])
+        subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_pools, '-O', out_pools])
+    else:
+        subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_sheet, '-O', out_sheet, '--quiet'])
+        subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_names, '-O', out_names, '--quiet'])
+        subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_pools, '-O', out_pools, '--quiet'])
+
 
 def main():
     """
@@ -183,7 +189,7 @@ def main():
     out_names = outdir + os.sep + 'SampleNames.txt'
     out_pools = outdir + os.sep + 'SamplePools.csv'
 
-    download_files(fc, credentials, out_sheet, out_names, out_pools, no_check=args.no_check)
+    download_files(fc, credentials, out_sheet, out_names, out_pools, no_check=args.no_check, debug=args.level)
 
     # If files downloaded files are empty (size == 0), no run could be found 
     # with ${FC_SHORT} identifier. Try with ${XP}, if set, else warn and quit. 
@@ -191,7 +197,7 @@ def main():
     if os.stat(out_sheet).st_size == 0 and os.stat(out_names).st_size == 0 and os.stat(out_pools).st_size == 0:
         logging.info(f"Empty files downloaded with {fc}. Trying with ${{XP}}.\n")
         if 'XP' in os.environ:
-            download_files(os.environ['XP'], credentials, out_sheet, out_names, out_pools)
+            download_files(os.environ['XP'], credentials, out_sheet, out_names, out_pools, debug=args.level)
         else:
             logging.info(f"ERROR: Empty files downloaded with {fc} and ${{XP}} not set.")
             logging.info(f"Please check identifier for RUN.")
