@@ -107,9 +107,9 @@ def download_files(run, credentials, out_sheet, out_names, out_pools, no_check=F
     url_names = f'{server}/nanuqMPS/sampleConversionTable/run/{fc_short}/technology/NovaSeq/'
     url_pools = f'{server}/nanuqMPS/poolingSampleSheet/run/{fc_short}/technology/NovaSeq/'
 
-    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_sheet, '-O', out_sheet])
-    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_names, '-O', out_names])
-    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_pools, '-O', out_pools])
+    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_sheet, '-O', out_sheet], '--quiet')
+    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_names, '-O', out_names], '--quiet')
+    subprocess.run(['wget', '--post-data', credentials, '--no-cookies', url_pools, '-O', out_pools], '--quiet')
 
 def main():
     """
@@ -203,7 +203,8 @@ def main():
                 for line in fh.readlines()[:5]:
                     print(line.rstrip())
 
-    print("\nDone.\n")
+    logging.debug("\nDone.\n")
+
 
 if __name__ == '__main__':
     sys.exit(main())
