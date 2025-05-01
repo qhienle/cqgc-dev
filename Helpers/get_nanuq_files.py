@@ -120,6 +120,7 @@ def main():
     args = parse_args()
     configure_logging(args.level)
     auth = f"{os.path.expanduser('~')}{os.sep}.nanuq"
+    logging.info(f"Executing {__file__} with {args}")
 
     # If RUN identifier not defined by option -r/--run, try to get this info
     # from env var ${FC_SHORT}, if set as part of the bcl-convert procedure.
@@ -205,7 +206,8 @@ def main():
                 for line in fh.readlines()[:5]:
                     print(line.rstrip())
 
-    logging.debug("\nDone.\n")
+    logging.info(f"{os.path.basename(__file__)} => Done!")
+
 
 
 if __name__ == '__main__':
