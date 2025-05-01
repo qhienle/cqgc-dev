@@ -195,12 +195,13 @@ def main():
             print(f"ERROR: Empty files downloaded with {fc} and ${{XP}} not set.")
             print(f"Please check identifier for RUN.")
 
-    print(f"First lines of downloaded files:")
-    for file in [out_sheet, out_names, out_pools]:
-        print(f"\n===> {file}:\n")
-        with open(file, 'r', encoding='ISO-8859-1') as fh:
-            for line in fh.readlines()[:5]:
-                print(line.rstrip())
+    if args.level == 'debug':
+        print(f"First lines of downloaded files:")
+        for file in [out_sheet, out_names, out_pools]:
+            print(f"\n===> {file}:\n")
+            with open(file, 'r', encoding='ISO-8859-1') as fh:
+                for line in fh.readlines()[:5]:
+                    print(line.rstrip())
 
     print("\nDone.\n")
 
