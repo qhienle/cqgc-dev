@@ -446,11 +446,11 @@ def main(args):
         'Number of unique & mapped reads PCT',
         'Number of duplicate marked reads PCT', 
         'Percent Autosome Callability']] #, 'Estimated sample contamination']]
-    df1.to_csv('_tmp_df_merged.csv', index=None)
-    #df1.drop_duplicates(inplace=True)
     df2 = df1.dropna()
-    print(df2)
-    df2.to_csv('_tmp_df_merged_dropna_dropdup.csv', index=None)
+    if args.level == 'debug':
+        print(df2)
+        df1.to_csv('_tmp_df_merged.csv', index=None)
+        df2.to_csv('_tmp_df_merged_dropna_dropdup.csv', index=None)
     df3 = df2.astype({'NumOfReads': 'Int64', 'NumOfSNPs': 'Int64', 'NumOfCNVs': 'Int64',
         'Average coverage': 'Float64', 'Coverage uniformity': 'Float64',
         'CNV Number of amplifications': 'Int64', 'CNV Number of passing amplifications': 'Int64', 
