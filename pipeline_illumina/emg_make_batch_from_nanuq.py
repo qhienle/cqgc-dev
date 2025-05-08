@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """
+### DEPRECATED
+### Use emg_make_batch.py
+
 Get Case information from Nanuq with Phenotips (PID) for a given _Run_.
 This script uses Nanuq's SampleNames file to list samples from which to create
 batches of cases. Use `emg_make_batch.py` instead if batches are to be created
