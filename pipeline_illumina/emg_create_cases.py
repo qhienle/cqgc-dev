@@ -53,27 +53,6 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def list_samples_from_samplenames(content):
-    """
-    Get list of samples from the content of Nanuq's "SampleNames.txt".
-    A one-column list of CQGC identifiers will also work.
-    - content: [str] File content of SampleNames.txt, as a single string.
-    - Returns: [list] of samples from Nanuq (CQGC IDs, referred to by 
-               Illumina as 'biosamples')
-    """
-    biosamples = []
-    for line in content.splitlines():
-        logging.debug(f"Parsing SampleNames...")
-        if not line.startswith("#"):
-            try:
-                cqgc_id, sample_name = line.split("\t")
-            except ValueError as err:
-                logging.debug(f"While parsing SampleNames content: {err}.")
-            else:
-                biosamples.append(cqgc_id)
-    return biosamples
-
-
 def get_hpos(pid, db='D:\\HSJ\\Workspace\\cqgc-dev\\lib\\pheno_json-extracted_hpos.json'):
     """
     Lookup Phenotips ID (PID) and HPO identifiers from `db`
@@ -104,7 +83,6 @@ def get_birthdate(biosample):
 
 def main():
     """
-    0. Setup run and Quality Check
     1. Get individual and family information from a samples' list (csv)
     2. Add BaseSpace FASTQ file paths for each sample
     3. Get the corresponding HPO Identifiers and add HPO terms
@@ -112,15 +90,22 @@ def main():
     5. Write Emedgene case JSON, including paths to VCFs and HPO terms;
     6. Create case on Emedgene
     """
-
-    # 0. Setup for run
-    #
     args = parse_args()
     configure_logging(args.level)
     workdir = os.getcwd()
     os.chdir(workdir)
 
     # 1. Get individual and family information from a samples' list (csv)
+    try:
+        df_samples = pd.read_csv(args.file)
+    except FileNotFoundError as e:
+        logging.error(e)
+    except Exception as e:
+        logging.error(f"{e}Please check that the samples' list is a CSV file")
+    else:
+        # Get a list of samples and build cases per family
+    
+
     # 2. Add BaseSpace FASTQ file paths for each sample
     # 3. Get the corresponding HPO Identifiers and add HPO terms
     # 4. Add storage provider and label ID's based on project
