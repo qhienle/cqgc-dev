@@ -87,8 +87,9 @@ for dir in ${WATCHDIRS[@]}; do
                             echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
                         elif grep -q "Cloud_Workflow," "${dir}/${fc}/SampleSheet.csv"; then
                             echo "${LOGPREFIX} PASS: SampleSheet indicates a Cloud_Workflow"
+                            # TODO: automatically delete Run (if for TSO500)?
                         else
-                            echo "${LOGPREFIX} SampleSheet exists and not for LowPass."
+                            echo "${LOGPREFIX} SampleSheet exists and not for LowPass or a Cloud_Workflow."
                             launch_run ${dir} ${fc}
                         fi
                     else
