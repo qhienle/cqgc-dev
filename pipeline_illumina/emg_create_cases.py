@@ -15,7 +15,7 @@ import os, sys
 import argparse
 import logging
 import json
-import re
+import requests
 import pandas as pd
 
 # Set source path to CQGC-utils so that we can use relative imports
@@ -23,6 +23,7 @@ import pandas as pd
 src_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(src_path)
 from lib.gapp import BSSH
+from lib.gapp import Emedgene
 from lib.nanuq import Nanuq
 bssh = BSSH()
 
@@ -79,6 +80,20 @@ def get_birthdate(biosample):
     nq = Nanuq()
     data = json.loads(nq.get_sample(biosample))
     return(data[0]['patient']['birthDate'])
+
+
+def submit_emg(case_json):
+    """
+    Submit to Emedgene a Case JSON. 
+    - case_json: [str] path/to/json
+    - Return:    [obj] Response object from a `requests()` POST.
+    """
+    emg = Emedgene()
+    with open(case_json, 'r') as fh:
+        url = f"{emg.eval_server}/api/cases/v2/cases/"
+        payload = json.load(fh)
+        resp = requests.post(url, headers={'Authorization': emg.authenticate()}, json=payload)
+    return resp.json()
 
 
 def main():
