@@ -101,10 +101,13 @@ def main():
     except FileNotFoundError as e:
         logging.error(e)
     except Exception as e:
-        logging.error(f"{e}Please check that the samples' list is a CSV file")
+        logging.error(f"Could not load list of samples from '{args.file}' because {e}")
     else:
-        # Get a list of samples and build cases per family
-    
+        df_samples['mrn'] = df_samples['mrn'].astype(str)
+        workdir = os.path.dirname(os.path.abspath(args.file))
+        os.chdir(workdir)
+        logging.info(f"# Log run {','.join(df_samples['flowcell'].unique())}")
+
 
     # 2. Add BaseSpace FASTQ file paths for each sample
     # 3. Get the corresponding HPO Identifiers and add HPO terms
