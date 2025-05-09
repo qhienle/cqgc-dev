@@ -121,7 +121,8 @@ def main():
         df_samples['mrn'] = df_samples['mrn'].astype(str)
         workdir = os.path.dirname(os.path.abspath(args.file))
         os.chdir(workdir)
-        logging.info(f"# Log run {','.join(df_samples['flowcell'].unique())}")
+        logging.info(f"Log {__file__} for run {','.join(df_samples['flowcell'].unique())}")
+        logging.debug(f"Run arguments: {args}")
 
 
     # 2. Add BaseSpace FASTQ file paths for each sample
