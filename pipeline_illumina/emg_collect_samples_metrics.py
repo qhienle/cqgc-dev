@@ -403,7 +403,7 @@ def main(args):
         logging.info(f"Logs directory, '{logsdir}', already exists")
     else:
         try: 
-            os.mkdirsamples(logsdir)
+            os.mkdir(logsdir)
         except FileNotFoundError as e:
             logging.error(f"{e}; logsdir={logsdir}")
     
