@@ -326,6 +326,8 @@ def main(args):
     logging.info(f"Loading list of samples from file '{args.file}'...")
     try:
         df_batch = pd.read_csv(args.file)
+    except FileNotFoundError as e:
+        sys.exit(logging.error(e))
     except Exception as err:
         sys.exit(logging.error(f"Could not load list of samples in file '{args.file}' because {err}."))
     df_batch['mrn'] = df_batch['mrn'].astype(str)
