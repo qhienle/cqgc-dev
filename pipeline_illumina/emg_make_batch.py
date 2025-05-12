@@ -6,7 +6,7 @@ Make a batch file for Case creation in Emedgene from list of samples
 [2024-08-22] IN PROGRESS: This script is meant to replace emg_make_batch.py and
 to work for projects PRAG, AOH and Q1K.
 
-USAGE: emg_make_batch.py --file samples_list.csv
+USAGE: emg_make_batch.py [--file samples_list.csv]
        emg_make_batch.py --help
 
 Reads from a CSV file listing samples from which cases are created. By default,
@@ -58,7 +58,7 @@ from lib.gapp import Phenotips
 from lib.gapp import REDCap
 from lib.gapp import BSSH
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 
 def parse_args():
