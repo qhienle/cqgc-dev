@@ -617,11 +617,12 @@ class Emedgene:
         Load settings from config_file, if provided. Define instance vars to
         provide more readable access to settings in dict "configs".
         """
-        configs          = Configurator()
+        configs          = Configurator(config_file)
         self.username    = configs.emg_username
         self.password    = configs.emg_password
         self.prag_server = configs.emg_prag_server
         self.eval_server = configs.emg_eval_server
+
 
     def authenticate(self):
         """
@@ -636,6 +637,7 @@ class Emedgene:
         headers  = {'Content-Type': 'application/json'}
         response = requests.request("POST", url, headers=headers, data=payload)
         return response.json()["Authorization"]
+
 
     def get_emg_id(self, sample):
         """
@@ -662,14 +664,14 @@ class Emedgene:
             return resp.status_code
 
 
-    def submit_emg_case(self, case_json):
+    def submit_emg_case(self, case_json, server):
         """
         Submit to Emedgene a JSON that describes a Case for creation. 
         - case_json: [str] path/to/case_json
         - Return:    [obj] Response object from a `requests()` POST.
         """
+        url = f"{server}/api/cases/v2/cases/"
         with open(case_json, 'r') as fh:
-            url = f"{self.eval_server}/api/cases/v2/cases/"
             payload = json.load(fh)
             resp = requests.post(url, headers={'Authorization': self.authenticate()}, json=payload)
         return resp.json()
