@@ -75,6 +75,7 @@ class TestEmedgene(unittest.TestCase):
         self.assertIsNotNone(self.emg.password)
         self.assertIsNotNone(self.emg.prag_server)
         self.assertIsNotNone(self.emg.eval_server)
+        print(f"eval_server={self.emg.eval_server}")
 
     def test_authenticate_emedgene(self):
         auth = self.emg.authenticate()
@@ -86,7 +87,7 @@ class TestEmedgene(unittest.TestCase):
 
     def test_submit_emg_case(self):
         #self.assertSomething()
-        pass
+        print(self.emg)
 
     def tearDown(self):
         pass
