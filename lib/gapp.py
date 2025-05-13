@@ -662,6 +662,19 @@ class Emedgene:
             return resp.status_code
 
 
+    def submit_emg_case(self, case_json):
+        """
+        Submit to Emedgene a JSON that describes a Case for creation. 
+        - case_json: [str] path/to/case_json
+        - Return:    [obj] Response object from a `requests()` POST.
+        """
+        with open(case_json, 'r') as fh:
+            url = f"{self.eval_server}/api/cases/v2/cases/"
+            payload = json.load(fh)
+            resp = requests.post(url, headers={'Authorization': self.authenticate()}, json=payload)
+        return resp.json()
+
+
 def test():
     """
     Quick and dirty testing

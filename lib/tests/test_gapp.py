@@ -84,6 +84,10 @@ class TestEmedgene(unittest.TestCase):
     def test_get_emg_id_GM221763(self):
         self.assertEqual(self.emg.get_emg_id('GM221763'), 'EMG398184424')
 
+    def test_submit_emg_case(self):
+        #self.assertSomething()
+        pass
+
     def tearDown(self):
         pass
 
