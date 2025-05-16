@@ -95,6 +95,17 @@ class TestEmedgene(unittest.TestCase):
         self.assertEqual(self.emg.case['test_data']['type'], 'Whole Genome')
         self.assertEqual(self.emg.case['test_data']['selected_preset_set'], 'Genome-v1.1')
 
+    def test_create_test_data_proband(self):
+        hpos = ['HP:0001508', 'HP:0001510', 'HP:0002190']
+        proband = self.emg.create_patient(sample_name='25-04410-T1', biosample='35676', gender='Male', relation='Test Subject', phenotypes=hpos)
+        self.assertIsInstance(proband, dict, "Case test_data should be a dict")
+        self.assertIsInstance(proband['fastq_sample'], str, "Case test_data should be a dict")
+        self.assertIsInstance(proband['phenotypes'], list)
+        self.assertEqual(proband['id'], '25-04410-T1')
+        self.assertEqual(proband['gender'], 'Male')
+        self.assertEqual(proband['relationship'], 'Test Subject')
+        self.assertEqual(len(proband['phenotypes']), 3)
+
     def test_submit_emg_case(self):
         #self.assertSomething()
         print(self.emg)
