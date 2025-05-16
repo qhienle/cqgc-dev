@@ -701,6 +701,30 @@ class Emedgene:
         }
 
 
+    def create_patient(self, sample_name, biosample, gender, relation, phenotypes:list) -> dict:
+        patient = {
+            "fastq_sample": biosample,
+            "gender": gender,          # Male | Female
+            "healthy": True,           # True | False
+            "relationship": relation,  # 
+            "notes": "",
+            "phenotypes": [],
+            "detailed_ethnicity": {
+                "maternal": [],
+                "paternal": []
+            },
+            "zygosity": "",
+            "quality": "",
+            "dead": False,
+            "ignore": False,
+            "id": sample_name
+        }
+        if len(phenotypes) != 0:
+            for hpo in phenotypes:
+                patient["phenotypes"].append({'id': hpo, 'name': ''})
+        return patient
+    
+
     def submit_emg_case(self, case_json, server):
         """
         Submit to Emedgene a JSON that describes a Case for creation. 
