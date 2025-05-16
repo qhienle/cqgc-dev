@@ -622,6 +622,11 @@ class Emedgene:
         self.password    = configs.emg_password
         self.prag_server = configs.emg_prag_server
         self.eval_server = configs.emg_eval_server
+        self.case = {
+            'test_data': {},
+            "should_upload": False,
+            "sharing_level": 0
+        }
 
 
     def authenticate(self):
@@ -662,6 +667,38 @@ class Emedgene:
         else:
             logging.warning(f"While fetching EMG ID, got the HTTP Error Code: [{resp.status_code}]\n{resp.text}")
             return resp.status_code
+
+
+    def create_test_data(self, type='Whole Genome', presets='Default'):
+        self.case['test_data'] = {
+            "consanguinity": False,
+            "inheritance_modes": [],
+            "sequence_info": {},
+            "type": type,
+            "notes": "",
+            "samples": [
+                # List of EMGSample objects
+            ],
+            "sample_type": "fastq",
+            "patients": {
+                # EMGPatient objects for proband, father, mother, sibling
+                # 'proband' is mandatory
+                "proband": {},
+                "other": []
+            },
+            "diseases": [],
+            "disease_penetrance": 100,
+            "disease_severity": "",
+            "boostGenes": False,
+            "selected_preset_set": presets,
+            "incidental_findings": None,
+            "labels": [],
+            "gene_list": {
+                "type": "all",
+                "id": 1,
+                "visible": False
+            },
+        }
 
 
     def submit_emg_case(self, case_json, server):
