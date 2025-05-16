@@ -75,7 +75,11 @@ class TestEmedgene(unittest.TestCase):
         self.assertIsNotNone(self.emg.password)
         self.assertIsNotNone(self.emg.prag_server)
         self.assertIsNotNone(self.emg.eval_server)
+
+    def test_init_emedgene_case(self):
         self.assertIsNotNone(self.emg.case)
+        self.assertIsInstance(self.emg.case, dict, "Emedgene Case should be a dict")
+        self.assertIsInstance(self.emg.case['test_data'], dict, "Case test_data should be a dict")
 
     def test_authenticate_emedgene(self):
         auth = self.emg.authenticate()
