@@ -51,7 +51,7 @@ cd ${WORKDIR}/${FC}
 python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
 
 
-### 3. Téléverser les FASTQs sur BaseSpace
+## 3. Téléverser les FASTQs sur BaseSpace
 echo "Uploading samples to BaseSpace"
 ## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
 python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
