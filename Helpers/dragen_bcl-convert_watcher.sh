@@ -61,7 +61,8 @@ for dir in ${WATCHDIRS[@]}; do
     for fc in $( ls ${dir} ); do
         parts=($(echo ${fc} | tr '_' '\n'))
         if [[ ${#parts[@]} -eq 4 ]]; then
-            echo "${LOGPREFIX} ${fc}"
+            # echo "${LOGPREFIX} ${fc}"
+            echo "${LOGPREFIX} $( bs -c cac1 list runs --filter-term ${fc} )"
             if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
                 # echo "${LOGPREFIX} CopyComplete.txt indicates that sequencing has finished"
                 # Check if bcl-convert needed (not previously demuxed, not failed, not LowPass)
