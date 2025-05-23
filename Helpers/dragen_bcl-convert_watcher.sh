@@ -11,8 +11,10 @@
 # 59 23 * * Sun path='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher'; flog="${path}.log"; dlog="${path}-$( date +"\%Y\%m\%d" ).log"; mv ${flog} ${dlog}; gunzip ${flog}.tar.gz; tar -rf ${flog}.tar ${dlog}; gzip ${flog}.tar; rm -f ${dlog};
 
 # Scan BCL output dirs (BASEDIR) for new runs (FC) to demux
-# Skip runs for LowPass (check if SampleSheet exists (LowPass))
+# Check SampleSheet, launch demux if not LowPass or Cloud_Workflow
+#   Get SampleSheet if it doesn't exist and launch demux
 # Demux outputs are written to ${WORKDIR}/dragen/${FC}
+
 # File ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
 # File ${BASEDIR}/${FC}/Failed.txt marks that sequencing has failed
 # File ${BASEDIR}/${FC}/DemuxStarted.txt marks that bcl-convert is in progress
@@ -37,8 +39,7 @@ WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/LH00207R" "${HIS
 printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 #| tee -a ${LOGFILE}/
 
 launch_run() {
-    # Run dragen_bcl-convert_launcher.sh if not already being processed by 
-    # another instance of this script which creates output dir ${WORKDIR}/${fc}
+    # Run dragen_bcl-convert_launcher.sh
     # FastqComplete.txt is copied to ${BASEDIR} by dragen_bcl-convert_launcher.sh
     # and marks the run as done.
     local dir="$1"
