@@ -57,13 +57,13 @@ launch_run() {
 }
 
 for dir in ${WATCHDIRS[@]}; do
-    echo "${LOGPREFIX} ====== Scanning ${dir}... ======"
+    # echo "${LOGPREFIX} ====== Scanning ${dir}... ======"
     for fc in $( ls ${dir} ); do
         parts=($(echo ${fc} | tr '_' '\n'))
         if [[ ${#parts[@]} -eq 4 ]]; then
             echo "${LOGPREFIX} ${fc}"
             if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
-                echo "${LOGPREFIX} CopyComplete.txt indicates that sequencing has finished"
+                # echo "${LOGPREFIX} CopyComplete.txt indicates that sequencing has finished"
                 # Check if bcl-convert needed (not previously demuxed, not failed, not LowPass)
                 if [[ -f "${dir}/${fc}/FastqComplete.txt" ]]; then
                     echo "${LOGPREFIX} PASS: FastqComplete.txt indicates that run has already been processed."
