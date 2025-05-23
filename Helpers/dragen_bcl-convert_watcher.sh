@@ -62,7 +62,8 @@ for dir in ${WATCHDIRS[@]}; do
         parts=($(echo ${fc} | tr '_' '\n'))
         if [[ ${#parts[@]} -eq 4 ]]; then
             # echo "${LOGPREFIX} ${fc}"
-            echo "${LOGPREFIX} $( bs -c cac1 list runs --filter-term ${fc} )"
+            # `bs` for debug. Probably doesn't work in crontab
+            echo "${LOGPREFIX} $( bs -c cac1 list runs | grep ${fc} )" 
             if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
                 # echo "${LOGPREFIX} CopyComplete.txt indicates that sequencing has finished"
                 # Check if bcl-convert needed (not previously demuxed, not failed, not LowPass)
