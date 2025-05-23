@@ -43,22 +43,16 @@ launch_run() {
     # and marks the run as done.
     local dir="$1"
     local fc="$2"
-    # if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-    #     echo "${LOGPREFIX} PASS: Found ${WORKDIR}/${fc}/SampleSheet.csv. Demux appears to be in progress."
-    # else
     mkdir ${WORKDIR}/${fc}
     cd ${WORKDIR}/${fc}
-    echo "${LOGPREFIX} Getting SampleSheet and other files from Nanuq..."
-    python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
-    if [[ -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-        echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
-        . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
-        # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
-        qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
-    else
-        echo "${LOGPREFIX} ERROR: SampleSheet.csv not found in ${WORKDIR}/${fc}" >&2
+    if [[ ! -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
+        echo "${LOGPREFIX} Getting SampleSheet and other files from Nanuq..."
+        python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
     fi
-    # fi
+    echo "${LOGPREFIX} RUN: Launching BCL-convert with qsub..."
+    . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
+    # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
+    qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
 }
 
 for dir in ${WATCHDIRS[@]}; do
@@ -80,20 +74,19 @@ for dir in ${WATCHDIRS[@]}; do
                 elif [[ -f "${dir}/${fc}/LowPass*.csv" ]]; then
                     echo "${LOGPREFIX} PASS: Found what looks like a LowPass SampleSheet."
                 else
-                    # Check SampleSheet if run is LowPass.
-                    # If no SampleSheet is found, then run is not LowPass
+                    # Check SampleSheet, for LowPass or Cloud_Workflow.
                     if [[ -f "${dir}/${fc}/SampleSheet.csv" ]]; then
                         if grep -q "LowPass" "${dir}/${fc}/SampleSheet.csv"; then
-                            echo "${LOGPREFIX} PASS: Found the word LowPass in SampleSheet"
+                            echo "${LOGPREFIX} PASS: SampleSheet for LowPass"
                         elif grep -q "Cloud_Workflow," "${dir}/${fc}/SampleSheet.csv"; then
                             echo "${LOGPREFIX} PASS: SampleSheet indicates a Cloud_Workflow"
-                            # TODO: automatically delete Run (if for TSO500)?
+                            # TODO: Delete Run (if for TSO500)?
                         else
-                            echo "${LOGPREFIX} SampleSheet exists and not for LowPass or a Cloud_Workflow."
+                            echo "${LOGPREFIX} LAUNCH: SampleSheet found, not for LowPass or Cloud_Workflow."
                             launch_run ${dir} ${fc}
                         fi
                     else
-                        echo "${LOGPREFIX} Could not find ${dir}/${fc}/SampleSheet.csv."
+                        echo "${LOGPREFIX} LAUNCH: Could not find ${dir}/${fc}/SampleSheet.csv."
                         launch_run ${dir} ${fc}
                     fi
                 fi
