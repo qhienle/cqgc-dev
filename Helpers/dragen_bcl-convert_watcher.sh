@@ -57,7 +57,7 @@ launch_run() {
 }
 
 for dir in ${WATCHDIRS[@]}; do
-    echo "====== ${LOGPREFIX} Scanning ${dir}... ======"
+    echo "${LOGPREFIX} ====== Scanning ${dir}... ======"
     for fc in $( ls ${dir} ); do
         parts=($(echo ${fc} | tr '_' '\n'))
         if [[ ${#parts[@]} -eq 4 ]]; then
