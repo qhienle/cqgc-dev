@@ -57,11 +57,10 @@ launch_run() {
 }
 
 for dir in ${WATCHDIRS[@]}; do
-    echo "${LOGPREFIX} Scanning ${dir}..."
+    echo "====== ${LOGPREFIX} Scanning ${dir}... ======"
     for fc in $( ls ${dir} ); do
         parts=($(echo ${fc} | tr '_' '\n'))
         if [[ ${#parts[@]} -eq 4 ]]; then
-            echo "---------------------------------"
             echo "${LOGPREFIX} ${fc}"
             if [[ -f "${dir}/${fc}/CopyComplete.txt" ]]; then
                 echo "${LOGPREFIX} CopyComplete.txt indicates that sequencing has finished"
@@ -97,7 +96,6 @@ for dir in ${WATCHDIRS[@]}; do
         fi
         # else: ignore because format of folder name doesn't look like a run
     done
-    echo "================================="
 done
 exit 0
 
