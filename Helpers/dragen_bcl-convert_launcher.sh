@@ -26,6 +26,7 @@ else
     FC_SHORT="${a[1]}_${a[2]}"
 fi
 
+
 # Set BASEDIR and WORKDIR if environment variables not exported
 if [[ -z ${BASEDIR} ]]; then 
     if [[ -f "/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}/${FC}/CopyComplete.txt" ]]; then
@@ -49,8 +50,13 @@ fi
 # Set OUTDIR and check that there isn't a prior demux in progress
 OUTDIR="${WORKDIR}/${FC}/1.fastq"
 
+
+# Set SampleSheet.csv. Fix funky characters in SampleNames.txt and other Nanuq files
+# TODO: Fix this in get_nanuq_files.py
 # Run bcl-convert depending on the instrument and SampleSheet
-if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
+samplesheet="${WORKDIR}/${FC}/SampleSheet.csv"
+if [[ -f ${samplesheet} ]]; then
+    dos2unix ${WORKDIR}/${FC}/Sample*
     touch ${BASEDIR}/${FC}/DemuxStarted.txt
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
         echo "Run dragen BCL-convert for ${FC}"
@@ -58,7 +64,7 @@ if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
             --bcl-conversion-only true \
             --bcl-input-directory ${BASEDIR}/${FC} \
             --output-directory ${OUTDIR} \
-            --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
+            --sample-sheet ${samlesheet} \
             --bcl-only-matched-reads true \
             --bcl-sampleproject-subdirectories true \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
@@ -68,7 +74,7 @@ if [[ -f ${WORKDIR}/${FC}/SampleSheet.csv ]]; then
             --bcl-conversion-only true \
             --bcl-input-directory ${BASEDIR}/${FC} \
             --output-directory ${OUTDIR} \
-            --sample-sheet ${WORKDIR}/${FC}/SampleSheet.csv \
+            --sample-sheet ${samlesheet} \
             --bcl-only-matched-reads true \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     else
