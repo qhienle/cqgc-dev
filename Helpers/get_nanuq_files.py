@@ -29,6 +29,7 @@ if these environment variables are set globally _e.g._:
 import os, sys, subprocess
 import argparse
 import logging
+import glob
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from lib.nanuq import Nanuq
@@ -205,7 +206,8 @@ def main():
         logging.info(f"Downloaded files are not empty")
         logging.debug(f"Passing files through `dos2unix`...")
         try:
-            subprocess.run(['dos2unix', 'Sample*'])
+            sampleglob = glob.glob("Sample*")
+            subprocess.run(['dos2unix', sampleglob])
         except FileNotFoundError as fnf:
             raise SystemExit(f"{fnf}.\nCould not find Sample* file from Nanuq.\n")
         except Exception as err:
