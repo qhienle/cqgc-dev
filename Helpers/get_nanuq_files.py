@@ -207,7 +207,7 @@ def main():
         logging.debug(f"Passing files through `dos2unix`...")
         try:
             sampleglob = glob.glob("Sample*")
-            subprocess.run(['dos2unix', sampleglob])
+            subprocess.run(['dos2unix'] + sampleglob)
         except FileNotFoundError as fnf:
             raise SystemExit(f"{fnf}.\nCould not find Sample* file from Nanuq.\n")
         except Exception as err:
