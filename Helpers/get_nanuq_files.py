@@ -217,8 +217,7 @@ def main():
                 logging.debug(f"First lines of downloaded files:")
                 for file in [out_sheet, out_names, out_pools]:
                     print(f"\n===> {file}:\n")
-                    # with open(file, 'r', encoding='ISO-8859-1') as fh: # Not needed when using dos2unix?
-                    with open(file, 'r') as fh:
+                    with open(file, 'r', encoding='ISO-8859-1') as fh:
                         for line in fh.readlines()[:5]:
                             print(line.rstrip())
 
