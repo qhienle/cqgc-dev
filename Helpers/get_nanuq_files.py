@@ -203,17 +203,24 @@ def main():
             logging.info(f"Please check identifier for RUN.")
     else:
         logging.info(f"Downloaded files are not empty")
-
-    if args.level == 'debug':
-        logging.debug(f"First lines of downloaded files:")
-        for file in [out_sheet, out_names, out_pools]:
-            print(f"\n===> {file}:\n")
-            with open(file, 'r', encoding='ISO-8859-1') as fh:
-                for line in fh.readlines()[:5]:
-                    print(line.rstrip())
+        logging.debug(f"Passing files through `dos2unix`...")
+        try:
+            subprocess.run(['dos2unix', 'Sample*'])
+        except FileNotFoundError as fnf:
+            raise SystemExit(f"{fnf}.\nCould not find Sample* file from Nanuq.\n")
+        except Exception as err:
+            raise SystemExit(f"Caught an unexpected Exception:\n{err}\n")
+        else:
+            if args.level == 'debug':
+                logging.debug(f"First lines of downloaded files:")
+                for file in [out_sheet, out_names, out_pools]:
+                    print(f"\n===> {file}:\n")
+                    # with open(file, 'r', encoding='ISO-8859-1') as fh: # Not needed when using dos2unix?
+                    with open(file, 'r') as fh:
+                        for line in fh.readlines()[:5]:
+                            print(line.rstrip())
 
     logging.info(f"{os.path.basename(__file__)} => Done!")
-
 
 
 if __name__ == '__main__':
