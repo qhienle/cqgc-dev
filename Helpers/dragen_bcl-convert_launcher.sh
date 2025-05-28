@@ -17,6 +17,8 @@
 # DemuxStarted.txt file in ${BASEDIR}/${FC}/ marks a bcl-convert in progress
 # FastqComplete.txt file created by DRAGEN marks end of process
 
+umask 002
+
 if [[ -z ${1} ]]; then
     echo "ERROR: Flowcell or run name not provided!" >&2
     exit 1
