@@ -60,9 +60,8 @@ def get_nanuq_sample_data(cqgc_id):
     - Return: [dict]
     """
     sample_infos = {}
-    nq = Nanuq()
     try:
-        data = json.loads(nq.get_sample(cqgc_id))
+        data = json.loads(Nanuq().get_sample(cqgc_id))
     except Exception as e:
         logging.error(f"JSONDecodeError {e} could not decode biosample {cqgc_id}")
     else:
@@ -108,19 +107,13 @@ def main(args):
     # some information collected here will be used for case creation later on
     # Emedgene.
     #
-    nq = Nanuq()
-
-    fc_parts = nq.parse_run_name(args.run)
-    fc_date  = fc_parts[0]
-    fc_instr = fc_parts[1]
-    fc_short = fc_parts[4]
-    print(f"# Logging run {fc_parts}")
+    print(f"# Logging run {Nanuq().parse_run_name(args.run)}")
     
     # List samples. Maybe more precise to use the SampleSheet but not resilient
     #
     logging.info(f'Creating "samples_list.csv"')
     biosamples = []
-    for tuple in nq.list_samples(args.run):
+    for tuple in Nanuq().list_samples(args.run):
         biosamples.append(tuple[0])
     total = len(biosamples)
     logging.debug(f"Found {total} samples")
