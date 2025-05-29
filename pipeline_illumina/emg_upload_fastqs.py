@@ -12,7 +12,7 @@ by the script `list_run_samples.py` which should have been executed beforehand.
 File "samples_list.csv" has the following 12 columns:
 
 sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,
-family_id,birthdate,flowcell_date,flowcell
+family_id,birthdate,project,flowcell
 
 Tokens to connect to BaseSpace (BSSH) is expected to be found in:
 ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
@@ -21,7 +21,7 @@ Options:
 
 --file="samples_list.csv", list of samples in CSV format. Ex:
 
-    sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,family_id,birthdate,flowcell_date,flowcell
+    sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,family_id,birthdate,project,flowcell
     GM241567,27556,PROBAND,FEMALE,CHUSJ,03486257,TRIO,AFF,03486257,2024-04-29,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
     GM241601,27560,MTH,FEMALE,CHUSJ,03487612,TRIO,UNF,03486257,1980-10-15,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
     GM241575,27559,FTH,MALE,CHUSJ,03487451,TRIO,UNF,03486257,1978-10-02,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
