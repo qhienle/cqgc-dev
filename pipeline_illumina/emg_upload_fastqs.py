@@ -9,10 +9,9 @@ USAGE: emg_upload_fastqs.py
 Use run and samples information contained in `--file=samples_list.csv` to look 
 for FASTQs for uploading to BaseSpace. "samples_list.csv" is normally created 
 by the script `list_run_samples.py` which should have been executed beforehand.
-File "samples_list.csv" has the following 12 columns:
+File "samples_list.csv" has the following 11 columns:
 
-sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,
-family_id,birthdate,project,flowcell
+sample_name,biosample,relation,gender,ep_label,mrn,status,family_id,birthdate,project,flowcell
 
 Tokens to connect to BaseSpace (BSSH) is expected to be found in:
 ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/PrivateDoc/)
@@ -21,10 +20,11 @@ Options:
 
 --file="samples_list.csv", list of samples in CSV format. Ex:
 
-    sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,family_id,birthdate,project,flowcell
-    GM241567,27556,PROBAND,FEMALE,CHUSJ,03486257,TRIO,AFF,03486257,2024-04-29,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    GM241601,27560,MTH,FEMALE,CHUSJ,03487612,TRIO,UNF,03486257,1980-10-15,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    GM241575,27559,FTH,MALE,CHUSJ,03487451,TRIO,UNF,03486257,1978-10-02,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
+sample_name,biosample,relation,gender,ep_label,mrn,status,family_id,birthdate,project,flowcell
+Q1K_HSJ_1525-1130_S2,36217,SIS,FEMALE,CHUSJ,0,AFF,1525-1130,2019-12-12,Q1K_CHUSJ,20250523_LH00336_0218_B22TNY2LT4
+Q1K_HSJ_1525-1130_P,36218,PROBAND,MALE,CHUSJ,0,AFF,1525-1130,2013-06-23,Q1K_CHUSJ,20250523_LH00336_0218_B22TNY2LT4
+Q1K_HSJ_1525-1130_M1,36215,MTH,FEMALE,CHUSJ,0,UNF,1525-1130,1987-04-12,Q1K_CHUSJ,20250523_LH00336_0218_B22TNY2LT4
+Q1K_HSJ_1525-1130_S1,36216,BRO,MALE,CHUSJ,0,UNF,1525-1130,2017-07-05,Q1K_CHUSJ,20250523_LH00336_0218_B22TNY2LT4
 """
 
 import os
