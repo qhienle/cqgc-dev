@@ -58,7 +58,6 @@ OUTDIR="${WORKDIR}/${FC}/1.fastq"
 # Run bcl-convert depending on the instrument and SampleSheet
 samplesheet="${WORKDIR}/${FC}/SampleSheet.csv"
 if [[ -f ${samplesheet} ]]; then
-    dos2unix ${WORKDIR}/${FC}/Sample*
     touch ${BASEDIR}/${FC}/DemuxStarted.txt
     if [[ "${FC_SHORT}" =~ ^A00* ]]; then
         echo "Run dragen BCL-convert for ${FC}"
