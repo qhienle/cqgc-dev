@@ -66,7 +66,7 @@ if [[ -f ${samplesheet} ]]; then
             --bcl-conversion-only true \
             --bcl-input-directory ${BASEDIR}/${FC} \
             --output-directory ${OUTDIR} \
-            --sample-sheet ${samlesheet} \
+            --sample-sheet ${samplesheet} \
             --bcl-only-matched-reads true \
             --bcl-sampleproject-subdirectories true \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
@@ -76,7 +76,7 @@ if [[ -f ${samplesheet} ]]; then
             --bcl-conversion-only true \
             --bcl-input-directory ${BASEDIR}/${FC} \
             --output-directory ${OUTDIR} \
-            --sample-sheet ${samlesheet} \
+            --sample-sheet ${samplesheet} \
             --bcl-only-matched-reads true \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     else
