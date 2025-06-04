@@ -87,6 +87,13 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
+def set_project(project):
+    """
+    Set project ID for BaseSpace, based on column 'project' in samples_list.csv
+    """
+    return project
+
+
 def main(args):
     """
     Iterate through information in "samples_list.csv" to build `bs` command for
