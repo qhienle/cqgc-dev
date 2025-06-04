@@ -116,6 +116,7 @@ def main(args):
         logging.error(f"Bad project name {args.project}. Must be: prag, eval, q1k or aoh")
         sys.exit()
     for ep in df['ep_label'].unique(): logging.info(f"{ep} => {len(df[df['ep_label'] == ep])}")
+    logging.info(f"Counts of projects:\n{df['ep_label'].value_counts()}")
 
     # List FASTQ files for each sample and upload to BaseSpace
     #
