@@ -159,9 +159,7 @@ def main(args):
         #                             '--biosample-name', f"{row.biosample}"] + fastqs), 
         #                             capture_output=True, text=True)
             if args.level == 'debug':
-                logging.debug(f"--project={project_id}")
-                logging.debug(f"--biosample-name={row.biosample}")
-                logging.debug(f"fastqs={fastqs}")
+                logging.debug(f"--project={project_id}; --biosample-name={row.biosample}; fastqs={fastqs}")
             else:
                 results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
                                             '--no-progress-bars', 
