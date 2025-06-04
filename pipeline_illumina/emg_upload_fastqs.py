@@ -25,6 +25,17 @@ Q1K_HSJ_1525-1130_S2,36217,SIS,FEMALE,CHUSJ,0,AFF,1525-1130,2019-12-12,Q1K_CHUSJ
 Q1K_HSJ_1525-1130_P,36218,PROBAND,MALE,CHUSJ,0,AFF,1525-1130,2013-06-23,Q1K_CHUSJ,20250523_LH00336_0218_B22TNY2LT4
 Q1K_HSJ_1525-1130_M1,36215,MTH,FEMALE,CHUSJ,0,UNF,1525-1130,1987-04-12,Q1K_CHUSJ,20250523_LH00336_0218_B22TNY2LT4
 Q1K_HSJ_1525-1130_S1,36216,BRO,MALE,CHUSJ,0,UNF,1525-1130,2017-07-05,Q1K_CHUSJ,20250523_LH00336_0218_B22TNY2LT4
+
+Adapted from this `bash` script:
+
+# ```bash
+# ep="CHUSJ"
+# project=$( bs -c cac1 projects list --terse --filter-term "PRAGMatIQ_${ep}$" )
+# for sample in 27556 27560 27559 27555 27557 27558; do
+#     fastqs=$( ls ${sample}_*_001.fastq.gz )
+#     bs -c cac1 dataset upload --project ${project} --biosample-name ${sample} ${fastqs}
+# done
+# ```
 """
 
 import os
@@ -54,17 +65,25 @@ __version__ = "0.1"
 # folder where FASTQ files are stored. Projects Q1K and AOH do not distinguish
 # between EP_Labels (Établissement Public) like PRAGMatIQ.
 #
-project_ids = {'CHUSJ': '3703702', 
-               'CHUS' : '3703703', 
-               'CHUQ' : '4714713', 
-               'CUSM' : '5412410',
-               'Q1K'  : '6197214',
-               'AOH'  : '6050046'}
+# project_ids = {'CHUSJ': '3703702', 
+#                'CHUS' : '3703703', 
+#                'CHUQ' : '4714713', 
+#                'CUSM' : '5412410',
+#                'Q1K'  : '6197214',
+#                'AOH'  : '6050046'}
+
+project_ids = {'PRAGMATIQ_CHUSJ': '3703702', 
+               'PRAGMATIQ_CHUS' : '3703703', 
+               'PRAGMATIQ_CHUQ' : '4714713', 
+               'PRAGMATIQ_CUSM' : '5412410',
+               'Q1K_CHUSJ'      : '6197214',
+               'ANGIODEME_CHUSJ': '6050046'}
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Upload FASTQs to BaseSpace for samples listed in --file(=samples_list.csv).")
     parser.add_argument('--file',     '-f', default="samples_list.csv", help="Get samples from file. Default='samples_list.csv'.")
-    parser.add_argument('--data-dir', '-d', help="Get FASTQs from --data-dir. Default='fastq folder'.")
+    parser.add_argument('--data-dir', '-d', help="Get FASTQs from --data-dir. Default='1.fastq folder'.")
     parser.add_argument('--project',  '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
@@ -85,13 +104,6 @@ def configure_logging(level):
     logging.basicConfig(level=level_name, 
                         format='[%(asctime)s] %(levelname)s: %(message)s', 
                         datefmt='%Y-%m-%d@%H:%M:%S')
-
-
-def set_project(project):
-    """
-    Set project ID for BaseSpace, based on column 'project' in samples_list.csv
-    """
-    return project
 
 
 def main(args):
@@ -134,26 +146,27 @@ def main(args):
         # consecutively.
         #
         fastqs = glob(f"{row.biosample}_*.fastq.gz")
-        fastqs.sort() 
-        results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
-                                    '--no-progress-bars', 
-                                    '--project', f"{project_ids[row.ep_label]}", 
-                                    '--biosample-name', f"{row.biosample}"] + fastqs), 
-                                    capture_output=True, text=True)
-        if results.stderr != '':
-            logging.warning(f"ERROR while subprocess.run():\n{results.stderr}")
-            logging.warning(f"args:\n{results.args}")
+        fastqs.sort()
+        try:
+            project_id = project_ids[row.project]
+        except KeyError as err:
+            logging.info(f"ERROR: While retrieving BSSH project ID for {row.project}; {err}")
         else:
-            logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
-        
-        # ```bash
-        # ep="CHUSJ"
-        # project=$( bs -c cac1 projects list --terse --filter-term "PRAGMatIQ_${ep}$" )
-        # for sample in 27556 27560 27559 27555 27557 27558; do
-        #     fastqs=$( ls ${sample}_*_001.fastq.gz )
-        #     bs -c cac1 dataset upload --project ${project} --biosample-name ${sample} ${fastqs}
-        # done
-        # ```
+        # results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
+        #                             '--no-progress-bars', 
+        #                             '--project', f"{project_ids[row.ep_label]}", 
+        #                             '--biosample-name', f"{row.biosample}"] + fastqs), 
+        #                             capture_output=True, text=True)
+            results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
+                                        '--no-progress-bars', 
+                                        '--project', project_id, 
+                                        '--biosample-name', f"{row.biosample}"] + fastqs), 
+                                        capture_output=True, text=True)
+            if results.stderr != '':
+                logging.warning(f"ERROR while subprocess.run():\n{results.stderr}")
+                logging.warning(f"args:\n{results.args}")
+            else:
+                logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
 
 
 def tests(args):
