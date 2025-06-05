@@ -23,6 +23,28 @@ class Configurator:
         """
         Load settings from config_file (JSON). Uses default if none provided. 
         Returns self, where attributes are settings parsed from config_file.
+        Example `gapp_conf.json` file:
+        {
+            "instance"         : "cac1.trusight.illumina.com",
+            "X-ILMN-Domain"    : "chusj",
+            "X-ILMN-Workgroup" : "42948014-b206-320d-b304-1af26fc98af3",
+            "X-Auth-Token"     : "APIKey *#u37t_5KmQ4FWGfBl)Y)1",
+            "testDefinitionId" : "278b1d65-4cad-44e1-89d6-425c26564380",
+            "bs_apiServer"     : "https://api.cac1.sh.basespace.illumina.com",
+            "bs_accessToken"   :  "91f1679effd44db299dea79fb59b7c68",
+            "X-Gene42-Server"  : "https://chusj.phenotips.com",
+            "X-Gene42-Auth"    : "Basic Q0hVU0pQcm9kQVBJVXNlcjpKZWVjNGtvaDl1dWNlNGtvbmdlaQo=",
+            "X-Gene42-Secret"  : "LstKPNP7XPXVYqq29qSh7MPpbCqB3dAYvoQpE7C4DHzo9tnz",
+            "REDCap-Server"    : "https://tacc-redcap.bic.mni.mcgill.ca/api/",
+            "REDCap-Token"     : "F9A026E6BFA450497654BAF50BFB47C6",
+            "EMG-Username"     : "cqgc.bioinfo.hsj@ssss.gouv.qc.ca",
+            "EMG-Password"     : "Ste-Justine-4931#2025-03",
+            "EMG-EVAL-Server"  : "https://stejustine.emedgene.com",
+            "EMG-PRAG-Server"  : "https://chusaintejustine.emedgene.com",
+            "EMG-Q1KC-Server"  : "https://q1kclinique.emedgene.com",
+            "EMG-Q1KR-Server"  : "https://q1krecherche.emedgene.com",
+            "EMG-AOH-Server"   : "https://chusjaoh.emedgene.com"
+        }
         """
         self.file = config_file
         try:
@@ -62,6 +84,9 @@ class Configurator:
             self.emg_password    = self.configs['EMG-Password']
             self.emg_prag_server = self.configs['EMG-PRAG-Server']
             self.emg_eval_server = self.configs['EMG-EVAL-Server']
+            self.emg_q1kc_server = self.configs['EMG-Q1KC-Server']
+            self.emg_q1kr_server = self.configs['EMG-Q1KR-Server']
+            self.emg_aoh_server  = self.configs['EMG-AOH-Server']
 
 
 class REDCap:
@@ -622,6 +647,9 @@ class Emedgene:
         self.password    = configs.emg_password
         self.prag_server = configs.emg_prag_server
         self.eval_server = configs.emg_eval_server
+        self.q1kr_server = configs.emg_q1kr_server
+        self.q1kc_server = configs.emg_q1kc_server
+        self.aoh_server  = configs.emg_aoh_server
         self.case = {
             'test_data': {},
             "should_upload": False,
@@ -629,7 +657,7 @@ class Emedgene:
         }
 
 
-    def authenticate(self):
+    def authenticate(self, server=""):
         """
         Returns an authorization token.
         N.B. The Authorization header expires after 8H, after that, requests 
