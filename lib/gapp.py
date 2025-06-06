@@ -657,30 +657,31 @@ class Emedgene:
         }
 
 
-    def authenticate(self, server=""):
+    def authenticate(self, server):
         """
-        Returns an authorization token.
+        Returns an authorization token for `server`. 
+        Example: Emedgene().authenticate(self.prag_server)
         N.B. The Authorization header expires after 8H, after that, requests 
         will return an error code 403. To resolve, re-do the Login procedure to
         get a new token.
         """
         # TODO: Add different domain servers
-        url      = f"{self.prag_server}/api/auth/api_login/"
+        url      = f"{server}/api/auth/api_login/"
         payload  = f'{{"username": "{self.username}", "password": "{self.password}"}}'
         headers  = {'Content-Type': 'application/json'}
         response = requests.request("POST", url, headers=headers, data=payload)
         return response.json()["Authorization"]
 
 
-    def get_emg_id(self, sample):
+    def get_emg_id(self, sample, server):
         """
         Returns EMG identifier for Sample
         - `sample`: Sample Names (ex.: GM232823, 24-00666-T1, MO-24-003708,...)
+        - `server`: Domain server (ex.: self.prag_server, self.eval_server,...)
         - Returns : [str] ex.: EMG107903188, None (not found) or HTTPErrorCode
         """
-        # TODO: Add different domain servers
-        url = f"{self.prag_server}/api/sample/?query={sample}&sampleType=fastq"
-        resp = requests.get(url, headers={'Authorization': self.authenticate()})
+        url = f"{server}/api/sample/?query={sample}&sampleType=fastq"
+        resp = requests.get(url, headers={'Authorization': self.authenticate(server)})
         if resp.status_code == 200:
             if resp.json()['total'] == 1:
                 return resp.json()['hits'][0]['note']
@@ -762,7 +763,7 @@ class Emedgene:
         url = f"{server}/api/cases/v2/cases/"
         with open(case_json, 'r') as fh:
             payload = json.load(fh)
-            resp = requests.post(url, headers={'Authorization': self.authenticate()}, json=payload)
+            resp = requests.post(url, headers={'Authorization': self.authenticate(server)}, json=payload)
         return resp.json()
 
 
