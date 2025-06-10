@@ -46,7 +46,7 @@ import subprocess
 import pandas as pd
 from glob import glob
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 # List of PRAGMatIQ projects on BaseSpace, as of 2024-05-16
 # BSSH Project Id required for uploading FASTQs to the right project folder.
@@ -118,22 +118,23 @@ def main(args):
     # Set Project ID for PRAGMatIQ EP Labels. AOH and Q1K store all FASTQs of a
     # project in the same folder. PRAGMatIQ (incl. eval) separates between EP.
     #
-    if args.project == 'prag' or args.project == 'eval':
-        logging.info(f"Not updating 'ep_label' in 'samples_list.csv' for project PRAGMatIQ")
-    elif args.project == 'q1k':
-        df['ep_label'] = 'Q1K'
-    elif args.project == 'aoh':
-        df['ep_label'] = 'AOH'
-    else:
-        logging.error(f"Bad project name {args.project}. Must be: prag, eval, q1k or aoh")
-        sys.exit()
+    # if args.project == 'prag' or args.project == 'eval':
+    #     logging.info(f"Not updating 'ep_label' in 'samples_list.csv' for project PRAGMatIQ")
+    # elif args.project == 'q1k':
+    #     df['ep_label'] = 'Q1K'
+    # elif args.project == 'aoh':
+    #     df['ep_label'] = 'AOH'
+    # else:
+    #     logging.error(f"Bad project name {args.project}. Must be: prag, eval, q1k or aoh")
+    #     sys.exit()
     for ep in df['ep_label'].unique(): logging.info(f"{ep} => {len(df[df['ep_label'] == ep])}")
     logging.info(f"Counts of projects:\n{df['ep_label'].value_counts()}")
 
     # List FASTQ files for each sample and upload to BaseSpace
     #
-    for row in df.itertuples():
-        logging.info(f"List FASTQs for biosample={row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
+    total_rows = len(df)
+    for i, row in enumerate(df.itertuples(), start=1):
+        logging.info(f"({i}/{total_rows}) List FASTQs for biosample={row.biosample} to upload to BBSH folder PRGAMatIQ_{row.ep_label}")
         if args.data_dir is not None:
             fastqdir = args.data_dir
         else:
