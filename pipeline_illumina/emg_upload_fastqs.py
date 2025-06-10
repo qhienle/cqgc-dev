@@ -65,13 +65,6 @@ __version__ = "0.2"
 # folder where FASTQ files are stored. Projects Q1K and AOH do not distinguish
 # between EP_Labels (Établissement Public) like PRAGMatIQ.
 #
-# project_ids = {'CHUSJ': '3703702', 
-#                'CHUS' : '3703703', 
-#                'CHUQ' : '4714713', 
-#                'CUSM' : '5412410',
-#                'Q1K'  : '6197214',
-#                'AOH'  : '6050046'}
-
 project_ids = {'PRAGMATIQ_CHUSJ': '3703702', 
                'PRAGMATIQ_CHUS' : '3703703', 
                'PRAGMATIQ_CHUQ' : '4714713', 
@@ -84,7 +77,6 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Upload FASTQs to BaseSpace for samples listed in --file(=samples_list.csv).")
     parser.add_argument('--file',     '-f', default="samples_list.csv", help="Get samples from file. Default='samples_list.csv'.")
     parser.add_argument('--data-dir', '-d', help="Get FASTQs from --data-dir. Default='1.fastq folder'.")
-    parser.add_argument('--project',  '-p', default='prag', help="Project: 'prag', 'eval', 'q1k', 'aoh'. Default='prag'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return(parser.parse_args())
@@ -109,24 +101,11 @@ def configure_logging(level):
 def main(args):
     """
     Iterate through information in "samples_list.csv" to build `bs` command for
-    uploading FASTQs to BaseSpace.
+    uploading FASTQs (listed using `glob`) to BaseSpace.
     """
     df = pd.read_csv(args.file)
 
     logging.info(f"Uploading {len(df)} samples to BaseSpace :")
-
-    # Set Project ID for PRAGMatIQ EP Labels. AOH and Q1K store all FASTQs of a
-    # project in the same folder. PRAGMatIQ (incl. eval) separates between EP.
-    #
-    # if args.project == 'prag' or args.project == 'eval':
-    #     logging.info(f"Not updating 'ep_label' in 'samples_list.csv' for project PRAGMatIQ")
-    # elif args.project == 'q1k':
-    #     df['ep_label'] = 'Q1K'
-    # elif args.project == 'aoh':
-    #     df['ep_label'] = 'AOH'
-    # else:
-    #     logging.error(f"Bad project name {args.project}. Must be: prag, eval, q1k or aoh")
-    #     sys.exit()
     for ep in df['ep_label'].unique(): logging.info(f"{ep} => {len(df[df['ep_label'] == ep])}")
     logging.info(f"Counts of projects:\n{df['ep_label'].value_counts()}")
 
@@ -138,7 +117,6 @@ def main(args):
         if args.data_dir is not None:
             fastqdir = args.data_dir
         else:
-            #fastqdir = f"/staging2/dragen/{row.flowcell}/1.fastq"
             fastqdir = f"/mnt/vs_nas_chusj/CQGC_PROD/fastqs/{row.flowcell}/1.fastq"
         os.chdir(fastqdir)
 
@@ -154,11 +132,6 @@ def main(args):
         except KeyError:
             logging.info(f"KeyError: No BSSH project ID for {row.project}")
         else:
-        # results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
-        #                             '--no-progress-bars', 
-        #                             '--project', f"{project_ids[row.ep_label]}", 
-        #                             '--biosample-name', f"{row.biosample}"] + fastqs), 
-        #                             capture_output=True, text=True)
             if args.level == 'debug':
                 logging.debug(f"--project={project_id}; --biosample-name={row.biosample}; fastqs={fastqs}")
             else:
