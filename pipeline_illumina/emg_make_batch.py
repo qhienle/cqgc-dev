@@ -18,22 +18,11 @@ configuration file in JSON format. The default `gapp_conf.json` must contain:
 
 {
     "instance"         : "cac1.trusight.illumina.com",
-    "X-ILMN-Domain"    : "chusj",
-    "X-ILMN-Workgroup" : "42948014-b206-320d-b304-1af26fc98af3",
-    "X-Auth-Token"     : "APIKey *#u37t_5KmQ4FWGfBl)Y)1",
-    "testDefinitionId" : "278b1d65-4cad-44e1-89d6-425c26564380",
-    "bs_apiServer"     : "https://api.cac1.sh.basespace.illumina.com",
-    "bs_accessToken"   :  "91f1679effd44db299dea79fb59b7c68",
-    "X-Gene42-Server"  : "https://chusj.phenotips.com",
-    "X-Gene42-Auth"    : "Basic Q0hVU0pQcm9kQVBJVXNlcjpKZWVjNGtvaDl1dWNlNGtvbmdlaQo=",
-    "X-Gene42-Secret"  : "LstKPNP7XPXVYqq29qSh7MPpbCqB3dAYvoQpE7C4DHzo9tnz",
-    "REDCap-Server"    : "https://tacc-redcap.bic.mni.mcgill.ca/api/",
-    "REDCap-Token"     : "F9A026E6BFA450497654BAF50BFB47C6",
-    "EMG-Username"     : "cqgc.bioinfo.hsj@ssss.gouv.qc.ca",
-    "EMG-Password"     : "3175Cote-Ste-Catherine",
-    "EMG-PRAG-Server"  : "https://chusaintejustine.emedgene.com",
-    "EMG-EVAL-Server"  : "https://stejustine.emedgene.com"
+    "key"              : "value",
+    (...)
 }
+
+See `lib/gapp.py` for more details on configuring `gapp_conf.json`.
 
 Nanuq username and password have be saved in a file named '~/.nanuq', like so:
 `echo "j_username=USERNAME&j_password=PASSWORD&toto=1" > ~/.nanuq`

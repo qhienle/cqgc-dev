@@ -6,7 +6,7 @@ Make a batch file for Case creation in Emedgene from list of samples
 [2024-08-22] IN PROGRESS: This script is meant to replace emg_make_batch.py and
 to work for projects PRAG, AOH and Q1K.
 
-USAGE: emg_make_batch.py --file samples_list.csv
+USAGE: emg_make_batch.py [--file samples_list.csv]
        emg_make_batch.py --help
 
 Reads from a CSV file listing samples from which cases are created. By default,
@@ -23,7 +23,7 @@ configuration file in JSON format. The default `gapp_conf.json` must contain:
     "X-Auth-Token"     : "",
     "testDefinitionId" : "",
     "bs_apiServer"     : "",
-    "bs_accessToken"   :  "",
+    "bs_accessToken"   : "",
     "X-Gene42-Server"  : "",
     "X-Gene42-Auth"    : "",
     "X-Gene42-Secret"  : "",
@@ -58,7 +58,7 @@ from lib.gapp import Phenotips
 from lib.gapp import REDCap
 from lib.gapp import BSSH
 
-__version__ = "0.1"
+__version__ = "0.2"
 
 
 def parse_args():
@@ -326,6 +326,8 @@ def main(args):
     logging.info(f"Loading list of samples from file '{args.file}'...")
     try:
         df_batch = pd.read_csv(args.file)
+    except FileNotFoundError as e:
+        sys.exit(logging.error(e))
     except Exception as err:
         sys.exit(logging.error(f"Could not load list of samples in file '{args.file}' because {err}."))
     df_batch['mrn'] = df_batch['mrn'].astype(str)
