@@ -252,6 +252,15 @@ done
 Une fois que les analyses sont terminées et archivées, il faut libérer l'espace disque sur `spxp-app02`. Au préalable, notifier le laboratoire, qui doit sauvegarder quelqeues métriques de l'opération de séquençage avant qU'elles ne soient effacées.
 
 
+## Résolution des problèmes fréquents
+
+### HPOs non-renseignés
+
+Isoler les individus du cas concernés dans un fichier `emg_batch_manifest-[cas-sans-hpos].csv`. Une fois que le dossier Phenotips sera rempli, utiliser le script pour récupérer les termes HPOs à copier-coller dans le manifest. Puis, déposer le manifest dans Emedgene 
+
+_C.f. Annexe A: Rechercher les termes HPOs_ 
+
+
 ## Références
 
 - [Production environment](https://chusaintejustine.emedgene.com)
@@ -283,30 +292,33 @@ Une fois que les analyses sont terminées et archivées, il faut libérer l'espa
 
 ## Annexe
 
+Créer les cas avec la commande (ne fonctionne pas bien). Privilégier l'interface web "Switch to batch" pour y déposer le fichier manifeste. `python create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p 7TmbuM3TUCMwP -b`.
+
+
 ### A. Rechercher les termes HPOs
 
-Dans la situation où les PID doivent être récupérés manuellement pour chaque cas, utiliser le script `/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/get_phenotips_by_id.py`. Par exemple:
+Dans la situation où les PID doivent être récupérés manuellement pour chaque cas, utiliser le script `/staging2/soft/CQGC-utils/Helpers/get_phenotips_hpos.py`. Par exemple:
 
 ```bash
-python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/get_phenotips_by_id.py P0000134
-# {'id': 'HP:0000126', 'label': 'Hydronephrosis'}
-# {'id': 'HP:0000201', 'label': 'Pierre-Robin sequence'}
-# {'id': 'HP:0000294', 'label': 'Low anterior hairline'}
-# {'id': 'HP:0000316', 'label': 'Hypertelorism'}
-# {'id': 'HP:0000586', 'label': 'Shallow orbits'}
-# {'id': 'HP:0001631', 'label': 'Atrial septal defect'}
-# {'id': 'HP:0012368', 'label': 'Flat face'}
-#
-#  HP:0000126, HP:0000201, HP:0000294, HP:0000316, HP:0000586, HP:0001631, HP:0012368
-#
-#  Hydronephrosis, Pierre-Robin sequence, Low anterior hairline, Hypertelorism, Shallow orbits, Atrial septal defect, Flat face
+python /staging2/soft/CQGC-utils/Helpers/get_phenotips_hpos.py P0000844
+
+# HP:0000403      Recurrent otitis media
+# HP:0001935      Microcytic anemia
+# HP:0004372      Reduced consciousness/confusion
+# HP:0007204      Diffuse white matter abnormalities
+# HP:0007305      CNS demyelination
+
+# Format for Emedgene's WebUI:
+# HP:0000403,HP:0001935,HP:0004372,HP:0007204,HP:0007305
+
+# Format for Emedgene's batch:
+# HP:0000403;HP:0001935;HP:0004372;HP:0007204;HP:0007305
 ```
 
 Ou directement depuis un Notebook `ipynb`, copier-coller le code suivant dans une cellule
 
 ```python
 import sys
-# sys.path.append("D:\\HSJ\\Workspace\\tss")
 sys.path.append("/staging2/soft/CQGC-utils/lib/")
 from gapp import Phenotips
 
@@ -326,8 +338,6 @@ def get_phenotips_hpos(phenotips_id):
 # Replace the PID in the function's argument
 get_phenotips_hpos(P0000134)
 ```
-
-Créer les cas avec la commande (ne fonctionne pas bien). Privilégier l'interface web "Switch to batch" pour y déposer le fichier manifeste. `python create_batch_cases_v2.py -i emg_batch_manifest.csv -s 10123 -hu stejustine.emedgene.com -u cqgc.bioinfo.hsj@ssss.gouv.qc.ca -p 7TmbuM3TUCMwP -b`.
 
 
 ### B. Créer les cas par l'interface web
@@ -377,9 +387,8 @@ Pour créer les cas en utilisant l'interface web, il faut au préalable récupé
 9. Ajouter les participants à la liste (_c.f._ cid-essous)
     1. Cliquer sur "Send".
 
-    
 
-### aws
+### C. aws
 
 Some alignement and quality metric files can be downloaded directly from the web interface, under the "Lab" tab.
 Additional logs and output files (CRAM, VCF) can be accessed from Emedgene's AWS S3 bucketunder 'emg-auto-results/<customer>/'. For example:
