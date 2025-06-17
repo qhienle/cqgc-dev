@@ -47,7 +47,7 @@ from lib.gapp import Phenotips
 from lib.gapp import REDCap
 from lib.gapp import BSSH
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 
 def parse_args():
