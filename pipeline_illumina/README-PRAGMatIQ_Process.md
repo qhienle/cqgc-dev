@@ -34,7 +34,7 @@ Où `${FC_SHORT}` est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run
 
 Installation des outils et obtention des identifiants de connexion aux différents services.
 
-#### 1. Obtenir les identifiants de connexion
+#### 0.1. Obtenir les identifiants de connexion
 
 Demander à l'administrateur de fournir les droits d'accès (identifiant, mot-de-passe, permissions) aux services suivants:
 
@@ -77,7 +77,7 @@ De plus, l'utilitaire CLI `bs`, installé sur spxp-app02, va rechercher un fichi
 
 Veuillez vous référer à la documentation d'Illumina afin de générer le jeton d'accès (token).
 
-#### 2. Créer un journal pour le suivi
+#### 0.2. Créer un journal pour le suivi
 
 Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel par le laboratoire du CQGC, mais peuvent aussi être récupérées dans la SampleSheet ou depuis BSSH (sous l'onglet "_Runs_"). Un modèle `README-${FC_SHORT}-template.ipynb` est disponible sur [GitHub](https://github.com/CQGC-Ste-Justine/PrivateDoc/blob/0f59d674fd5d91ca5da7880ab55cd753ad324203/gapp_conf.json) et dans Teams.
 
@@ -88,13 +88,13 @@ bs -c cac1 list runs --newer-than 3d --filter-term PRAG --filter-field Experimen
 
 **_N.B._** Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir. Un fichier `README-FC_SHORT-template.ipynb` est disponible sur [GitHub](https://github.com/CQGC-Ste-Justine/PrivateDoc/blob/0f59d674fd5d91ca5da7880ab55cd753ad324203/gapp_conf.json). Il contient le code à copier-coller et les cases à remplir pour le suivi des opérations.
 
-#### 3. Se connecter à spxp-app02 
+#### 0.3. Se connecter à spxp-app02 
 
 Au préalable, obtenir un jeton auprès du service informatique afin de pouvoir se connecter à distance _via_ le VPN du CHUSJ.
 
 `ssh ${USER}@10.128.80.26`
 
-#### 4. Mettre en place l'environnement de travail 
+#### 0.4. Mettre en place l'environnement de travail 
 
 ```bash
 ## 0. Mise en place de l'environnement de travail
@@ -113,30 +113,111 @@ export SOFTDIR='/mnt/spxp-app02/staging2/soft/CQGC-utils'
 
 ### 1. Déconvolution et conversion des BCLs en FASTQs (automatique)
 
+***N.B.*** Cette étape est normalement réalisée de manière automatique par le script `dragen_bcl-convert_watcher.sh` en `cron`. 
 
-
-### 1. Collecter les informations sur les familles et les métriques DragenGermline
-
-Les informations sur la constitution des familles ("Case") sont centralisées dans Nanuq. La commande suivante permet de récupérer la liste des échantillons sur la _Run_ et de fournir les données nécessaires à la création de cas dans Emedgene, incluant les termes HPOs associées aux patients dans la base de données [Phenotips](https://chusj.phenotips.com//). Avec le NoveSeqX, il est également possible de générer les alignements localement et de récupérer les métriques pour faire approuver les échantillons avant que ceux-ci soient soumis aux analyses dans Emedgene.
-
-***_N.B._***:
-- Si le séquençage est réalisé avec le NovaSeq6000, il ne sera malheureusement pas possible de récupérer les métriques avant de créer les cas dans Emedgene. Dans ce cas, il faut s'assurer que le labo a demandé au NovaSeq6000 de faire la déconvolution sur BaseSpace et passer à l'étape 3, "créer les cas sur Emedgene", une fois que les FASTQs ont été générés (suivi sur l'onglet [Analyses](https://chusj.cac1.sh.basespace.illumina.com/analyses)). 
-- Dans la situation où la déconvolution n'a pas lieu sur BaseSpace, il faut déconvoluer les BCLs avec les serveurs DRAGEN du CQGC et envoyer les FASTQs résultants sur BaseSpace (passer à l'étape 2, "Téléverser les FASTQs sur BaseSpace").
+Le script `run_pipeline_prag.sh`, qui est exécuté ici, surveille le répertoire des BCLs pour les fichiers marqueurs `CopyComplete.txt` (fin du séquençage) et FastqCoplete.txt (complétion de la déconvolution-conversion). 
 
 ```bash
-cd ${WORKDIR}
-python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_dragen_metrics.py ${FC}
+if [[ ! -d "${WORKDIR}/${FC}" ]]; then mkdir ${WORKDIR}/${FC}; fi
+cd ${WORKDIR}/${FC}
+bash ${SOFTDIR}/Analysis.pipeline_illumina/run_pipeline_prag.sh ${FC} 2>&1 | tee ${WORKDIR}/${FC}/run_pipeline_prag.log
 ```
 
-_E.g._ `python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_dragen_metrics.py 20240705_LH00336_0073_A22MFJFLT3`
+Les étapes 1 à 4.1 de cette procédure sont incluses dans le pipeline. Elles sont décrites ci-bas à titre informatif. À la sortie du pipeline, un fichier `emg_batch_manifets.csv` est généré. Ce document, qui est à glisser-déposer sur le site d'Emedgene, permet de créer les cas à analyser (passez à l'étape 4.2)
 
-La commande ci-dessus génère: 
+### 2. Collecter les informations sur les familles (`run_pieplie_prag.sh`)
 
-- Les métriques des analyses DragenGermline en format HTML, `${FC_SHORT}_metrics.html`
-- Les mêmes métriques en format CSV, `${FC_SHORT}_metrics.csv`
-- Un fichier "samples_list.csv" qui sera utile pour les étapes suivantes. Voici un exmple du contenu de samples_list.csv
+Générer le fichier `samples_list.csv`.
 
-Le script s'attend à trouver les analyses dans le répertoire `/staging/hiseq_raw/LH00336/${FC}/Analysis/1/Data/DragenGermline/`.
+```bash
+## 2. Collecter les informations sur les familles dans samples_list.csv,
+## fournit aussi la liste des échantillons à téléverser sur BaseSpace (étape 3)
+echo "Get list of samples for run ${FC}"
+if [[ ! -d "${WORKDIR}/${FC}" ]]; then
+    mkdir ${WORKDIR}/${FC};
+fi
+cd ${WORKDIR}/${FC}
+python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
+```
+
+Les informations sur la constitution des familles ("Case") sont centralisées dans Nanuq. La commande ci-dessus permet de récupérer la liste des échantillons sur la _Run_ et de fournir les données nécessaires à la création de cas dans Emedgene, incluant les termes HPOs associées aux patients dans la base de données [Phenotips](https://chusj.phenotips.com//). 
+
+Avec le NoveSeqX, il est également possible de générer les alignements localement et de récupérer les métriques pour faire approuver les échantillons avant que ceux-ci soient soumis aux analyses dans Emedgene, mais cette solutio a été rejetée car les analyses exécutées directement sur le NovaSeqX bloqent le séquenceur qui ne peut pas séquencer d'autres flowcells.
+
+Le fichier "samples_list.csv" sera utile pour les étapes suivantes. Voici un exmple du contenu de `samples_list.csv`:
+
+    sample_name,biosample,relation,gender,ep_label,mrn,status,family_id,birthdate,project,flowcell
+    25-05853-T1,36712,PROBAND,FEMALE,CHUQ,1778336,AFF,25-05853-T1,2023-07-21,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-05855-T1,36713,MTH,FEMALE,CHUQ,782792,UNK,25-05853-T1,1988-03-29,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-05858-T1,36714,FTH,MALE,CHUQ,1276400,UNK,25-05853-T1,1987-07-15,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-05895-T1,36717,PROBAND,MALE,CHUS,2487041,AFF,25-05895-T1,2022-05-08,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-05875-T1,36716,MTH,FEMALE,CHUS,2193537,UNK,25-05895-T1,2003-12-05,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-05873-T1,36715,FTH,MALE,CHUS,2083226,UNK,25-05895-T1,2003-02-13,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-06003-T1,36711,PROBAND,FEMALE,CHUS,2591577,AFF,25-06003-T1,2025-05-24,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-05903-T1,36709,MTH,FEMALE,CHUS,1497199,UNK,25-06003-T1,1992-07-10,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-05905-T1,36710,FTH,MALE,CHUS,25-05905-T1,UNK,25-06003-T1,1992-10-05,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-06095-T1,36884,PROBAND,MALE,CHUS,2591918,AFF,25-06095-T1,2025-05-28,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-06078-T1,36883,MTH,FEMALE,CHUS,635210,UNK,25-06095-T1,1993-11-15,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+    25-06077-T1,36882,FTH,MALE,CHUS,371989,UNK,25-06095-T1,1992-04-06,PRAGMATIQ_CHUS,20250613_LH00336_0223_A232CFLLT3
+
+
+### 3. Téléverser les FASTQs sur BaseSpace
+
+```bash
+## 3. Téléverser les FASTQs sur BaseSpace
+echo "Uploading samples to BaseSpace"
+## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
+python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
+touch ${WORKDIR}/${FC}/UploadBsComplete.txt
+```
+
+À ce jour, il n'est pas possible de créer les cas dans Emedgene en partant de CRAM ou de VCF, tout en bénéficiant de toutes les fonctionnalités (ex: Manta, SMN callers,...). Il nous faut donc téléverser et repartir des FASTQs.
+
+`emg_upload_fastqs.py` prend comme entrée le fichier `samples_list.csv`, créé à l'étape précédente.Sinon, il faut spécifier le chemin d'accès à un samples_list avec l'option `--file`.
+
+Le script s'attend à trouver les fichiers dans le répertoire `${WORKDIR}/${FC}/1.fastq`, sauf si spécifié autrement avec l'option `--data-dir`.
+
+
+### 3. Créer les cas sur Emedgene
+
+Cette étape consiste à:
+
+1. Générer le fichier "emg_batch_manifest.csv"
+2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
+3. (**TODO**) Ajouter les participants _via_ l'API
+
+#### 1. Générer le fichier "emg_batch_manifest.csv"
+
+```bash
+## 4. Créer les cas sur Emedgene 
+###  4.1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
+###  4.2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
+# TODO: use `bs` to check if files are on BaseSpace for each sample
+# Fails if launched immediately after UploadBsComplete.
+# Wait a while for the last upload to register with BaseSpace.
+sleep ${NAPTIME}
+python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
+```
+
+**_N.b._**: Les termes HPOs [Human Phenotype Ontology](https://hpo.jax.org/app/) sont contenus dans la base de données patients, Phenotips, et peuvent être consultées _via_ l'API avec un identifiant externe composé du "site + MRN" (ex. "CHUS1636084"). C'est ce que fait le script `emg_make_batch_from_nanuq.py` car l'identifiant primaire PhenotipsID (PID), n'est pas contenu dans Nanuq.
+
+Alternativement, les informations sur les familles pour la _Run_, incluant le PID, peuvent être récupérées à partir du fichier Excel partagé sur "\\shsjcifs01\public crhsj\centre genomique\Projets\Pragmatiq\Étude PRAGMatIQ - Base de données.xlsx" ou sur Teams/OneDrive "Étude PRAGMatIQ - Base de données.xlsx" (canal de l'équipe _CHUSJ - Étude PRAGMatIQ_ dans Teams ("Documents > Général")). Ceci peut s'avérer nécessaire dans l'éventualité où le script `emg_make_batch_from_nanuq.py` échoue. _C.f._ Annexe A (Rechercher les termes HPOs) plus bas. En dernier recours, contacter Camille VARIN-TREMBLAY pour obtenir les informations manquantes.
+
+#### 2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
+
+Le script Python `emg_make_batch_from_nanuq.py` exécuté à l'étape précédente génère le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH. Pour plus d'information au sujet du fichier d'entrée pour la création des cas par lot, consulter les spécifications d'Emedgene [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements).
+
+Il faut à présent se connecter _via_ l'interface web à Emedgene pour téléverser le fichier manifestedécrivant les cas à l'étude, puis lancer les analyses.
+
+1. Se connecter à [Emedgene](https://chusaintejustine.emedgene.com/) avec le compte cqgc.bioinfo.hsj@ssss.gouv.qc.ca.
+2. Cliquer sur "+ New Case", en haut de la page à droite
+3. Cliquer sur "Switch to batch"
+4. Glisser-déposer le fichier CSV manifest dans la boîte "Browse files from your computer or drag it here ('csv' | Maximum file size: 5 MB, 50 cases)"
+5. Cliquer sur "Launch Case".
+
+Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload). https://chusaintejustine.emedgene.com/v2/#/help/
+
+Exemple d'erreur fréquent: "Unmatched phenotype(s) found: phenotypes/EMG_PHENOTYPE_0011438". Il faut supprimer ce phénotype de la liste. Pour trouver le terme fautif, il faut remplacer "EMG_PHENOTYPE_" par "HP:" (dans ce cas-ci, EMG_PHENOTYPE_0011438 == HP:0011438)
 
 Examiner les métriques et le fichier "samples_list.csv" générés par la commande ci-dessus. 
 
@@ -167,74 +248,6 @@ Seuils d'acceptabilité (en discussion):
 - À partir des fichiers .ploidy_estimation_metrics.csv:
     - PLOIDY ESTIMATION,,Ploidy estimation doit correspondre au sexe de l'échantillon
 - Autre chose qu'on devrait pouvoir confirmer avant de releaser les données est la structure familiale des trios
-
-Exemple du contenu d'un fichier `samples_list.csv`:
-
-    sample_name,biosample,relation,gender,ep_label,mrn,cohort_type,status,family_id,birthdate,flowcell_date,flowcell
-    GM241567,27556,PROBAND,FEMALE,CHUSJ,03486257,TRIO,AFF,03486257,2024-04-29,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    GM241601,27560,MTH,FEMALE,CHUSJ,03487612,TRIO,UNF,03486257,1980-10-15,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    GM241575,27559,FTH,MALE,CHUSJ,03487451,TRIO,UNF,03486257,1978-10-02,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    GM241566,27555,PROBAND,FEMALE,CHUSJ,03486541,TRIO,AFF,03486541,2024-02-13,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    GM241572,27557,MTH,FEMALE,CHUSJ,03486957,TRIO,UNF,03486541,1987-05-04,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    GM241573,27558,FTH,MALE,CHUSJ,03486959,TRIO,UNF,03486541,1987-01-20,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    24-05914-T1,27573,PROBAND,MALE,CHUS,2552542,TRIO,AFF,24-05914-T1,2024-06-09,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    24-05822-T1,27574,MTH,FEMALE,CHUS,24-05822-T1,TRIO,UNK,24-05914-T1,2000-11-28,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    24-05821-T1,27575,FTH,MALE,CHUS,24-05821-T1,TRIO,UNK,24-05914-T1,1989-01-24,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    MO-24-008162,27484,PROBAND,FEMALE,CUSM,MCH_5991033,TRIO,AFF,24-38625,2024-06-05,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    MO-24-008381,27485,MTH,FEMALE,CUSM,RVH_5994052,TRIO,UNF,24-38625,1986-10-13,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    MO-24-008380,27486,FTH,MALE,CUSM,R2265273,TRIO,UNF,24-38625,1994-06-01,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    MO-24-008229,27487,PROBAND,FEMALE,CUSM,MCH_5991739,TRIO,AFF,24-38627,2024-06-05,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    MO-24-008668,27488,MTH,FEMALE,CUSM,RVH_5175816,TRIO,UNF,24-38627,1994-09-29,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-    MO-24-008667,27489,FTH,MALE,CUSM,RVH_5809722,TRIO,UNF,24-38627,1989-08-11,2024-07-05,20240705_LH00336_0073_A22MFJFLT3
-
-
-### 2. Téléverser les FASTQs sur BaseSpace
-
-À ce jour, il n'est pas possible de créer les cas dans Emedgene en partant de CRAM ou de VCF, tout en bénéficiant de toutes les fonctionnalités (ex: Manta, SMN callers,...). Il nous faut donc téléverser et repartir des FASTQs.
-
-```bash
-cd ${WORKDIR}/${FC_SHORT}
-python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_upload_fastqs.py
-```
-
-Le script s'attend à trouver les fichiers dans le répertoire `/staging/hiseq_raw/LH00336/${FC}/Analysis/1/Data/DragenGermline/fastq`.
-
-
-### 3. Créer les cas sur Emedgene
-
-Cette étape consiste à:
-
-1. Générer le fichier "emg_batch_manifest.csv"
-2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
-3. (**TODO**) Ajouter les participants _via_ l'API
-
-#### 1. Générer le fichier "emg_batch_manifest.csv"
-
-```bash
-cd ${WORKDIR}
-python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_make_batch_from_nanuq.py ${FC_SHORT} 2>&1 | tee ${FC_SHORT}/emg_make_batch.log
-```
-
-**_N.b._**: Les termes HPOs [Human Phenotype Ontology](https://hpo.jax.org/app/) sont contenus dans la base de données patients, Phenotips, et peuvent être consultées _via_ l'API avec un identifiant externe composé du "site + MRN" (ex. "CHUS1636084"). C'est ce que fait le script `emg_make_batch_from_nanuq.py` car l'identifiant primaire PhenotipsID (PID), n'est pas contenu dans Nanuq.
-
-Alternativement, les informations sur les familles pour la _Run_, incluant le PID, peuvent être récupérées à partir du fichier Excel partagé sur "\\shsjcifs01\public crhsj\centre genomique\Projets\Pragmatiq\Étude PRAGMatIQ - Base de données.xlsx" ou sur Teams/OneDrive "Étude PRAGMatIQ - Base de données.xlsx" (canal de l'équipe _CHUSJ - Étude PRAGMatIQ_ dans Teams ("Documents > Général")). Ceci peut s'avérer nécessaire dans l'éventualité où le script `emg_make_batch_from_nanuq.py` échoue. _C.f._ Annexe A (Rechercher les termes HPOs) plus bas. En dernier recours, contacter Camille VARIN-TREMBLAY pour obtenir les informations manquantes.
-
-#### 2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
-
-Le script Python `emg_make_batch_from_nanuq.py` exécuté à l'étape précédente génère le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH. Pour plus d'information au sujet du fichier d'entrée pour la création des cas par lot, consulter les spécifications d'Emedgene [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements).
-
-Il faut à présent se connecter _via_ l'interface web à Emedgene pour téléverser le fichier manifestedécrivant les cas à l'étude, puis lancer les analyses.
-
-1. Se connecter à [Emedgene](https://chusaintejustine.emedgene.com/) avec le compte cqgc.bioinfo.hsj@ssss.gouv.qc.ca.
-2. Cliquer sur "+ New Case", en haut de la page à droite
-3. Cliquer sur "Switch to batch"
-4. Glisser-déposer le fichier CSV manifest dans la boîte "Browse files from your computer or drag it here ('csv' | Maximum file size: 5 MB, 50 cases)"
-5. Cliquer sur "Launch Case".
-
-Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload). https://chusaintejustine.emedgene.com/v2/#/help/
-
-Exemple d'erreur fréquent: "Unmatched phenotype(s) found: phenotypes/EMG_PHENOTYPE_0011438". Il faut supprimer ce phénotype de la liste. Pour trouver le terme fautif, il faut remplacer "EMG_PHENOTYPE_" par "HP:" (dans ce cas-ci, EMG_PHENOTYPE_0011438 == HP:0011438)
-
 
 #### 3. (**TODO**) Ajouter les participants
 
