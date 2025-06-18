@@ -2,25 +2,27 @@
 
 Cette procédure décrit comment créer des cas (trio, solo, duo ou quad) à analyser sur la plateforme d'[Emedgene (EMG)](https://chusaintejustine.emedgene.com/) une fois que les séquences des échantillons sont disponibles sur BaseSpace Sequence Hub (BSSH). Les BCLs issus des séquenceurs sont d'abord convertis en FASTQs par DRAGEN BCLConvert, soit directement sur le NovaSeqX, soit par notre serveur local ou sur BSSH. La progression des opérations de séquençage puis de la déconvolution-conversion de la _Run_ peuvent être suivies sur BSSH sous l'onglet ["Run"](https://chusj.cac1.sh.basespace.illumina.com/runs/active) et ["Analyses"](https://chusj.cac1.sh.basespace.illumina.com/analyses/), respectivement. Les cas à analyser sont finalement créés dans Emedgene à l'aide d'un fichier "batch manifest" en format CSV. Ce fichier contient les informations sur les individus des familles (sexe, âge, relation, FASTQs associés, termes HPOs, _etc_.). 
 
-En résumé, voici les étapes à suivre:
+En résumé, voici les étapes de la création des cas sur Emedgene pour une run donnée ("flowcell", `${FC}`). La déconvolution-conversion des BCLs en FASTQs (étape 1) est normalement prise en charge par un processus en `cron`, `dragen_bcl-convert_watcher.sh`. Le script `run_ipeline_prag.sh` réalise quant à lui les étapes 2 à 4.1.
 
 0. Pré-requis
     1. Obtenir les identifiants de connexion
     2. Créer un journal pour le suivi, par exemple `README-${FC_SHORT}.ipynb` (*)
     3. Se connecter à spxp-app02 `ssh ${USER}@10.128.80.26`
     4. Mettre en place l'environnement de travail `conda activate CQGC-utils`.
-1. Collecter les informations sur les familles et les métriques DragenGermline `emg_collect_dragen_metrics.py ${FC}`.
-2. Téléverser les FASTQs sur BaseSpace `emg_upload_fastqs.py`
-3. Créer les cas sur Emedgene 
-    1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch_from_nanuq.py ${FC}`
+1. Déconvolution et conversion des BCLs en FASTQs (automatique)
+2. Collecter les informations sur les familles `list_run_samples.py ${FC}`.
+3. Téléverser les FASTQs sur BaseSpace `emg_upload_fastqs.py`
+4. Créer les cas sur Emedgene 
+    1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch.py`
     2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
     3. (**TODO**) Ajouter les participants _via_ l'API
-4. Archiver les résultats
+5. Collecter les métriques
+6. Archiver les résultats
 5. Nettoyer
 
-Où ${FC_SHORT} est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", ${FC_SHORT} est "A00516_0441".
+Où `${FC_SHORT}` est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", `${FC_SHORT}` est "A00516_0441".
 
-(*) Un fichier `README-FC_SHORT-template.ipynb` est disponible sur GitHub. Il contient le code à copier-coller et les cases à remplir pour le suivi des opérations.
+(*) Un fichier `README-FC_SHORT-template.ipynb` est disponible sur [GitHub](https://github.com/CQGC-Ste-Justine/CQGC-utils/tree/main/Analysis.pipeline_illumina). Il contient le code à copier-coller et les cases à remplir pour le suivi des opérations.
 
 ***_N.B._***: Afin de connecter les informations génétiques des familles (issues de Nanuq) aux phénotypes (termes HPOs contenus dans Phenotips), il est impératif que les deux champs EP (Établissement Public) et MRN (Medical Record Number) soient bien renseignés dans les deux systèmes par les collègues. Sinon, il faut obtenir les informations de Phenotips (identifiants PID) par "Camille Varin-Tremblay (HSJ)" <camille.varin-tremblay.hsj@ssss.gouv.qc.ca>.
 
@@ -58,6 +60,7 @@ Pour les services Emedgene, Phenotips et BSSH, il faut créer un fichier texte d
         "testDefinitionId" : "<replace_with_your_hash_key>",
         "bs_apiServer"     : "https://api.cac1.sh.basespace.illumina.com",
         "bs_accessToken"   : "<replace_with_your_hash_key>",
+        (...)
         "X-Gene42-Server"  : "https://chusj.phenotips.com",
         "X-Gene42-Auth"    : "Basic replace_with_your_hash_key",
         "X-Gene42-Secret"  : "<replace_with_your_hash_key>",
@@ -76,9 +79,14 @@ Veuillez vous référer à la documentation d'Illumina afin de générer le jeto
 
 #### 2. Créer un journal pour le suivi
 
-Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel par le laboratoire du CQGC, mais peuvent aussi être récupérées dans la SampleSheet ou depuis BSSH (sous l'onglet "_Runs_"). Un modèle `README-${FC_SHORT}-template.ipynb` est disponible sur GitHub et dans Teams.
+Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel par le laboratoire du CQGC, mais peuvent aussi être récupérées dans la SampleSheet ou depuis BSSH (sous l'onglet "_Runs_"). Un modèle `README-${FC_SHORT}-template.ipynb` est disponible sur [GitHub](https://github.com/CQGC-Ste-Justine/PrivateDoc/blob/0f59d674fd5d91ca5da7880ab55cd753ad324203/gapp_conf.json) et dans Teams.
 
-**_N.B._** Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir. Un fichier `README-FC_SHORT-template.ipynb` est disponible sur GitHub. Il contient le code à copier-coller et les cases à remplir pour le suivi des opérations.
+```bash
+# Lister l enom de la Flowcell (FC) et de l'expérience (XP)
+bs -c cac1 list runs --newer-than 3d --filter-term PRAG --filter-field ExperimentName
+```
+
+**_N.B._** Le format `ipynb` (Jupyter Notebook) est utilisé car du code peut y être exécuté, mais un simple format `txt` ou `md` peut aussi bien servir. Un fichier `README-FC_SHORT-template.ipynb` est disponible sur [GitHub](https://github.com/CQGC-Ste-Justine/PrivateDoc/blob/0f59d674fd5d91ca5da7880ab55cd753ad324203/gapp_conf.json). Il contient le code à copier-coller et les cases à remplir pour le suivi des opérations.
 
 #### 3. Se connecter à spxp-app02 
 
@@ -90,17 +98,22 @@ Au préalable, obtenir un jeton auprès du service informatique afin de pouvoir 
 
 ```bash
 ## 0. Mise en place de l'environnement de travail
-# ssh ${USER}@10.128.80.26 # Renseigner la valeur de ${FC}
-
+# ssh ${USER}@10.128.80.26
+# Pour connaître l'identifiant FC et XP
+bs -c cac1 list runs --newer-than 3d --filter-term PRAG --filter-field ExperimentName
 screen -S prag
-conda activate CQGC-utils
 
-export FC=""
-a=($(echo ${FC} | tr '_' '\n'))
-export FC_SHORT="${a[1]}_${a[2]}"
-export BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
-export WORKDIR="/mnt/spxp-app02/staging2/dragen"
+conda deactivate && conda activate CQGC-utils
+export FC="" # Ex.: 20250613_LH00336_0223_A232CFLLT3
+a=($(echo ${FC} | tr '_' '\n')) 
+export BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/${a[1]}"
+export WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs"
+export SOFTDIR='/mnt/spxp-app02/staging2/soft/CQGC-utils'
 ```
+
+### 1. Déconvolution et conversion des BCLs en FASTQs (automatique)
+
+
 
 ### 1. Collecter les informations sur les familles et les métriques DragenGermline
 
