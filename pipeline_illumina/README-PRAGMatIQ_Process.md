@@ -9,16 +9,16 @@ En résumé, voici les étapes de la création des cas sur Emedgene pour une run
     2. Créer un journal pour le suivi, par exemple `README-${FC_SHORT}.ipynb` (*)
     3. Se connecter à spxp-app02 `ssh ${USER}@10.128.80.26`
     4. Mettre en place l'environnement de travail `conda activate CQGC-utils`.
-1. Déconvolution et conversion des BCLs en FASTQs (automatique)
+1. Déconvolution et conversion des BCLs en FASTQs `dragen_bcl-convert_launcher.sh`
 2. Collecter les informations sur les familles `list_run_samples.py ${FC}`.
 3. Téléverser les FASTQs sur BaseSpace `emg_upload_fastqs.py`
 4. Créer les cas sur Emedgene 
     1. Générer le fichier "emg_batch_manifest.csv" `emg_make_batch.py`
     2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
     3. (**TODO**) Ajouter les participants _via_ l'API
-5. Collecter les métriques
+5. Collecter les métriques `emg_collect_samples_metrics.py`
 6. Archiver les résultats
-5. Nettoyer
+7. Nettoyer
 
 Où `${FC_SHORT}` est le nom court de la _FlowCell/Run_. Ex: Si la _flowcell/Run_ se nomme "230727_A00516_0441_AHKVFYDMXY", `${FC_SHORT}` est "A00516_0441".
 
@@ -82,7 +82,7 @@ Veuillez vous référer à la documentation d'Illumina afin de générer le jeto
 Créer un journal dans lequel seront notés le suivi des opérations. Par exemple, dans un notebook Jupyter nommé `README-${FC_SHORT}.ipynb` et y inscrire en titre les noms de la _flowcell_ (_e.g._.: "230711_A00516_0433_BHKVMJDMXY", où `${FC_SHORT}` serait dans ce cas "A00516_0433") et de l'exérience ("Seq_S2_PRAG_20230711"). Ces informations sont normalement communiqués dans un courriel par le laboratoire du CQGC, mais peuvent aussi être récupérées dans la SampleSheet ou depuis BSSH (sous l'onglet "_Runs_"). Un modèle `README-${FC_SHORT}-template.ipynb` est disponible sur [GitHub](https://github.com/CQGC-Ste-Justine/PrivateDoc/blob/0f59d674fd5d91ca5da7880ab55cd753ad324203/gapp_conf.json) et dans Teams.
 
 ```bash
-# Lister l enom de la Flowcell (FC) et de l'expérience (XP)
+# Lister le nom de la Flowcell (FC) et de l'expérience (XP)
 bs -c cac1 list runs --newer-than 3d --filter-term PRAG --filter-field ExperimentName
 ```
 
@@ -113,9 +113,9 @@ export SOFTDIR='/mnt/spxp-app02/staging2/soft/CQGC-utils'
 
 ### 1. Déconvolution et conversion des BCLs en FASTQs (automatique)
 
-***N.B.*** Cette étape est normalement réalisée de manière automatique par le script `dragen_bcl-convert_watcher.sh` en `cron`. 
+***N.B.*** Cette étape est normalement réalisée de manière automatique par le script `dragen_bcl-convert_watcher.sh` en `cron`. Le watcher surveille et vérifie certains fichiers marqueurs dans le dossier des BCLs (sorties des séquenceurs) avant de lancer `dragen_bcl-convert_launcher.sh`
 
-Le script `run_pipeline_prag.sh`, qui est exécuté ici, surveille le répertoire des BCLs pour les fichiers marqueurs `CopyComplete.txt` (fin du séquençage) et FastqCoplete.txt (complétion de la déconvolution-conversion). 
+Le script `run_pipeline_prag.sh`, qui est exécuté ici, surveille le répertoire des BCLs pour les fichiers marqueurs `CopyComplete.txt` (fin du séquençage) et `FastqCoplete.txt` (complétion de la déconvolution-conversion). 
 
 ```bash
 if [[ ! -d "${WORKDIR}/${FC}" ]]; then mkdir ${WORKDIR}/${FC}; fi
@@ -171,14 +171,14 @@ python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
 touch ${WORKDIR}/${FC}/UploadBsComplete.txt
 ```
 
-À ce jour, il n'est pas possible de créer les cas dans Emedgene en partant de CRAM ou de VCF, tout en bénéficiant de toutes les fonctionnalités (ex: Manta, SMN callers,...). Il nous faut donc téléverser et repartir des FASTQs.
+Il n'est pas possible de créer les cas dans Emedgene en partant de CRAM ou de VCF, tout en bénéficiant de toutes les fonctionnalités (ex: Manta, SMN callers,...). Il nous faut donc téléverser et repartir des FASTQs.
 
 `emg_upload_fastqs.py` prend comme entrée le fichier `samples_list.csv`, créé à l'étape précédente.Sinon, il faut spécifier le chemin d'accès à un samples_list avec l'option `--file`.
 
 Le script s'attend à trouver les fichiers dans le répertoire `${WORKDIR}/${FC}/1.fastq`, sauf si spécifié autrement avec l'option `--data-dir`.
 
 
-### 3. Créer les cas sur Emedgene
+### 4. Créer les cas sur Emedgene
 
 Cette étape consiste à:
 
@@ -186,7 +186,7 @@ Cette étape consiste à:
 2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
 3. (**TODO**) Ajouter les participants _via_ l'API
 
-#### 1. Générer le fichier "emg_batch_manifest.csv"
+#### 4.1. Générer le fichier "emg_batch_manifest.csv"
 
 ```bash
 ## 4. Créer les cas sur Emedgene 
@@ -199,11 +199,11 @@ sleep ${NAPTIME}
 python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
 ```
 
-**_N.b._**: Les termes HPOs [Human Phenotype Ontology](https://hpo.jax.org/app/) sont contenus dans la base de données patients, Phenotips, et peuvent être consultées _via_ l'API avec un identifiant externe composé du "site + MRN" (ex. "CHUS1636084"). C'est ce que fait le script `emg_make_batch_from_nanuq.py` car l'identifiant primaire PhenotipsID (PID), n'est pas contenu dans Nanuq.
+**_N.b._**: Les termes HPOs [Human Phenotype Ontology](https://hpo.jax.org/app/) sont contenus dans la base de données patients, Phenotips, et peuvent être consultées _via_ l'API avec un identifiant externe composé de l'"Établissement Public + MRN" (ex. "CHUS1636084"). C'est ce que fait le script `emg_make_batch_from_nanuq.py` car l'identifiant primaire PhenotipsID (PID), n'est pas contenu dans Nanuq.
 
 Alternativement, les informations sur les familles pour la _Run_, incluant le PID, peuvent être récupérées à partir du fichier Excel partagé sur "\\shsjcifs01\public crhsj\centre genomique\Projets\Pragmatiq\Étude PRAGMatIQ - Base de données.xlsx" ou sur Teams/OneDrive "Étude PRAGMatIQ - Base de données.xlsx" (canal de l'équipe _CHUSJ - Étude PRAGMatIQ_ dans Teams ("Documents > Général")). Ceci peut s'avérer nécessaire dans l'éventualité où le script `emg_make_batch_from_nanuq.py` échoue. _C.f._ Annexe A (Rechercher les termes HPOs) plus bas. En dernier recours, contacter Camille VARIN-TREMBLAY pour obtenir les informations manquantes.
 
-#### 2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
+#### 4.2. Glisser-déposer dans Emedgene le fichier "emg_batch_manifest.csv"
 
 Le script Python `emg_make_batch_from_nanuq.py` exécuté à l'étape précédente génère le fichier manifeste (CSV) d'entrée "emg_batch_manifest.csv", avec les chemins d'accès complets aux FASTQs sur BSSH. Pour plus d'information au sujet du fichier d'entrée pour la création des cas par lot, consulter les spécifications d'Emedgene [CSV manifest specification](https://help.emedgene.com/en/articles/7231644-csv-format-requirements).
 
@@ -217,17 +217,25 @@ Il faut à présent se connecter _via_ l'interface web à Emedgene pour téléve
 
 Pour plus d'informations, voir les instructions d'_Emedgene_ sur comment [créer des cas par lot](https://r4a56nl8uxkx3w3a292kjabk.emedgene.com/articles/7221986-batch-case-upload). https://chusaintejustine.emedgene.com/v2/#/help/
 
-Exemple d'erreur fréquent: "Unmatched phenotype(s) found: phenotypes/EMG_PHENOTYPE_0011438". Il faut supprimer ce phénotype de la liste. Pour trouver le terme fautif, il faut remplacer "EMG_PHENOTYPE_" par "HP:" (dans ce cas-ci, EMG_PHENOTYPE_0011438 == HP:0011438)
+Si Emedgene détecte des erreurs, télécharger le fichier CSV de validation, puis corriger les erreurs qui y sont énummérés dans la première colonne du CSV. Voir la section "Résolution des problèmes" plus bas.
 
-Examiner les métriques et le fichier "samples_list.csv" générés par la commande ci-dessus. 
+#### 4.3. Ajouter les participants
 
-Envoyer les fichiers `${FC_SHORT}_metrics.csv` et `${FC_SHORT}_metrics.html` dans un courriel aux personnes responsables:
+(**TODO**) Ajouter les participants
+
+
+### 5. Collecter les metriques
+
+```bash
+5. Collecter les metriques
+python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_samples_metrics.py ${FC}
+```
+
+Envoyer les fichiers `${FC}_metrics.csv` et `${FC}_metrics.html` dans un courriel aux personnes responsables:
 
 - "Dr Jacques Michaud (HSJ)" <jacques.michaud.med@ssss.gouv.qc.ca>
 - "Camille Varin-Tremblay (HSJ)" <camille.varin-tremblay.hsj@ssss.gouv.qc.ca>
 - "Rene Allard (HSJ)" <rene.allard.hsj@ssss.gouv.qc.ca>
-
-Si les métriques passent les critères d'acceptabilité, procéder au téléversement des FASTQs dans BaseSpace. Sinon, attendre la réponse des responsables. Dans ce cas, il faudra éventuellement supprimer les lignes correspondantes aux échantillons de mauvaise qualité du fichier `samples_list.csv` avant de procéder aux prochaines étapes.
 
 Seuils d'acceptabilité (en discussion):
 
@@ -249,10 +257,7 @@ Seuils d'acceptabilité (en discussion):
     - PLOIDY ESTIMATION,,Ploidy estimation doit correspondre au sexe de l'échantillon
 - Autre chose qu'on devrait pouvoir confirmer avant de releaser les données est la structure familiale des trios
 
-#### 3. (**TODO**) Ajouter les participants
-
-
-### 4. Archiver les résultats
+### 6. Archiver les résultats
 
 Une fois que les analyses sont terminées, rapattrier et archiver les résultats.
 
@@ -272,20 +277,35 @@ for sample in GM231339 GM231362 GM231511 GM231395 GM231398 GM231399 GM231401 GM2
 done
 ```
 
-
-### 5. Nettoyer
+### 7. Nettoyer
 
 Une fois que les analyses sont terminées et archivées, il faut libérer l'espace disque sur `spxp-app02`. Au préalable, notifier le laboratoire, qui doit sauvegarder quelqeues métriques de l'opération de séquençage avant qU'elles ne soient effacées.
 
 
 ## Résolution des problèmes fréquents
 
+Exemple d'erreur fréquents.
+
+### "Unmatched phenotype(s) found"
+
+"Unmatched phenotype(s) found: phenotypes/EMG_PHENOTYPE_0011438" 
+
+Il faut supprimer ce phénotype de la liste. Pour trouver le terme fautif, il faut remplacer "EMG_PHENOTYPE_" par "HP:" (dans ce cas-ci, EMG_PHENOTYPE_0011438 == HP:0011438). Les termes HPOs associés à la mère ne sont pas acceptés par Emedgene et génèrent cet erreur (ex: [Maternal diabetes (HP:0009800)](http://purl.obolibrary.org/obo/HP_0009800)). 
+
 ### HPOs non-renseignés
 
-Isoler les individus du cas concernés dans un fichier `emg_batch_manifest-[cas-sans-hpos].csv`. Une fois que le dossier Phenotips sera rempli, utiliser le script pour récupérer les termes HPOs à copier-coller dans le manifest. Puis, déposer le manifest dans Emedgene 
+Nous nous basons sur les informations du site (EP, établissement public) + le MRN (medical record number) pour faire le lien entre la base Nanuq (échantillons) et Phenotips (patients). Si EP ou MRN est mal renseigné dans l'une ou l'autre de ces bases d'informations, les termes HPOs ne peuvent pas être associés au cas. Le Helper script `get_phenotips_hpos.py` peut être utilisé pour recueillir les termes HPOs avec un PhenotipsID (PID) à posteriori. _C.f. Annexe A: Rechercher les termes HPOs_ 
 
-_C.f. Annexe A: Rechercher les termes HPOs_ 
+Les termes HPOs peuvent être absents si:
 
+- Erreur de saisie EP ou MRN dans Nanuq ou Phenotips. 
+- Could not find HPO terms for PID=P0000844 (EP+MRN=CHUS2487041): Le dossier existe, mais le médecin n'a pas rempli les phénotypes.
+
+Il faut contacter Camille Varin-Tremblay. En attendant, isoler les individus du cas concernés dans un fichier `emg_batch_manifest-[cas-sans-hpos].csv`. Une fois que le dossier Phenotips sera rempli, utiliser le script pour récupérer les termes HPOs à copier-coller dans le manifest. Puis, déposer le manifest dans Emedgene 
+
+### FamilyID
+
+Un membre sain de la famille (ex: père, mère) n'est pas connecté à un proband. Demander à Camille ou consulter la base de données Excel.
 
 ## Références
 
