@@ -12,7 +12,7 @@ import re
 import json
 import requests
 import pandas as pd
-671672
+
 __version__ = 0.1
 
 class Configurator:
