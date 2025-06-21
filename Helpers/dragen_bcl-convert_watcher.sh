@@ -56,7 +56,7 @@ launch_run() {
     . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
     # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
     qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
-    touch ${BASEDIR}/${fc}/DemuxStarted.txt
+    touch ${dir}/${fc}/DemuxStarted.txt
 }
 
 for dir in ${WATCHDIRS[@]}; do
