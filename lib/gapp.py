@@ -191,14 +191,13 @@ class Phenotips:
         - Returns  : (list) of PIDs (str) or summary records (dict).
         """
         url = self.server + '/rest/patients/'
-        response = requests.get(url, headers=self.headers, params={'number': limit})
         try:
-            response = requests.get(url, headers=self.headers)
+            response = requests.get(url, headers=self.headers, params={'number': limit})
             response.raise_for_status()
         except requests.exceptions.ConnectionError as err:
             raise SystemExit(err)
         except requests.exceptions.HTTPError as err:
-            return(None)
+            return None
         else:
             data = response.json()
             patients = []
