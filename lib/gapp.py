@@ -180,7 +180,35 @@ class Phenotips:
             'Authorization'  : configs.phenotips_auth,
             'X-Gene42-Secret': configs.phenotips_secret
         }
-    
+
+
+    def list_patients(self, records=False, limit=10000):
+        """
+        List patients in Phenotips.
+        - `records`: (bool) True, returns list of patient summary records. 
+                     False, returns a list of patient PIDs.
+        - `limit`  : (int) Maximum number of records to fetch.
+        - Returns  : (list) of PIDs (str) or summary records (dict).
+        """
+        url = self.server + '/rest/patients/'
+        response = requests.get(url, headers=self.headers, params={'number': limit})
+        try:
+            response = requests.get(url, headers=self.headers)
+            response.raise_for_status()
+        except requests.exceptions.ConnectionError as err:
+            raise SystemExit(err)
+        except requests.exceptions.HTTPError as err:
+            return(None)
+        else:
+            data = response.json()
+            patients = []
+            if records:
+                return data['patientSummaries']
+            else:
+                for record in data['patientSummaries']:
+                    patients.append(record['id'])
+                return patients
+
 
     def get_patient(self, pid):
         """
