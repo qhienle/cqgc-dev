@@ -16,24 +16,24 @@
 # <FLOWCELL> argument is REQUIRED
 # DemuxStarted.txt file in ${BASEDIR}/${FC}/ marks a bcl-convert in progress
 # FastqComplete.txt file created by DRAGEN marks end of process
+# DemuxFailed.txt file in ${BASEDIR}/${FC}/ marks a bcl-convert failure
 
 umask 002
 
 mark_failed() {
+    # In case of error, mark run with "DemuxFailed.txt"
     echo "$1" >&2
     touch DemuxFailed.txt
     exit 1
 }
 
 if [[ -z ${1} ]]; then
-    echo "ERROR: Flowcell or run name not provided!" >&2
-    exit 1
+    mark_failed "ERROR: Flowcell or run name not provided!"
 else
     FC=${1}
     a=($(echo ${FC} | tr '_' '\n'))
     FC_SHORT="${a[1]}_${a[2]}"
 fi
-
 
 # Set BASEDIR and WORKDIR if environment variables not exported
 if [[ -z ${BASEDIR} ]]; then 
@@ -42,13 +42,11 @@ if [[ -z ${BASEDIR} ]]; then
     elif [[ -f "/mnt/spxp-app02/staging/hiseq_raw/${a[1]}/${FC}/CopyComplete.txt" ]]; then
         BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/${a[1]}"
     else
-        echo "ERROR: Could not find: '${BASEDIR}/${FC}/CopyComplete.txt'"
-        exit 1
+        mark_failed "ERROR: Could not find: '${BASEDIR}/${FC}/CopyComplete.txt'"
     fi
 else
     if [[ ! -f "${BASEDIR}/${FC}/CopyComplete.txt" ]]; then
-        echo "ERROR: Could not find '${FC}/CopyComplete.txt' in specified BASEDIR '${BASEDIR}'"
-        exit 1
+        mark_failed "ERROR: Could not find '${FC}/CopyComplete.txt' in specified BASEDIR '${BASEDIR}'"
     fi
 fi
 if [[ -z ${WORKDIR} ]]; then
@@ -85,19 +83,17 @@ if [[ -f ${samplesheet} ]]; then
             --bcl-only-matched-reads true \
             >> ${WORKDIR}/${FC}/${FC_SHORT}.bcl-convert.log 2>&1
     else
-        echo "ERROR: Could not determine instrument series for ${FC}" >&2
-        exit 1
+        mark_failed "ERROR: Could not determine instrument series for ${FC}"
     fi
-    if [[ $? -eq 1 ]]; then
-        touch DemuxFailed.txt
-    else
+    if [[ $? -eq 0 ]]; then
         cp ${OUTDIR}/Logs/FastqComplete.txt ${BASEDIR}/${FC}
         mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
         mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
+    else
+        mark_failed "ERROR: Something went wrong! DRAGEN exit code not equal to zero."
     fi
 else
-    echo "ERROR: Did you forget to setup environment variables or provide the SampleSheet?\n" >&2
-    exit 1
+    mark_failed "ERROR: Did you forget to setup environment variables or provide the SampleSheet?\n" >&2
 fi
 
 exit 0
