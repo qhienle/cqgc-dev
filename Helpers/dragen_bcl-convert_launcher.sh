@@ -19,6 +19,12 @@
 
 umask 002
 
+mark_failed() {
+    echo "$1" >&2
+    touch DemuxFailed.txt
+    exit 1
+}
+
 if [[ -z ${1} ]]; then
     echo "ERROR: Flowcell or run name not provided!" >&2
     exit 1
@@ -82,10 +88,13 @@ if [[ -f ${samplesheet} ]]; then
         echo "ERROR: Could not determine instrument series for ${FC}" >&2
         exit 1
     fi
-    echo "TEST exit code is $?"
-    cp ${OUTDIR}/Logs/FastqComplete.txt ${BASEDIR}/${FC}
-    mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
-    mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
+    if [[ $? -eq 1 ]]; then
+        touch DemuxFailed.txt
+    else
+        cp ${OUTDIR}/Logs/FastqComplete.txt ${BASEDIR}/${FC}
+        mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
+        mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
+    fi
 else
     echo "ERROR: Did you forget to setup environment variables or provide the SampleSheet?\n" >&2
     exit 1
