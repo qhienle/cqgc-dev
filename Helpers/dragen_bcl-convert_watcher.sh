@@ -16,7 +16,7 @@
 # Demux outputs are written to ${WORKDIR}/dragen/${FC}
 
 # File ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
-# File ${BASEDIR}/${FC}/Failed.txt marks that sequencing has failed
+# File ${BASEDIR}/${FC}/DemuxFailed.txt or "failed.txt" marks that sequencing has failed
 # File ${BASEDIR}/${FC}/DemuxStarted.txt marks that bcl-convert is in progress
 #   DemuxStarted.txt is written to ${BASEDIR} by dragen_bcl-convert_launcher.sh
 # File ${WORKDIR}/${FC}/SampleSheet.csv also marks that bcl-convert is in progress
@@ -72,7 +72,7 @@ for dir in ${WATCHDIRS[@]}; do
                 # Check if bcl-convert needed (not previously demuxed, not failed, not LowPass)
                 if [[ -f "${dir}/${fc}/FastqComplete.txt" ]]; then
                     echo "${LOGPREFIX} ${fc} PASS: FastqComplete.txt indicates that run has already been processed."
-                elif [[ -f "${dir}/${fc}/Failed.txt" ]] ||  [[ -f "${dir}/${fc}/failed.txt" ]]; then
+                elif [[ -f "${dir}/${fc}/DemuxFailed.txt" ]] ||  [[ -f "${dir}/${fc}/failed.txt" ]]; then
                     echo "${LOGPREFIX} ${fc} PASS: Failed.txt marks a failed Run."
                 elif [[ -f "${dir}/${fc}/DemuxStarted.txt" ]]; then
                     echo "${LOGPREFIX} ${fc} PASS: DemuxStarted.txt marks a bcl-convert process in progress."
