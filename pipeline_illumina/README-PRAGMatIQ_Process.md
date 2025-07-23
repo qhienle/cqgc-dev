@@ -163,6 +163,8 @@ Le fichier "samples_list.csv" sera utile pour les étapes suivantes. Voici un ex
 
 ### 3. Téléverser les FASTQs sur BaseSpace
 
+ATTENTION! Si cette étape échoue ou est interrompue, il faut effacer les fichiers créés sur BaseSpace avant de relancer la commande. Pour effacer les fichiers FASTQs des biosamples sur BaseSpace, utilisez [l'interface web](https://chusj.cac1.sh.basespace.illumina.com/biosamples).
+
 ```bash
 ## 3. Téléverser les FASTQs sur BaseSpace
 echo "Uploading samples to BaseSpace"
