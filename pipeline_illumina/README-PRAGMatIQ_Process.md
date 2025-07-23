@@ -230,7 +230,7 @@ Si Emedgene détecte des erreurs, télécharger le fichier CSV de validation, pu
 
 ```bash
 5. Collecter les metriques
-python /staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_collect_samples_metrics.py ${FC}
+python ${SOFTDIR}/Analysis.pipeline_illumina/emg_collect_samples_metrics.py ${FC}
 ```
 
 Envoyer les fichiers `${FC}_metrics.csv` et `${FC}_metrics.html` dans un courriel aux personnes responsables:
@@ -262,6 +262,13 @@ Seuils d'acceptabilité (en discussion):
 ### 6. Archiver les résultats
 
 Une fois que les analyses sont terminées, rapattrier et archiver les résultats.
+
+```bash
+# Sur spxp-app02, lister les échantillons de la run afin de pouvoir
+# récupérer les résultats à archiver sur Narval.
+
+samples=$( cut -f1 -d, ${WORKDIR}/${FC}/samples_list.csv | grep -v sample_name ) && echo ${samples[@]}
+```
 
 ```bash
 #!/usr/bin/bash
