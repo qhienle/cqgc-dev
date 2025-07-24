@@ -35,8 +35,6 @@ in ~/.illumina/gapp_conf.json (available at https://github.com/CQGC-Ste-Justine/
 import os, sys
 import argparse
 import logging
-import json
-import re
 import pandas as pd
 
 # Set source path to CQGC-utils so that we can use relative imports
