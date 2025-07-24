@@ -395,11 +395,21 @@ def main(args):
     else:
         df_batch['Clinical Notes'] = ''
 
+
     # 6. Return a CSV file to be used as input for Emedgene's batch upload script
     #
     df_to_manifest(df_batch)
     logging.info("Wrote manifest file `emg_batch_manifest.csv` for batch upload to Emedgene.")
     logging.info(f"Done.\n")
+
+
+    # 7. List samples and generate code for archives
+    #
+    samples = ' '.join(df_batch['sample_name'].to_list())
+    print("Please login to narval.calculquebec.ca and run the following command:")
+    print("\nssh narval.calculquebec.ca")
+    print(f"cd /home/hien/projects/ctb-rallard/COMMUN/PRAGMatIQ-EMG/")
+    print(f"bash archive_PRAGMatIQ.sh ${samples}\n")
 
 
 def tests():
