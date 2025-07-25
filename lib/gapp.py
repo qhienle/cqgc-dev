@@ -158,14 +158,18 @@ class REDCap:
             # 'fields[0]': 'record_id', # to include record_id in the json output
             # 'fields[1]': 'ghf_vis_hpo_1', (...) 'fields[9]': 'ghf_dely_gmd_hpo'
         }
-        response = requests.post('https://tacc-redcap.bic.mni.mcgill.ca/api/',data=data)
-        if response.status_code == 200:
-            for value in response.json()[0].values():
-                hpos.append(value) if value.startswith('HP:') else None
+        try:
+            response = requests.post('https://tacc-redcap.bic.mni.mcgill.ca/api/',data=data)
+        except Exception as e:
+            logging.error(f"Unexpected execption {e}")
         else:
-            logging.error('REDCap.get_hpo() HTTP Status: ' + str(response.status_code))
-            logging.debug(json.dumps(response.json(), indent=2))
-        return ';'.join(hpos)
+            if response.status_code == 200:
+                for value in response.json()[0].values():
+                    hpos.append(value) if value.startswith('HP:') else None
+            else:
+                logging.error('REDCap.get_hpo() HTTP Status: ' + str(response.status_code))
+                logging.debug(json.dumps(response.json(), indent=2))
+            return ';'.join(hpos)
 
 
 class Phenotips:
