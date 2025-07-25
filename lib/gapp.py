@@ -127,7 +127,12 @@ class REDCap:
         }
         response = requests.post(self.server, data=data)
         if response.status_code == 200:
-            return response.json()[0]['record_id']
+            try:
+                return response.json()[0]['record_id']
+            except IndexError as e:
+                logging.warning(f"{e} when retrieving response.json()[0]['record_id'] for {q1k_id}")
+            except Exception as e:
+                logging.error(f"Unexpected execption {e}")
         else:
             logging.error('HTTP Status: ' + str(response.status_code))
             logging.debug(json.dumps(response.json(), indent=2))
