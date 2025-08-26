@@ -4,14 +4,14 @@
 #$ -l dragen=1
 
 # Submit BCL-convert job to DRAGEN servers, from spxp-app02.
-# qsub /staging2/soft/CQGC-utils/Helpers/dragen_bcl_convert.sh <FLOWCELL>
+# qsub /staging2/soft/CQGC-utils/Helpers/dragen_bcl_convert_launcher.sh <FLOWCELL>
 # qsub \
-#   -v BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/LH00336
-#   -v WORKDIR="/mnt/spxp-app02/staging2/dragen" \
-#   /staging2/soft/CQGC-utils/Helpers/dragen_bcl_convert.sh <FLOWCELL>
+#   -v BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/LH00336
+#   -v WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs" \
+#   /staging2/soft/CQGC-utils/Helpers/dragen_bcl_convert_launcher.sh <FLOWCELL>
 # or export environment variables:
-#   export BASEDIR="/mnt/spxp-app02/staging/hiseq_raw/LH00336
-#   export WORKDIR="/mnt/spxp-app02/staging2/dragen"
+#   export BASEDIR="/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/LH00336
+#   export WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs"
 
 # <FLOWCELL> argument is REQUIRED
 # DemuxStarted.txt file in ${BASEDIR}/${FC}/ marks a bcl-convert in progress
