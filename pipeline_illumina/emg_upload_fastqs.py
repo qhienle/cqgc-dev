@@ -135,16 +135,29 @@ def main(args):
             if args.level == 'debug':
                 logging.debug(f"--project={project_id}; --biosample-name={row.biosample}; fastqs={fastqs}")
             else:
-                results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
-                                            '--no-progress-bars', 
-                                            '--project', project_id, 
-                                            '--biosample-name', f"{row.biosample}"] + fastqs), 
-                                            capture_output=True, text=True)
-                if results.stderr != '':
-                    logging.warning(f"ERROR while subprocess.run():\n{results.stderr}")
-                    logging.warning(f"args:\n{results.args}")
+                # Check if biosample has previously been uploaded to BaseSpace,
+                # in which case, this command will return an ID, NOT an ERROR
+                # `bs -c cac1 biosample get --name {biosample} --terse` => "id_nb"
+                #
+                exists = subprocess.run(['bs', '-c', 'cac1', 'biosample', 'get', 
+                                         '--name', row.biosample, 
+                                         '--terse'], 
+                                         text=True, capture_output=True)
+                if exists.stderr == '':
+                    # TODO: Use `--force` to re-upload?
+                    logging.warning(f"Warning: Skipping biosample {row.biosample}, which is already in basespace (id={exists.stdout}).")
+                    logging.debug(f"")
                 else:
-                    logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
+                    results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
+                                                '--no-progress-bars', 
+                                                '--project', project_id, 
+                                                '--biosample-name', f"{row.biosample}"] + fastqs), 
+                                                capture_output=True, text=True)
+                    if results.stderr != '':
+                        logging.warning(f"ERROR while subprocess.run():\n{results.stderr}")
+                        logging.debug(f"args:\n{results.args}")
+                    else:
+                        logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
 
 
 def tests(args):
