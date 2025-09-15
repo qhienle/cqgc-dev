@@ -140,7 +140,7 @@ def main(args):
                 # `bs -c cac1 biosample get --name {biosample} --terse` => "id_nb"
                 #
                 exists = subprocess.run(['bs', '-c', 'cac1', 'biosample', 'get', 
-                                         '--name', row.biosample, 
+                                         '--name', str(row.biosample), 
                                          '--terse'], 
                                          text=True, capture_output=True)
                 if exists.stderr == '':
