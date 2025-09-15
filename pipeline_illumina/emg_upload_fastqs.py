@@ -145,7 +145,7 @@ def main(args):
                                          text=True, capture_output=True)
                 if exists.stderr == '':
                     # TODO: Use `--force` to re-upload?
-                    logging.warning(f"Warning: Skipping biosample {row.biosample}, which is already in basespace (id={exists.stdout}).")
+                    logging.warning(f"Warning: Skipping biosample {row.biosample}, which is already in basespace (id={exists.stdout.rstrip()}).")
                     logging.debug(f"")
                 else:
                     results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
