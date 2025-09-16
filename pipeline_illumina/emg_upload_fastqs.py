@@ -112,14 +112,13 @@ def bs_get_biosample_id(biosample):
                                 '--terse'], 
                                 text=True, capture_output=True)
     except subprocess.CalledProcessError as e:
-        logging.error(f"Got exit code {e.returncode} for command {e.cmd}")
-        logging.error(e.stderr)
+        logging.error(f"Got exit code {e.returncode} for command {e.cmd} : {e.stderr}")
     except FileNotFoundError:
         logging.error(f"Command not found: `bs`")
     except OSError as os_err:
-        logging.error(f"OS error occurred: {os_err}")  # Handle OS-related errors
+        logging.error(f"OS error occurred: {os_err}")
     except Exception as ex:
-        logging.error(f"An unexpected error occurred: {ex}")  # Handle any other exceptions
+        logging.error(f"An unexpected error occurred: {ex}")
     else:
         return bs_id.stdout.rstrip()
 
@@ -161,26 +160,28 @@ def main(args):
             if args.level == 'debug':
                 logging.debug(f"--project={project_id}; --biosample-name={row.biosample}; fastqs={fastqs}")
             else:
-                # `exists == ''` if biosample is not on BaseSpace 
-                #
-                # exists = subprocess.run(['bs', '-c', 'cac1', 'biosample', 'get', 
-                #                          '--name', str(row.biosample), 
-                #                          '--terse'], 
-                #                          text=True, capture_output=True)
                 exists = bs_get_biosample_id(row.biosample)
                 if exists != '':
+                    logging.warning(f"Warning: Skipping biosample {row.biosample}, already in BaseSpace as ID {exists}.")
                     # TODO: Use `--force` to re-upload?
-                    logging.warning(f"Warning: Skipping biosample {row.biosample}, which is already in basespace (id={exists}).")
                 else:
-                    results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
-                                                '--no-progress-bars', 
-                                                '--project', project_id, 
-                                                '--biosample-name', f"{row.biosample}"] + fastqs), 
-                                                capture_output=True, text=True)
-                    if results.stderr != '':
-                        logging.warning(f"ERROR while subprocess.run():\n{results.stderr}")
-                        logging.debug(f"args:\n{results.args}")
+                    try:
+                        results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
+                                                    '--no-progress-bars', 
+                                                    '--project', project_id, 
+                                                    '--biosample-name', f"{row.biosample}"] + fastqs), 
+                                                    capture_output=True, text=True)
+                    except subprocess.CalledProcessError as e:
+                        logging.error(f"Got exit code {e.returncode} for command {e.cmd}: {e.stderr}")
+                    except OSError as os_err:
+                        logging.error(f"OS error occurred: {os_err}")
+                    except Exception as ex:
+                        logging.error(f"An unexpected error occurred: {ex}")
                     else:
+                    # if results.stderr != '':
+                    #     logging.warning(f"ERROR while subprocess.run():\n{results.stderr}")
+                    #     logging.debug(f"args:\n{results.args}")
+                    # else:
                         logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
 
 
