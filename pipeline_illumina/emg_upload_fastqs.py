@@ -121,7 +121,7 @@ def bs_get_biosample_id(biosample):
     except Exception as ex:
         logging.error(f"An unexpected error occurred: {ex}")  # Handle any other exceptions
     else:
-        return bs_id.stdout
+        return bs_id.stdout.rstrip()
 
 
 def main(args):
