@@ -98,6 +98,32 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
+def bs_get_biosample_id(biosample):
+    """
+    Get BaseSpace ID for `biosample`. Returns empty str ('') if nothing found.
+    Can be used to check if a biosample already exists on BaseSpace.
+    - `biosample`: (str) CQGC_ID, ex: '39427' or '39428'
+    - Return     : (str) BaseSpace unique identifier for `biosample`, or empty
+                   string ('') if nothing is found.
+    """
+    try:
+        bs_id = subprocess.run(['bs', '-c', 'cac1', 'biosample', 'get', 
+                                '--name', str(biosample), 
+                                '--terse'], 
+                                text=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Got exit code {e.returncode} for command {e.cmd}")
+        logging.error(e.stderr)
+    except FileNotFoundError:
+        logging.error(f"Command not found: `bs`")
+    except OSError as os_err:
+        logging.error(f"OS error occurred: {os_err}")  # Handle OS-related errors
+    except Exception as ex:
+        logging.error(f"An unexpected error occurred: {ex}")  # Handle any other exceptions
+    else:
+        return bs_id.stdout
+
+
 def main(args):
     """
     Iterate through information in "samples_list.csv" to build `bs` command for
@@ -135,18 +161,16 @@ def main(args):
             if args.level == 'debug':
                 logging.debug(f"--project={project_id}; --biosample-name={row.biosample}; fastqs={fastqs}")
             else:
-                # Check if biosample has previously been uploaded to BaseSpace,
-                # in which case, this command will return an ID, NOT an ERROR
-                # `bs -c cac1 biosample get --name {biosample} --terse` => "id_nb"
+                # `exists == ''` if biosample is not on BaseSpace 
                 #
-                exists = subprocess.run(['bs', '-c', 'cac1', 'biosample', 'get', 
-                                         '--name', str(row.biosample), 
-                                         '--terse'], 
-                                         text=True, capture_output=True)
-                if exists.stderr == '':
+                # exists = subprocess.run(['bs', '-c', 'cac1', 'biosample', 'get', 
+                #                          '--name', str(row.biosample), 
+                #                          '--terse'], 
+                #                          text=True, capture_output=True)
+                exists = bs_get_biosample_id(row.biosample)
+                if exists != '':
                     # TODO: Use `--force` to re-upload?
-                    logging.warning(f"Warning: Skipping biosample {row.biosample}, which is already in basespace (id={exists.stdout.rstrip()}).")
-                    logging.debug(f"")
+                    logging.warning(f"Warning: Skipping biosample {row.biosample}, which is already in basespace (id={exists}).")
                 else:
                     results = subprocess.run((['bs', '-c', 'cac1', 'dataset', 'upload', 
                                                 '--no-progress-bars', 
