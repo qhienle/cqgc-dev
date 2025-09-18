@@ -36,22 +36,22 @@ for dir in ${WATCHDIRS[@]}; do
             if [[ -f "${WORKDIR}/${fc}/run_pipeline_emg.log" ]]; then
                 echo "${LOGPREFIX} PASS: Pipeline already processed or is running"
             elif [[ ! -z $( echo ${xp} | grep 'PRAG' ) ]]; then
-                echo "${LOGPREFIX} Launching pipeline for PRAG ${fc} | (${xp})"
+                echo "${LOGPREFIX} Launching pipeline for PRAG ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'prag'
             elif [[ ! -z $( echo ${xp} | grep 'Q1K' ) ]]; then
-                echo "${LOGPREFIX} Launching pipeline for Q1K ${fc} | (${xp})"
+                echo "${LOGPREFIX} Launching pipeline for Q1K ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'q1k'
             elif [[ ! -z $( echo ${xp} | grep 'AOH' ) ]]; then
-                echo "${LOGPREFIX} Launching pipeline for AOH ${fc} | (${xp})"
+                echo "${LOGPREFIX} Launching pipeline for AOH ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'aoh'
             elif [[ ! -z $( echo ${xp} | grep 'C4R' ) ]]; then
-                echo "${LOGPREFIX} Launching pipeline for C4R ${fc} | (${xp})"
+                echo "${LOGPREFIX} Launching pipeline for C4R ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'c4r'
             else
-                echo "${LOGPREFIX} Nothing to do for ${fc} (${xp})"
+                true # echo "${LOGPREFIX} Nothing to do for ${fc} (${xp})"
             fi
         else
-            echo "${LOGPREFIX} Run ${fc} not found on BaseSpace."
+            true #echo "${LOGPREFIX} Run ${fc} not found on BaseSpace."
         fi
     done
 done
