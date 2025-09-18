@@ -19,12 +19,12 @@ LOGFILE="${WORKDIR}/emg_watcher.log"
 run_pipeline_emg() {
     local fc=$1
     local project=$2
+    cd ${WORKDIR}/${fc}
     echo "${LOGPREFIX} ${project} bash ${SOFTDIR}/Analysis.pipeline_illumina/run_pipeline_prag.sh ${fc} 2>&1 | tee ${WORKDIR}/${fc}/run_pipeline_prag.log"
 }
 
 for dir in ${WATCHDIRS[@]}; do
     for fc in $( ls ${dir} ); do
-        cd ${WORKDIR}/${fc}
         #
         # "RunName" in NovaSeq600's SampleSheet don't contain experiment name
         # (PRAG, Q1K,...) so better check Project Name in BaseSpace (with `bs`)
