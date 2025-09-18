@@ -4,6 +4,13 @@
 # USAGE: bash run_pipeline_emg.sh
 #        bash run_pipeline_emg.sh | tee -a /mnt/vs_nas_chusj/CQGC_PROD/fastqs/emg_watcher.log
 #
+# The following marker files are used to decide what to do for a given run:
+#   - ${WORKDIR}/${fc}/run_pipeline_emg.log
+#   - ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
+#   - ${BASEDIR}/${FC}/DemuxFailed.txt or "failed.txt" marks that sequencing has failed
+#   - ${BASEDIR}/${FC}/DemuxStarted.txt marks that bcl-convert is in progress
+#   - ${WORKDIR}/${FC}/SampleSheet.csv also marks that bcl-convert is in progress
+#   - ${BASEDIR}/${FC}/FastqComplete.txt marks end of BCL-conversion
 
 HISEQ_R='/mnt/spxp-app02/staging/hiseq_raw'
 BASEDIR='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs'
@@ -12,6 +19,7 @@ SOFTDIR="/staging2/soft/CQGC-utils"
 WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/LH00207R" "${HISEQ_R}/LH00336" "${HISEQ_R}/A00977" "${HISEQ_R}/LH00207R")
 LOGPREFIX="[emg-watcher]"
 LOGFILE="${WORKDIR}/emg_watcher.log"
+NAPTIME=900
 
 umask 002
 printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 #| tee -a ${LOGFILE}/
@@ -21,7 +29,8 @@ printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 #| 
 run_pipeline_emg() {
     local fc=$1
     local project=$2
-    echo "${LOGPREFIX} ${project} bash ${SOFTDIR}/Analysis.pipeline_illumina/run_pipeline_prag.sh ${fc} 2>&1 | tee ${WORKDIR}/${fc}/run_pipeline_prag.log"
+    log="${WORKDIR}/${fc}/run_pipeline_emg.log"
+    echo "${LOGPREFIX} ${project} bash ${SOFTDIR}/Analysis.pipeline_illumina/run_pipeline_prag.sh ${fc} 2>&1 | tee ${log}"
 }
 
 for dir in ${WATCHDIRS[@]}; do
