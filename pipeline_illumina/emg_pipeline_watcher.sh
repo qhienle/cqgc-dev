@@ -21,7 +21,6 @@ printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 #| 
 run_pipeline_emg() {
     local fc=$1
     local project=$2
-    cd ${WORKDIR}/${fc}
     echo "${LOGPREFIX} ${project} bash ${SOFTDIR}/Analysis.pipeline_illumina/run_pipeline_prag.sh ${fc} 2>&1 | tee ${WORKDIR}/${fc}/run_pipeline_prag.log"
 }
 
