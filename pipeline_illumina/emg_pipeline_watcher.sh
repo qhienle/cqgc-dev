@@ -30,6 +30,8 @@ run_pipeline_emg() {
     local fc=$1
     local project=$2
     log="${WORKDIR}/${fc}/run_pipeline_emg.log"
+    if [[ ! -d "${WORKDIR}/${fc}" ]]; then mkdir ${WORKDIR}/${fc}; fi
+    cd ${WORKDIR}/${fc}
     echo "${LOGPREFIX} ${project} bash ${SOFTDIR}/Analysis.pipeline_illumina/run_pipeline_prag.sh ${fc} 2>&1 | tee ${log}"
 }
 
@@ -42,18 +44,18 @@ for dir in ${WATCHDIRS[@]}; do
         xp=$( bs -c cac1 list runs --format csv | grep ${fc} | cut -d, -f3)
         if [[ ! -z ${xp} ]]; then
             if [[ -f "${WORKDIR}/${fc}/run_pipeline_emg.log" ]]; then
-                echo "${LOGPREFIX} PASS: Pipeline already processed or is running"
+                echo "${LOGPREFIX} PASS: Pipeline already processed or is running for ${fc} | ${xp}""
             elif [[ ! -z $( echo ${xp} | grep 'PRAG' ) ]]; then
-                echo "${LOGPREFIX} Launching pipeline for PRAG ${fc} | ${xp}"
+                echo "${LOGPREFIX} RUN: pipeline for PRAG ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'prag'
             elif [[ ! -z $( echo ${xp} | grep 'Q1K' ) ]]; then
-                echo "${LOGPREFIX} Launching pipeline for Q1K ${fc} | ${xp}"
+                echo "${LOGPREFIX} RUN: pipeline for Q1K ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'q1k'
             elif [[ ! -z $( echo ${xp} | grep 'AOH' ) ]]; then
-                echo "${LOGPREFIX} Launching pipeline for AOH ${fc} | ${xp}"
+                echo "${LOGPREFIX} RUN: pipeline for AOH ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'aoh'
             elif [[ ! -z $( echo ${xp} | grep 'C4R' ) ]]; then
-                echo "${LOGPREFIX} Launching pipeline for C4R ${fc} | ${xp}"
+                echo "${LOGPREFIX} RUN: pipeline for C4R ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'c4r'
             else
                 true # echo "${LOGPREFIX} Nothing to do for ${fc} (${xp})"
@@ -63,3 +65,4 @@ for dir in ${WATCHDIRS[@]}; do
         fi
     done
 done
+exit 0
