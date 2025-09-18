@@ -44,7 +44,7 @@ for dir in ${WATCHDIRS[@]}; do
         xp=$( bs -c cac1 list runs --format csv | grep ${fc} | cut -d, -f3)
         if [[ ! -z ${xp} ]]; then
             if [[ -f "${WORKDIR}/${fc}/run_pipeline_emg.log" ]]; then
-                echo "${LOGPREFIX} PASS: Pipeline already processed or is running for ${fc} | ${xp}""
+                echo "${LOGPREFIX} PASS: Pipeline already processed or is running for ${fc} | ${xp}"
             elif [[ ! -z $( echo ${xp} | grep 'PRAG' ) ]]; then
                 echo "${LOGPREFIX} RUN: pipeline for PRAG ${fc} | ${xp}"
                 run_pipeline_emg ${fc} 'prag'
