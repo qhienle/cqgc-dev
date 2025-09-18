@@ -10,9 +10,11 @@ BASEDIR='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs'
 WORKDIR='/mnt/vs_nas_chusj/CQGC_PROD/fastqs'
 SOFTDIR="/staging2/soft/CQGC-utils"
 WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/LH00207R" "${HISEQ_R}/LH00336" "${HISEQ_R}/A00977" "${HISEQ_R}/LH00207R")
-
 LOGPREFIX="[emg-watcher]"
 LOGFILE="${WORKDIR}/emg_watcher.log"
+
+umask 002
+printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 #| tee -a ${LOGFILE}/
 
 # Run the pipeline
 #
