@@ -4,13 +4,16 @@
 # USAGE: bash run_pipeline_emg.sh
 #        bash run_pipeline_emg.sh | tee -a /mnt/vs_nas_chusj/CQGC_PROD/fastqs/emg_watcher.log
 #
-# The following marker files are used to decide what to do for a given run:
-#   - ${WORKDIR}/${fc}/run_pipeline_emg.log
-#   - ${BASEDIR}/${FC}/CopyComplete.txt marks end of sequencing run
-#   - ${BASEDIR}/${FC}/DemuxFailed.txt or "failed.txt" marks that sequencing has failed
-#   - ${BASEDIR}/${FC}/DemuxStarted.txt marks that bcl-convert is in progress
-#   - ${WORKDIR}/${FC}/SampleSheet.csv also marks that bcl-convert is in progress
-#   - ${BASEDIR}/${FC}/FastqComplete.txt marks end of BCL-conversion
+# Logs for the process are written to these files:
+#   - ${WORKDIR}/${fc}/run_pipeline_emg.log : logs for the pipeline
+#   - ${WORKDIR}/emg_watcher.log            : logs for this watcher
+#
+# The following files mark the different steps of the pipeline:
+#   - ${BASEDIR}/${FC}/CopyComplete.txt  : end of sequencing run
+#   - ${BASEDIR}/${FC}/DemuxFailed.txt or "failed.txt" : sequencing has failed
+#   - ${BASEDIR}/${FC}/DemuxStarted.txt  : bcl-convert is in progress
+#   - ${WORKDIR}/${FC}/SampleSheet.csv   : bcl-convert is in progress
+#   - ${BASEDIR}/${FC}/FastqComplete.txt : of BCL-conversion
 
 HISEQ_R='/mnt/spxp-app02/staging/hiseq_raw'
 BASEDIR='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs'
@@ -32,7 +35,19 @@ run_pipeline_emg() {
     log="${WORKDIR}/${fc}/run_pipeline_emg.log"
     if [[ ! -d "${WORKDIR}/${fc}" ]]; then mkdir ${WORKDIR}/${fc}; fi
     cd ${WORKDIR}/${fc}
-    echo "${LOGPREFIX} ${project} bash ${SOFTDIR}/Analysis.pipeline_illumina/run_pipeline_prag.sh ${fc} 2>&1 | tee ${log}"
+    echo "Get list of samples for run ${fc}"
+    python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${fc}
+    echo "${LOGPREFIX} Waiting for sequencing and demux to finish"
+    # until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
+    #     sleep ${NAPTIME}
+    # done
+    # echo "${LOGPREFIX} Demux has completed"
+    # echo "Uploading samples to BaseSpace"
+    # ## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
+    # python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
+    # touch ${WORKDIR}/${FC}/UploadBsComplete.txt
+    # sleep ${NAPTIME}
+    # python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
 }
 
 for dir in ${WATCHDIRS[@]}; do
