@@ -183,6 +183,7 @@ def main(args):
                     #     logging.debug(f"args:\n{results.args}")
                     # else:
                         logging.info(f"Upload to BSSH complete for {row.biosample} (STDOUT):\n{results.stdout}")
+                        logging.info(f"`bs` Exit code: {results.returncode}")
 
 
 def tests(args):
