@@ -180,7 +180,6 @@ def main():
     #
     logging.info(f"Creating bar charts")
     workdir = os.path.dirname(args.file)
-    print(workdir)
     os.chdir(workdir)
     plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
     plot_seaborn_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
@@ -190,7 +189,7 @@ def main():
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
     for _, row in df_demux_stats.iterrows():
         data.append((row['SampleID'], row['# Reads']))
-    print(plot_ascii_bar(data, threshold=args.threshold) + "\n")
+    logging.info(plot_ascii_bar(data, threshold=args.threshold) + "\n")
 
     # Get the samples that have counts below the threshold value
     #
