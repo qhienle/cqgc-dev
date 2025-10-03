@@ -128,10 +128,11 @@ def main():
     os.chdir(workdir)
     plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']])
 
+    print(f"\nDistribution of the number of reads per sample\n\n")
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
-    for index, row in df_demux_stats.iterrows():
+    for _, row in df_demux_stats.iterrows():
         data.append((row['SampleID'], row['# Reads']))
-    print(plot_ascii_bar(data))
+    print(plot_ascii_bar(data) + "\n")
 
 if __name__ == '__main__':
     sys.exit(main())
