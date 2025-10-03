@@ -46,7 +46,7 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def plot_plotly_bar(df, threshold=600000000):
+def plot_plotly_bar(df, outfile='demux_reads_per_sample-bar.html', threshold=600000000):
     """
     Plot bar chart using Plotly as a PNG file
     - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
@@ -69,7 +69,7 @@ def plot_plotly_bar(df, threshold=600000000):
                   line=dict(color="dark grey", width=1, dash="dash"))
     fig.update_traces(marker_color=bar_colors)
     #fig.write_image('demux_reads_per_sample-bar.png')
-    plotly.offline.plot(fig, filename='demux_reads_per_sample-bar.html')
+    plotly.offline.plot(fig, filename=outfile)
     return 0
 
 
@@ -123,7 +123,11 @@ def main():
     df_demux_stats = df_demux_stats0.groupby('SampleID').sum('# Reads').reset_index()[['SampleID', '# Reads', '% Reads']]
     df_demux_stats['Mean % Perfect Index Reads'] = df_demux_stats0.groupby('SampleID').mean('% Perfect Index Reads').reset_index()['% Perfect Index Reads']
 
+    workdir = os.path.dirname(args.file)
+    print(workdir)
+    os.chdir(workdir)
     plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']])
+
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
     for index, row in df_demux_stats.iterrows():
         data.append((row['SampleID'], row['# Reads']))
