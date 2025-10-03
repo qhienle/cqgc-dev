@@ -73,6 +73,44 @@ def plot_plotly_bar(df, threshold=600000000):
     return 0
 
 
+def plot_ascii_bar(data):
+    """
+    Plot bar chart of `dataframe` using ASCII art.
+    Code and text  by Alex Chan from [Drawing ASCII bar charts]
+    (https://alexwlchan.net/2018/ascii-bar-charts/)
+    - `data` : List of tuples [('Labels', 'Counts'), ('Labels', 'Counts'),...]
+    - Returns: (str) ASCII art bar plot
+    """
+    bar_plot_str = ''
+    max_value = max(count for _, count in data)
+    increment = max_value / 25
+    longest_label_length = max(len(label) for label, _ in data)
+
+    for label, count in data:
+        # ASCII block elements are chunks of 8: work out how many fractions
+        # of 8 we need https://en.wikipedia.org/wiki/Block_Elements
+        #
+        bar_chunks, remainder = divmod(int(count * 8 / increment), 8)
+
+        # First draw the full width chunks
+        #
+        bar = '█' * bar_chunks
+
+        # Then add the fractional part. The Unicode code points for block 
+        # elements are 8/8, 7/8, 6/8, ... , so we need to work backwards.
+        #
+        if remainder > 0:
+            bar += chr(ord('█') + (8 - remainder))
+
+        # If the bar is empty, add a left one-eighth block
+        #
+        bar = bar or  '▏'
+
+        bar_plot_str += f"{label.rjust(longest_label_length)} ▏ {count:#4d} {bar}\n"
+        
+    return bar_plot_str
+
+
 def main():
     """
     Main function
@@ -86,6 +124,10 @@ def main():
     df_demux_stats['Mean % Perfect Index Reads'] = df_demux_stats0.groupby('SampleID').mean('% Perfect Index Reads').reset_index()['% Perfect Index Reads']
 
     plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']])
+    data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
+    for index, row in df_demux_stats.iterrows():
+        data.append((row['SampleID'], row['# Reads']))
+    print(plot_ascii_bar(data))
 
 if __name__ == '__main__':
     sys.exit(main())
