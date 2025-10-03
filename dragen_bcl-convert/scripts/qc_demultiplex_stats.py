@@ -75,7 +75,7 @@ def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
     return 0
 
 
-def plot_seaborn_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
+def plot_seaborn_bar(df, threshold, outfile='demux_reads_per_sample-bar.png'):
     """
     Plot bar chart as a PNG file using Seaborn.
     - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
@@ -84,6 +84,16 @@ def plot_seaborn_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
     - Returns: 0
     """
     df.columns = ['SampleID', '# Reads']
+    bar_colors = ['red' if val < 600_000_000 else 'orange' for val in df['# Reads']]
+    plt.figure(figsize=(14, 6))
+    sns.barplot(data=df, x='SampleID', y='# Reads', palette=bar_colors, edgecolor='navy', alpha=0.6)
+    plt.axhline(threshold, color='grey', linestyle='dashed', linewidth=1)
+    plt.title('Number of reads per SampleID', fontsize=16)
+    plt.xlabel('SampleID')
+    plt.ylabel('Number of Reads')
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.savefig(outfile)
     return 0
 
 
@@ -151,6 +161,8 @@ def main():
     print(workdir)
     os.chdir(workdir)
     plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
+    plot_seaborn_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
+
 
     logging.info(f"Distribution of the number of reads per sample\n")
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
