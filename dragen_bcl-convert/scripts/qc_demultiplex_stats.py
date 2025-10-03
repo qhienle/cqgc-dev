@@ -25,6 +25,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Quality Control of BCL-convert's Demultiplex_Stats")
     parser.add_argument('--file', '-f', nargs='?', default='Demultiplex_Stats.csv', 
                         help="Dragen BCL-convert demultiplexing report. Default='Demultiplex_Stats.csv'")
+    parser.add_argument('--threshold', '-t', default=600_000_000,
+                        help="Minimum threshold value for number of counts. Default='6000_000_000'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return parser.parse_args()
@@ -46,7 +48,7 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def plot_plotly_bar(df, outfile='demux_reads_per_sample-bar.html', threshold=600000000):
+def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
     """
     Plot bar chart using Plotly as a PNG file
     - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
@@ -117,22 +119,30 @@ def main():
     """
     args = parse_args()
     configure_logging(args.level)
+    logging.info(f"{__file__} {vars(args)}")
 
     df_demux_stats0 = pd.read_csv(args.file)
     df_demux_stats0['SampleID'] = df_demux_stats0['SampleID'].astype(str)
     df_demux_stats = df_demux_stats0.groupby('SampleID').sum('# Reads').reset_index()[['SampleID', '# Reads', '% Reads']]
     df_demux_stats['Mean % Perfect Index Reads'] = df_demux_stats0.groupby('SampleID').mean('% Perfect Index Reads').reset_index()['% Perfect Index Reads']
 
+    # Print bar charts of read counts per sample to an HTML file and STDOUT
+    # PNG output to PNG using Plotly has a dependency on Google Chrome!
+    # TODO: use Seaborn instead of plotly?
+    #
+    logging.info(f"Creating bar charts")
     workdir = os.path.dirname(args.file)
     print(workdir)
     os.chdir(workdir)
-    plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']])
+    plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
 
     print(f"\nDistribution of the number of reads per sample\n\n")
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
     for _, row in df_demux_stats.iterrows():
         data.append((row['SampleID'], row['# Reads']))
     print(plot_ascii_bar(data) + "\n")
+
+    # Get the samples that have counts below the threshold value
 
 if __name__ == '__main__':
     sys.exit(main())
