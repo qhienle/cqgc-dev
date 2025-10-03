@@ -35,6 +35,22 @@ def parse_args():
     return parser.parse_args()
 
 
+def configure_logging(level):
+    """
+    Set logging level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
+    """
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
+
+
 def get_expected_reads(df, seq_fractions=None):
     """
     Calulcate the number of expected reads, based on the total number of reads
@@ -55,22 +71,6 @@ def get_expected_reads(df, seq_fractions=None):
     df['Expected'] = total_reads * df['Fractions']
     df['Expected'] = df['Expected'].apply(int)
     return df
-
-
-def configure_logging(level):
-    """
-    Set logging level, based on the level names of the `logging` module.
-    - level (str): 'debug', 'info' or 'warning'
-    """
-    if level == 'debug':
-        level_name = logging.DEBUG
-    elif level == 'info':
-        level_name = logging.INFO
-    else:
-        level_name = logging.WARNING
-    logging.basicConfig(level=level_name, 
-                        format='[%(asctime)s] %(levelname)s: %(message)s', 
-                        datefmt='%Y-%m-%d@%H:%M:%S')
 
 
 def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
