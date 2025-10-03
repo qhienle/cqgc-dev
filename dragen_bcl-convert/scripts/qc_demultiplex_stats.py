@@ -136,13 +136,17 @@ def main():
     os.chdir(workdir)
     plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
 
-    print(f"\nDistribution of the number of reads per sample\n\n")
+    logging.info(f"\nDistribution of the number of reads per sample\n\n")
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
     for _, row in df_demux_stats.iterrows():
         data.append((row['SampleID'], row['# Reads']))
     print(plot_ascii_bar(data) + "\n")
 
     # Get the samples that have counts below the threshold value
+    #
+    logging.info(f"Samples below the threshold value of {args.threshold} reads")
+    logging.info(df_demux_stats[df_demux_stats['# Reads'] < args.threshold])
+
 
 if __name__ == '__main__':
     sys.exit(main())
