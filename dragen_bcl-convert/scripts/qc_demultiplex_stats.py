@@ -75,20 +75,22 @@ def configure_logging(level):
 
 def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
     """
-    Plot bar chart as a PNG file using Plotly
+    Plot bar chart as a HTML file using Plotly
     - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
     - `threshold`: value to mark as threshold. Default=600,000,000
     - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.html'
-    - Returns: 0
+    - Returns: 0 (and a HTML file)
     """
     df.columns = ['SampleID', '# Reads']
-    fig = go.Figure([go.Bar(x=df['SampleID'], y=df['# Reads'])])
+    df = get_expected_reads(df)
+    observed = go.Bar(x=df['SampleID'], y=df['# Reads'], name='Observed',
+                      marker_color=['red' if val < threshold else 'orange' for val in df['# Reads']])
+    expected = go.Bar(x=df['SampleID'], y=df['Expected'], name='Expected', marker_color='grey')
+    fig = go.Figure([observed, expected])
     fig.update_layout(title={'text': 'Number of reads per SampleID', 'x': 0.5, 'xanchor': 'center'},
                       xaxis_title='SampleID',
                       yaxis_title='Number of Reads')
-    bar_colors = ['red' if val < threshold else 'orange' for val in df['# Reads']]
-    fig.update_traces(marker_color=bar_colors, 
-                      marker_line_color='rgb(8,48,107)',
+    fig.update_traces(marker_line_color='rgb(8,48,107)',
                       marker_line_width=1.5,
                       opacity=0.6)
     fig.add_hline(y=threshold, line=dict(color="dark grey", width=1, dash="dash"))
