@@ -65,12 +65,8 @@ def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
                       marker_line_color='rgb(8,48,107)',
                       marker_line_width=1.5,
                       opacity=0.6)
-    fig.add_shape(type="line",
-                  x0=0, x1=1, xref='paper',
-                  y0=threshold, y1=threshold, yref='y',
-                  line=dict(color="dark grey", width=1, dash="dash"))
-    fig.update_traces(marker_color=bar_colors)
-    #fig.write_image('demux_reads_per_sample-bar.png')
+    fig.add_hline(y=threshold, line=dict(color="dark grey", width=1, dash="dash"))
+    # fig.write_image('demux_reads_per_sample-bar.png') # requires kaleido which depends on Google Chrome
     plotly.offline.plot(fig, filename=outfile)
     return 0
 
@@ -136,7 +132,7 @@ def main():
     os.chdir(workdir)
     plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
 
-    logging.info(f"\nDistribution of the number of reads per sample\n\n")
+    logging.info(f"Distribution of the number of reads per sample\n")
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
     for _, row in df_demux_stats.iterrows():
         data.append((row['SampleID'], row['# Reads']))
