@@ -14,6 +14,9 @@ import logging
 import pandas as pd
 import plotly
 import plotly.graph_objects as go
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 
 __version__ = "0.1"
 
@@ -50,9 +53,10 @@ def configure_logging(level):
 
 def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
     """
-    Plot bar chart using Plotly as a PNG file
+    Plot bar chart as a PNG file using Plotly
     - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
     - `threshold`: value to mark as threshold. Default=600,000,000
+    - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.html'
     - Returns: 0
     """
     df.columns = ['SampleID', '# Reads']
@@ -71,7 +75,19 @@ def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
     return 0
 
 
-def plot_ascii_bar(data):
+def plot_seaborn_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
+    """
+    Plot bar chart as a PNG file using Seaborn.
+    - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
+    - `threshold`: value to mark as threshold. Default=600,000,000
+    - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.png'
+    - Returns: 0
+    """
+    df.columns = ['SampleID', '# Reads']
+    return 0
+
+
+def plot_ascii_bar(data, threshold):
     """
     Plot bar chart of `dataframe` using ASCII art.
     Code and text  by Alex Chan from [Drawing ASCII bar charts]
@@ -79,6 +95,8 @@ def plot_ascii_bar(data):
     - `data` : List of tuples [('Labels', 'Counts'), ('Labels', 'Counts'),...]
     - Returns: (str) ASCII art bar plot
     """
+    RED   = "\033[31m"
+    RESET = "\033[0m"
     bar_plot_str = ''
     max_value = max(count for _, count in data)
     increment = max_value / 25
@@ -103,9 +121,11 @@ def plot_ascii_bar(data):
         # If the bar is empty, add a left one-eighth block
         #
         bar = bar or  '▏'
+        if count < threshold:
+            bar_plot_str += f"{RED}{label.rjust(longest_label_length)} ▏ {count:#4d} {bar}{RESET}\n"
+        else:
+            bar_plot_str += f"{label.rjust(longest_label_length)} ▏ {count:#4d} {bar}\n"
 
-        bar_plot_str += f"{label.rjust(longest_label_length)} ▏ {count:#4d} {bar}\n"
-        
     return bar_plot_str
 
 
@@ -136,7 +156,7 @@ def main():
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
     for _, row in df_demux_stats.iterrows():
         data.append((row['SampleID'], row['# Reads']))
-    print(plot_ascii_bar(data) + "\n")
+    print(plot_ascii_bar(data, threshold=args.threshold) + "\n")
 
     # Get the samples that have counts below the threshold value
     #
