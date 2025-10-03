@@ -35,6 +35,28 @@ def parse_args():
     return parser.parse_args()
 
 
+def get_expected_reads(df, seq_fractions=None):
+    """
+    Calulcate the number of expected reads, based on the total number of reads
+    and the sequencing fractions, if available. If sequencing fraction is None
+    equal distribution amongst samples is assumed.
+    - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
+    - `seq_fractions`: Sequencing fractions (from SamplePools)
+    - return: Pandas df ['SampleID', '# Reads', 'Fractions', 'Expected']
+    """
+    df.columns = ['SampleID', '# Reads']
+    total_samples = len(df['SampleID'])
+    total_reads   = df['# Reads'].sum()
+    if seq_fractions is None:
+        # Assume equal distribution of reads amongst all samples
+        df['Fractions'] = 1 / total_samples
+    else:
+        pass # TODO: Get df['Fraction'] from external source (the lab)
+    df['Expected'] = total_reads * df['Fractions']
+    df['Expected'] = df['Expected'].apply(int)
+    return df
+
+
 def configure_logging(level):
     """
     Set logging level, based on the level names of the `logging` module.
