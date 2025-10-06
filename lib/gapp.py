@@ -102,6 +102,35 @@ class REDCap:
         self.server = configs.redcap_server
         self.token  = configs.redcap_token
 
+
+    def switch_dag(self, dag='hsj'):
+        """
+        Switch between Data Access Groups (DAG) to which we have permssions
+        TODO: Debug. Currently, swtching DAG doesn't work.
+        - `dag`: [str] Available Data Access Groups: 'hsj' (default), 'nim_to_hsj'
+        - returns: 0
+        """
+        data = {
+            'token': self.token,
+            'content': 'dag',
+            'action': 'switch',
+            'dag': 'HSJ'
+        }
+        response = requests.post(self.server, data=data)
+        if response.status_code == 200:
+            if 'ERROR' in response.text:
+                logging.error(response.text)
+                return 1
+            else:
+                logging.info(f"Switched to Data Access Group {dag}")
+                logging.debug(response.text)
+                return 0
+        else:
+            logging.error('HTTP Status: ' + str(response.status_code))
+            logging.debug(response.text)
+            return 1
+
+
     def get_record_id(self, q1k_id):
         """
         Get REDCap record_id for patient by `q1k_id`.
