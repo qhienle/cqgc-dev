@@ -51,63 +51,70 @@ def configure_logging(level):
                         datefmt='%Y-%m-%d@%H:%M:%S')
 
 
-def get_expected_reads(df, seq_fractions=None):
+def add_expected_reads(df, seq_fractions=None):
     """
-    Calulcate the number of expected reads, based on the total number of reads
-    and the sequencing fractions, if available. If sequencing fraction is None
-    equal distribution amongst samples is assumed.
-    - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
+    Calulcate the number of expected reads based on the total number of reads
+    and the sequencing fractions, and add as a new column to df. If sequencing 
+    fraction is None equal distribution amongst samples is assumed.
+    - `df`: 'Demultiplex_Stats.csv' as a Pandas DataFrame
     - `seq_fractions`: Sequencing fractions (from SamplePools)
-    - return: Pandas df ['SampleID', '# Reads', 'Fractions', 'Expected']
+    - return: `df` grouped by 'SampleID', with additional columns ['# Lanes', 'Fractions', 'Expected']
     """
-    df.columns = ['SampleID', '# Reads']
-    total_samples = len(df['SampleID'])
-    total_reads   = df['# Reads'].sum()
+    total_rows  = len(df)
+    total_reads = df['# Reads'].sum()
     if seq_fractions is None:
-        # Assume equal distribution of reads amongst all samples
-        df['Fractions'] = 1 / total_samples
+        # Assume equal distribution of reads amongst each sample across
+        # all sequencing lanes on which the sample is present
+        # 
+        df['# Lanes']   = 1
+        df['Fractions'] = 1 / total_rows
+        df['Expected']  = total_reads * df['Fractions']
+        df_group = df.groupby('SampleID').sum(['# Reads', '% Reads', '# Lanes', 'Fractions']).reset_index()
+        df_group['Mean % Perfect Index Reads']  = df['% Perfect Index Reads'] / df['# Lanes']
     else:
         pass # TODO: Get df['Fraction'] from external source (the lab)
-    df['Expected'] = total_reads * df['Fractions']
-    df['Expected'] = df['Expected'].apply(int)
-    return df
+    return df_group[['SampleID', 'Expected', '# Reads', 'Mean % Perfect Index Reads', '# Lanes', 'Fractions']]
 
 
 def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
     """
     Plot bar chart as a HTML file using Plotly
-    - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
+    - `df`: Pandas DataFrame with columns ['SampleID', 'Expected', '# Reads']
     - `threshold`: value to mark as threshold. Default=600,000,000
     - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.html'
-    - Returns: 0 (and a HTML file)
+    - Returns: 0
     """
-    df.columns = ['SampleID', '# Reads']
-    df = get_expected_reads(df)
-    observed = go.Bar(x=df['SampleID'], y=df['# Reads'], name='Observed',
-                      marker_color=['red' if val < threshold else 'orange' for val in df['# Reads']])
-    expected = go.Bar(x=df['SampleID'], y=df['Expected'], name='Expected', marker_color='grey')
-    fig = go.Figure([observed, expected])
-    fig.update_layout(title={'text': 'Number of reads per SampleID', 'x': 0.5, 'xanchor': 'center'},
-                      xaxis_title='SampleID',
-                      yaxis_title='Number of Reads')
-    fig.update_traces(marker_line_color='rgb(8,48,107)',
-                      marker_line_width=1.5,
-                      opacity=0.6)
-    fig.add_hline(y=threshold, line=dict(color="dark grey", width=1, dash="dash"))
-    # fig.write_image('demux_reads_per_sample-bar.png') # requires kaleido which depends on Google Chrome
-    plotly.offline.plot(fig, filename=outfile)
-    return 0
+    try:
+        df[['SampleID', 'Expected', '# Reads']]
+    except KeyError as e:
+        logging.error(f"Required columns not found: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+    else:
+        observed = go.Bar(x=df['SampleID'], y=df['# Reads'], name='Observed',
+                        marker_color=['red' if val < threshold else 'orange' for val in df['# Reads']])
+        expected = go.Bar(x=df['SampleID'], y=df['Expected'], name='Expected', marker_color='grey')
+        fig = go.Figure([observed, expected])
+        fig.update_layout(title={'text': 'Number of reads per SampleID', 'x': 0.5, 'xanchor': 'center'},
+                        xaxis_title='SampleID',
+                        yaxis_title='Number of Reads')
+        fig.update_traces(marker_line_color='rgb(8,48,107)',
+                        marker_line_width=1.5,
+                        opacity=0.6)
+        fig.add_hline(y=threshold, line=dict(color="red", width=1, dash="dashdot"))
+        # fig.write_image('demux_reads_per_sample-bar.png') # requires kaleido which depends on Google Chrome
+        plotly.offline.plot(fig, filename=outfile)
+        return 0
 
 
 def plot_seaborn_bar(df, threshold, outfile='demux_reads_per_sample-bar.png'):
     """
     Plot bar chart as a PNG file using Seaborn.
-    - `df`: Two-column Pandas DataFrame ['SampleID', '# Reads']
+    - `df`: Pandas DataFrame with columns ['SampleID', 'Expected', '# Reads']
     - `threshold`: value to mark as threshold. Default=600,000,000
     - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.png'
     - Returns: 0
     """
-    df.columns = ['SampleID', '# Reads']
     bar_colors = ['red' if val < 600_000_000 else 'orange' for val in df['# Reads']]
     plt.figure(figsize=(14, 6))
     sns.barplot(data=df, x='SampleID', y='# Reads', palette=bar_colors, edgecolor='navy', alpha=0.6)
@@ -173,8 +180,8 @@ def main():
 
     df_demux_stats0 = pd.read_csv(args.file)
     df_demux_stats0['SampleID'] = df_demux_stats0['SampleID'].astype(str)
-    df_demux_stats = df_demux_stats0.groupby('SampleID').sum('# Reads').reset_index()[['SampleID', '# Reads', '% Reads']]
-    df_demux_stats['Mean % Perfect Index Reads'] = df_demux_stats0.groupby('SampleID').mean('% Perfect Index Reads').reset_index()['% Perfect Index Reads']
+    df_demux_stats = add_expected_reads(df_demux_stats0)
+    logging.debug(df_demux_stats)
 
     # Print bar charts of read counts per sample to an HTML file and STDOUT
     # PNG output to PNG using Plotly has a dependency on Google Chrome!
@@ -183,15 +190,15 @@ def main():
     logging.info(f"Creating bar charts")
     workdir = os.path.dirname(args.file)
     os.chdir(workdir)
-    plot_plotly_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
-    plot_seaborn_bar(df_demux_stats[['SampleID', '# Reads']], threshold=args.threshold)
+    plot_plotly_bar(df_demux_stats, threshold=args.threshold)
+    plot_seaborn_bar(df_demux_stats, threshold=args.threshold)
 
 
     logging.info(f"Distribution of the number of reads per sample\n")
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
     for _, row in df_demux_stats.iterrows():
         data.append((row['SampleID'], row['# Reads']))
-    logging.info(plot_ascii_bar(data, threshold=args.threshold) + "\n")
+    logging.info("\n" + plot_ascii_bar(data, threshold=args.threshold) + "\n")
 
     # Get the samples that have counts below the threshold value
     #
