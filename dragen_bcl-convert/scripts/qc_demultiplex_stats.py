@@ -104,7 +104,61 @@ def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
         fig.add_hline(y=threshold, line=dict(color="red", width=1, dash="dashdot"))
         # fig.write_image('demux_reads_per_sample-bar.png') # requires kaleido which depends on Google Chrome
         plotly.offline.plot(fig, filename=outfile)
-        return 0
+        return fig
+
+
+def plot_plotly_box(df, threshold, outfile='demux_reads_per_sample-bar.html'):
+    """
+    Plot bar chart as a HTML file using Plotly
+    - `df`: Pandas DataFrame with columns ['SampleID', 'Expected', '# Reads']
+    - `threshold`: value to mark as threshold. Default=600,000,000
+    - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.html'
+    - Returns: 0
+    """
+    try:
+        df[['SampleID', 'Expected', '# Reads']]
+    except KeyError as e:
+        logging.error(f"Required columns not found: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+    else:
+        box = go.Box(y=df['# Reads'], name='Number of reads', 
+                    boxmean='sd', boxpoints='all', jitter=0.2)
+        fig = go.Figure([box])
+        fig.update_layout(title={'text': 'Number of reads per SampleID', 'x': 0.5, 'xanchor': 'center'}, 
+                          yaxis_title='Number of Reads')
+        fig.update_traces(marker_color='orange', 
+                          marker_line_color='rgb(8,48,107)', 
+                          marker_line_width=1.5,
+                          opacity=0.6)
+        fig.add_hline(y=threshold, line=dict(color="red", width=1, dash="dashdot"))
+        return fig
+
+
+def write_html_report(df, fc_short):
+    """
+    Write HTML report from data in `df`.
+    - `df`: Pandas DataFrame.
+    - Returns: HTML file.
+    """
+    css = """
+            html body {
+                background: #f8f9f9;
+                font-size: 11px;
+            }
+    """
+    out_html = f"demux_stats.html"
+    title    = f"Demultiplex Stats"
+
+    with open(out_html, 'w') as fh:
+        fh.write('<!doctype html>\n<html>\n\t<head>\n')
+        fh.write(f'\t\t<title>{title}</title>\n\t\t<meta charset="UTF-8">\n')
+        fh.write(f'\t\t<style type="text/css">{css}\t\t</style>\n')
+        fh.write('\t</head>\n\t<body>\n')
+        fh.write(f'\t\t<h1>Foo</h1>\n\t\t')
+        fh.write(df.to_html(index=False))
+        #fh.write(fig1.to_html(full_html=False, include_plotlyjs='cdn'))
+        fh.write('\n\t</body>\n</html>')
 
 
 def plot_seaborn_bar(df, threshold, outfile='demux_reads_per_sample-bar.png'):
@@ -190,9 +244,9 @@ def main():
     logging.info(f"Creating bar charts")
     workdir = os.path.dirname(args.file)
     os.chdir(workdir)
-    plot_plotly_bar(df_demux_stats, threshold=args.threshold)
     plot_seaborn_bar(df_demux_stats, threshold=args.threshold)
-
+    fig_bar = plot_plotly_bar(df_demux_stats, threshold=args.threshold)
+    fig_box = plot_plotly_box(df_demux_stats, threshold=args.threshold)
 
     logging.info(f"Distribution of the number of reads per sample\n")
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
