@@ -147,16 +147,15 @@ def write_html_report(df, fc_short):
                 font-size: 11px;
             }
     """
-    out_html = f"demux_stats.html"
-    title    = f"Demultiplex Stats"
+    out_html = f"demux_report.html"
+    title    = f"Demultiplex Report"
 
     with open(out_html, 'w') as fh:
         fh.write('<!doctype html>\n<html>\n\t<head>\n')
         fh.write(f'\t\t<title>{title}</title>\n\t\t<meta charset="UTF-8">\n')
         fh.write(f'\t\t<style type="text/css">{css}\t\t</style>\n')
         fh.write('\t</head>\n\t<body>\n')
-        fh.write(f'\t\t<h1>Foo</h1>\n\t\t')
-        fh.write(df.to_html(index=False))
+        fh.write(f'\t\t<h1>{title}</h1>\n\t\t')
         #fh.write(fig1.to_html(full_html=False, include_plotlyjs='cdn'))
         fh.write('\n\t</body>\n</html>')
 
