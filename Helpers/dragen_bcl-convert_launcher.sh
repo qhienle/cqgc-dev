@@ -89,6 +89,8 @@ if [[ -f ${samplesheet} ]]; then
         cp ${OUTDIR}/Logs/FastqComplete.txt ${BASEDIR}/${FC}
         mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
         mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
+        echo "Gathering demultiplexing statstics for QC..."
+        python /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${OUTDIR}/Reports/Demultiplex_Stats.csv
     else
         mark_failed "ERROR: Something went wrong! DRAGEN exit code not equal to zero."
     fi
