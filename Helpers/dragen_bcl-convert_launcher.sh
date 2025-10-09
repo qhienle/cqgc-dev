@@ -90,6 +90,7 @@ if [[ -f ${samplesheet} ]]; then
         mv ${OUTDIR}/streaming_log_${USER}.csv ${OUTDIR}/Logs/
         mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
         echo "Gathering demultiplexing statstics for QC..."
+        bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh
         python /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${OUTDIR}/Reports/Demultiplex_Stats.csv
     else
         mark_failed "ERROR: Something went wrong! DRAGEN exit code not equal to zero."
