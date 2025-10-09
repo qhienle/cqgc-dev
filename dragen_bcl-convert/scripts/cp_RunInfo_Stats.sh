@@ -10,7 +10,7 @@
 if [[ $(hostname) != 'spxp-app02.sainte-justine.intranet' ]]; then
     printf "Please use this script on spxp-app02.sainte-justine.intranet\n"
     exit
-elif [[ -z ${FC} && -z ${BASEDIR} && -z ${PI} ]]; then
+elif [[ -z ${FC} && -z ${BASEDIR} ]]; then
     printf "Please set values for \$FLOWCELL and \$BASEDIR.\n"
     exit
 fi
@@ -34,9 +34,9 @@ for f in \
     ${WORKDIR}/${FC}/1.fastq/Logs* \
     ${WORKDIR}/${FC}/1.fastq/Reports*
 do
-    rsync -a --progress ${f} /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${PI}/${FC}/
+    rsync -a --progress ${f} /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${FC}/
 done
-chmod 777 -R /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${PI}/${FC}
+chmod 777 -R /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${FC}
 printf "\nCopied dragen bcl-convert stats...\n"
 
 printf "\nCopier-coller le message suivant dans un courriel et envoyer au labo."
@@ -44,11 +44,20 @@ printf "\nMettre en p.j. le fichier 'Reports.xlsx' généré par 'assemble_repor
 echo "
 From: Quang-Hien Le (HSJ)
 To: Charles Prive (HSJ) <charles.prive.hsj@ssss.gouv.qc.ca>; Elodie Hip-Ki (HSJ) <elodie.hip-ki.hsj@ssss.gouv.qc.ca>; Sandra Laurent (HSJ) <sandra.laurent.hsj@ssss.gouv.qc.ca>; Ariane Page-Sabourin (HSJ) <ariane.page-sabourin.hsj@ssss.gouv.qc.ca>; Alexandre Dionne-Laporte (HSJ) <alexandre.dionne-laporte.hsj@ssss.gouv.qc.ca>; Maripier Hainse (HSJ) <maripier.hainse.hsj@ssss.gouv.qc.ca>; Rene Allard GQ (HSJ) <rene.allard.hsj@ssss.gouv.qc.ca>
-Subject: [${PI}] Stats de la FC ${FC}
+Subject: [${FC}] Métriques demux
 
 Bonjour,
 
-Voici les stats de déconvolution-conversion de la FC ${FC} :
+Voici les statistiques de déconvolution-conversion de la FC ${FC} :
 
 Cordialement,
 "
+
+# HISTORY
+#
+# [2025-10-09] 
+#
+# Do not archive demux data under sub-folder ${PI} anymore. Save data to:
+# /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${FC}/
+# Instead of:
+# /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${PI}/${FC}/
