@@ -56,14 +56,14 @@ launch_run() {
     # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
     qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
     touch ${dir}/${fc}/DemuxStarted.txt
-    echo "Waiting for Demux to finish"
+    echo "Waiting for Demux to finish" >>qsub_out.txt 2>&1
     until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
-        printf '.'
+        printf '.' >>qsub_out.txt 2>&1
         sleep 900 # 15 minutes
     done
-    echo "Demux has completed. Gathering demultiplexing statstics for QC..."
-    bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc}
-    python /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/Reports/Demultiplex_Stats.csv
+    echo "Demux has completed. Gathering demultiplexing statstics for QC..." >>qsub_out.txt 2>&1
+    bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc} >>qsub_out.txt 2>&1
+    python /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/Reports/Demultiplex_Stats.csv >>qsub_out.txt 2>&1
 }
 
 for dir in ${WATCHDIRS[@]}; do
