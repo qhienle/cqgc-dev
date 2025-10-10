@@ -62,7 +62,7 @@ launch_run() {
         sleep 900 # 15 minutes
     done
     echo "Demux has completed. Gathering demultiplexing statstics for QC..."
-    bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${BASEDIR} ${WORKDIR} ${fc}
+    bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc}
     python /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/Reports/Demultiplex_Stats.csv
 }
 
