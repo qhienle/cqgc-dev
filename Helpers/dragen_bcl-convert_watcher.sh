@@ -40,7 +40,7 @@ umask 002
 printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 #| tee -a ${LOGFILE}/
 
 launch_run() {
-    # Run dragen_bcl-convert_launcher.sh
+    # Run dragen_bcl-convert_launcher.sh and gather Demultiplex_Stats whn done
     # FastqComplete.txt is copied to ${BASEDIR} by dragen_bcl-convert_launcher.sh
     # and marks the run as done.
     local dir="$1"
@@ -57,6 +57,14 @@ launch_run() {
     # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
     qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh ${fc}
     touch ${dir}/${fc}/DemuxStarted.txt
+    echo "Waiting for Demux to finish"
+    until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
+        printf '.'
+        sleep 900 # 15 minutes
+    done
+    echo "Demux has completed. Gathering demultiplexing statstics for QC..."
+    bash /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh
+    python /staging2/soft/CQGC-utils/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${OUTDIR}/Reports/Demultiplex_Stats.csv
 }
 
 for dir in ${WATCHDIRS[@]}; do
