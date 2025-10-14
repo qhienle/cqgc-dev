@@ -58,7 +58,7 @@ launch_run() {
     qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" ${softdir}/Helpers/dragen_bcl-convert_launcher.sh ${fc}
     touch ${dir}/${fc}/DemuxStarted.txt
     echo "Waiting for Demux to finish" >>qsub_out.txt 2>&1
-    until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
+    until [ -f "${BASEDIR}/${fc}/FastqComplete.txt" ]; do
         printf '.' >>qsub_out.txt 2>&1
         sleep 900 # 15 minutes
     done
