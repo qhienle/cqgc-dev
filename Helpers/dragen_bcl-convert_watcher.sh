@@ -96,11 +96,11 @@ for dir in ${WATCHDIRS[@]}; do
                             # TODO: Delete Run (if for TSO500)?
                         else
                             echo "${LOGPREFIX} ${fc} LAUNCH: SampleSheet found, not for LowPass or Cloud_Workflow."
-                            launch_run ${dir} ${fc}
+                            launch_run ${dir} ${fc} &
                         fi
                     else
                         echo "${LOGPREFIX} ${fc} LAUNCH: Could not find ${dir}/${fc}/SampleSheet.csv."
-                        launch_run ${dir} ${fc}
+                        launch_run ${dir} ${fc} &
                     fi
                 fi
             else
