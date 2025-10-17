@@ -45,6 +45,12 @@ launch_run() {
     local dir="$1"
     local fc="$2"
     local softdir="/mnt/spxp-app02/staging2/soft/CQGC-utils"
+    
+    # Setting up environments for qsub and conda
+    . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
+    source "$(conda info --base)/etc/profile.d/conda.sh"
+    conda activate CQGC-utils
+
     mkdir ${WORKDIR}/${fc}
     cd ${WORKDIR}/${fc}
     if [[ ! -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
@@ -53,7 +59,6 @@ launch_run() {
         dos2unix ${WORKDIR}/${FC}/Sample*
     fi
     echo "${LOGPREFIX} ${fc} RUN: Launching BCL-convert with qsub..."
-    . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
     # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
     qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" ${softdir}/Helpers/dragen_bcl-convert_launcher.sh ${fc}
     touch ${dir}/${fc}/DemuxStarted.txt
@@ -65,6 +70,7 @@ launch_run() {
     echo -e "\nDemux has completed. Gathering demultiplexing statstics for QC..." >>qsub_out.txt 2>&1
     bash ${softdir}/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc} >>qsub_out.txt 2>&1
     python ${softdir}/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/Reports/Demultiplex_Stats.csv >>qsub_out.txt 2>&1
+    conda deactivate
 }
 
 for dir in ${WATCHDIRS[@]}; do
