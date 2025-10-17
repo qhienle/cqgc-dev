@@ -69,7 +69,7 @@ launch_run() {
     done
     echo -e "\nDemux has completed. Gathering demultiplexing statstics for QC..." >>qsub_out.txt 2>&1
     bash ${softdir}/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc} >>qsub_out.txt 2>&1
-    python ${softdir}/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/Reports/Demultiplex_Stats.csv >>qsub_out.txt 2>&1
+    python ${softdir}/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/1.fastq/Reports/Demultiplex_Stats.csv >>qsub_out.txt 2>&1
     conda deactivate
 }
 
