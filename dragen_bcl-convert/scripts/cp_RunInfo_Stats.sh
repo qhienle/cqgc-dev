@@ -20,7 +20,7 @@ elif [[ -z ${FC} && -z ${BASEDIR} && -z ${WORKDIR} ]]; then
 fi
 
 # cpRunInfoParameters.sh créé par cp_RunInfoParameters.pl:
-rsync -uva --progress \
+rsync -uva \
     --exclude Data \
     --exclude Thumbnail_Images \
     --exclude Logs \
@@ -38,7 +38,7 @@ for f in \
     ${WORKDIR}/${FC}/1.fastq/Logs* \
     ${WORKDIR}/${FC}/1.fastq/Reports*
 do
-    rsync -a --progress ${f} /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${FC}/
+    rsync -a ${f} /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${FC}/
 done
 chmod 777 -R /staging/bioinformatics/databases/flowcell_managment/_Illumina_HiSeq/_bcl2fastq_pbs_csv_stats/${FC}
 printf "\nCopied dragen bcl-convert stats...\n"
