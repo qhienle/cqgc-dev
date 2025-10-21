@@ -409,7 +409,7 @@ def main(args):
     print("Please login to narval.calculquebec.ca and run the following command:")
     print("\nssh narval.calculquebec.ca")
     print(f"cd /home/hien/projects/ctb-rallard/COMMUN/PRAGMatIQ-EMG/")
-    print(f"bash archive_PRAGMatIQ.sh ${samples}\n")
+    print(f"bash archive_PRAGMatIQ.sh {samples}\n")
 
 
 def tests():
