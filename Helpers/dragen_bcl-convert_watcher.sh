@@ -147,9 +147,42 @@ exit 0
 #                                               |
 #                                               v
 #                                           launch_run():
-#                                           CopyComplete.txt ? --N--> PASS
-#                                               |
-#                                               Y
-#                                               |
-#                                               v
-#                                 qsub dragen_bcl-convert_launcher.sh ${fc}
+#                                           SampleShet.csv ? --N--> get_nanuq_files.py
+#                                               |                         |
+#                                               Y                         |
+#                                               |                         |
+#                                               V                         V
+#                                           qsub dragen_bcl-convert_launcher.sh ${fc}
+#                                                            |
+#                                                            V
+#                                                    cp_RunInfo_Stats.sh
+#                                                            |
+#                                                            V
+#                                                  qc_demultiplex_stats.py
+
+# ```mermaid
+# flowchart TD
+#     A{CopyComplete.txt ?} -->|No| B(fa:fa-ban Pass)
+#     A -->|Yes| C{FastqComplete.txt ?}
+#     C -->|No| B
+#     C -->|Yes| D{Failed.txt ?}
+#     D -->|Yes| B
+#     D -->|No| E{DemuxStarted.txt}
+#     E --> |Yes| B
+#     E --> |No| F{LowPass.csv}
+#     F --> |Yes| B
+#     F --> |No| G{SampleSheet.csv ?}
+#     G --> |Yes| H{grep LowPass SampleSheet.csv}
+#     G --> |No| I{launch_run: SampleSheet.csv ?}
+#     H --> |Match| B
+#     H --> |No Match| J{grep CloudWorkflow SampleSheet.csv}
+#     I --> |No| K(get_nanuq_files.py)
+#     I --> |Yes| L(qsub dragen_bcl-convert_launcher.sh $fc)
+#     J --> |Match| B
+#     J --> |No Match| I
+#     K --> L
+#     L --> M(cp_RunInfo_Stats.sh)
+#     M --> N(qc_demultiplex_stats.py)
+#     Z[fa:fa-car Car]
+# ```
+
