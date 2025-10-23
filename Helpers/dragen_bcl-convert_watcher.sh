@@ -118,68 +118,66 @@ exit 0
 # CopyComplete.txt ? --Y--> FastqComplete.txt ? --Y--> PASS
 #       |                         |
 #       N                         N
-#       |                         |
 #       V                         V
 #      PASS                 Failed.txt ? ---------Y--> PASS
 #                                 |
 #                                 N
-#                                 |
 #                                 V
 #                         DemuxStarted.txt ? -----Y--> PASS
 #                                 |
 #                                 N
-#                                 |
 #                                 V
 #                           LowPass.csv ? --------Y--> PASS
 #                                 |
 #                                 N
-#                                 |
 #                                 V
 #                          SampleSheet.csv ? -----Y--> grep LowPass SampleSheet.csv ? ---------Y--> PASS
 #                                 |                          |
-#                                 |                    grep Cloud_Workflow SampleSheet.csv ? --Y--> PASS
-#                                 |                          |
 #                                 N                          N
+#                                 V                          V
+#                          get_nanuq_files.py          grep Cloud_Workflow SampleSheet.csv ? --Y--> PASS
+#                                 |                          |
+#                                 |                          N
 #                                 |__________________________|
-#                                               |
-#                                               v
-#                                           launch_run():
-#                                           SampleShet.csv ? --N--> get_nanuq_files.py
-#                                               |                         |
-#                                               Y                         |
-#                                               |                         |
-#                                               V                         V
-#                                           qsub dragen_bcl-convert_launcher.sh ${fc}
-#                                                            |
-#                                                            V
-#                                                    cp_RunInfo_Stats.sh
-#                                                            |
-#                                                            V
-#                                                  qc_demultiplex_stats.py
+#                                               V
+#                                           launch_run(): qsub dragen_bcl-convert_launcher.sh ${fc}
+#                                                                  V
+#                                                         cp_RunInfo_Stats.sh
+#                                                                  V
+#                                                         qc_demultiplex_stats.py
 
 # ```mermaid
+# ---
+# config:
+#   theme: mc
+#   look: classic
+#   layout: dagre
+# ---
 # flowchart TD
-#     A{CopyComplete.txt ?} -->|No| B(fa:fa-ban Pass)
-#     A -->|Yes| C{FastqComplete.txt ?}
-#     C -->|No| B
-#     C -->|Yes| D{Failed.txt ?}
-#     D -->|Yes| B
-#     D -->|No| E{DemuxStarted.txt}
-#     E --> |Yes| B
-#     E --> |No| F{LowPass.csv}
-#     F --> |Yes| B
-#     F --> |No| G{SampleSheet.csv ?}
-#     G --> |Yes| H{grep LowPass SampleSheet.csv}
-#     G --> |No| I{launch_run: SampleSheet.csv ?}
-#     H --> |Match| B
-#     H --> |No Match| J{grep CloudWorkflow SampleSheet.csv}
-#     I --> |No| K(get_nanuq_files.py)
-#     I --> |Yes| L(qsub dragen_bcl-convert_launcher.sh $fc)
-#     J --> |Match| B
-#     J --> |No Match| I
-#     K --> L
-#     L --> M(cp_RunInfo_Stats.sh)
-#     M --> N(qc_demultiplex_stats.py)
-#     Z[fa:fa-car Car]
+#     A[Start: Scan WATCHDIRS for runs] --> B{Is folder name valid?}
+#     B -->|No| C[fa:fa-ban PASS: Ignore folder]
+#     B -->|Yes| D{CopyComplete.txt exists?}
+#     D -->|No| E[fa:fa-ban PASS: Sequencing not finished]
+#     D -->|Yes| F{FastqComplete.txt exists?}
+#     F -->|Yes| G[fa:fa-ban PASS: Run already processed]
+#     F -->|No| H{DemuxFailed.txt or failed.txt exists?}
+#     H -->|Yes| I[fa:fa-ban PASS: Run marked as failed]
+#     H -->|No| J{DemuxStarted.txt exists?}
+#     J -->|Yes| K[fa:fa-ban PASS: Demux in progress]
+#     J -->|No| L{LowPass.csv exists?}
+#     L -->|Yes| M[fa:fa-ban PASS: LowPass SampleSheet found]
+#     L -->|No| N{SampleSheet.csv exists?}
+#     N -->|No| O[Fetch SampleSheet using get_nanuq_files.py]
+#     O --> P[Convert SampleSheet to Unix format]
+#     P --> Q[Launch dragen_bcl-convert_launcher.sh]
+#     N -->|Yes| R{SampleSheet contains LowPass or Cloud_Workflow?}
+#     R -->|Yes| S[fa:fa-ban PASS: LowPass or Cloud_Workflow SampleSheet]
+#     R -->|No| Q
+#     Q --> T[Wait for FastqComplete.txt]
+#     T --> U[Gather demultiplexing stats]
+#     U --> V[Run cp_RunInfo_Stats.sh]
+#     V --> W[Run qc_demultiplex_stats.py]
+#     C & E & G & I & K & M & S --> X[Continue scanning other folders]
+#     W --> X
 # ```
 
