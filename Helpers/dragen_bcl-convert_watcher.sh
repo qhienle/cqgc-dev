@@ -53,11 +53,11 @@ launch_run() {
 
     mkdir ${WORKDIR}/${fc}
     cd ${WORKDIR}/${fc}
-    if [[ ! -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-        echo "${LOGPREFIX} ${fc} Getting SampleSheet and other files from Nanuq..."
-        python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
-        dos2unix ${WORKDIR}/${FC}/Sample*
-    fi
+    # if [[ ! -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
+    #     echo "${LOGPREFIX} ${fc} Getting SampleSheet and other files from Nanuq..."
+    #     python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
+    #     dos2unix ${WORKDIR}/${fc}/Sample*
+    # fi
     echo "${LOGPREFIX} ${fc} RUN: Launching BCL-convert with qsub..."
     # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
     qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" ${softdir}/Helpers/dragen_bcl-convert_launcher.sh ${fc}
@@ -105,7 +105,9 @@ for dir in ${WATCHDIRS[@]}; do
                             launch_run ${dir} ${fc} &
                         fi
                     else
-                        echo "${LOGPREFIX} ${fc} LAUNCH: Could not find ${dir}/${fc}/SampleSheet.csv."
+                        echo "${LOGPREFIX} ${fc} LAUNCH: Could not find ${dir}/${fc}/SampleSheet.csv. Getting files from Nanuq..."
+                        python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
+                        dos2unix ${WORKDIR}/${fc}/Sample*
                         launch_run ${dir} ${fc} &
                     fi
                 fi
