@@ -50,14 +50,7 @@ launch_run() {
     . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate CQGC-utils
-
-    mkdir ${WORKDIR}/${fc}
     cd ${WORKDIR}/${fc}
-    # if [[ ! -f "${WORKDIR}/${fc}/SampleSheet.csv" ]]; then
-    #     echo "${LOGPREFIX} ${fc} Getting SampleSheet and other files from Nanuq..."
-    #     python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
-    #     dos2unix ${WORKDIR}/${fc}/Sample*
-    # fi
     echo "${LOGPREFIX} ${fc} RUN: Launching BCL-convert with qsub..."
     # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
     qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" ${softdir}/Helpers/dragen_bcl-convert_launcher.sh ${fc}
@@ -106,6 +99,8 @@ for dir in ${WATCHDIRS[@]}; do
                         fi
                     else
                         echo "${LOGPREFIX} ${fc} LAUNCH: Could not find ${dir}/${fc}/SampleSheet.csv. Getting files from Nanuq..."
+                        mkdir ${WORKDIR}/${fc}
+                        cd ${WORKDIR}/${fc}
                         python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
                         dos2unix ${WORKDIR}/${fc}/Sample*
                         launch_run ${dir} ${fc} &
