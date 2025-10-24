@@ -3,15 +3,13 @@
 Make a batch file for Case creation in Emedgene from list of samples 
 (default='samples_list.csv').
 
-[2024-08-22] IN PROGRESS: This script is meant to replace emg_make_batch.py and
-to work for projects PRAG, AOH and Q1K.
-
 USAGE: emg_make_batch.py [--file samples_list.csv]
        emg_make_batch.py --help
 
-Reads from a CSV file listing samples from which cases are created. By default,
-searches for 'samples_list.csv' file located in the current working directory.
-This file can be generated using the script `list_run_samples.py [RUN]`.
+Reads from a CSV file listing samples from which cases are created. 
+
+By default, searches for 'samples_list.csv' in the current working directory. 
+File 'samples_list.csv' can be generated using `list_run_samples.py [RUN]`.
 
 Credentials to access Emedgene, Phenotips and REDCap should be stored in a 
 configuration file in JSON format. The default `gapp_conf.json` must contain:
@@ -91,14 +89,15 @@ def add_fastqs(biosample):
         return filenames
 
 
-def validate_hpos():
+def validate_hpos(df):
     """
     Validate HPO terms. Remove HPO terms related to maternal conditions, which
     are rejected by Emedgene.
-    - ep     : [str] Etablissement Public. Ex: CHUSJ
-    - Returns: [str] Semi-column-spearated list of hpo identifiers
+    - df     : [object] Pandas DataFrame df_batch
+    - Returns: [object] Pandas DataFrame df_batch, with validated HPO terms
     """
-    return 0
+    blacklist = ['HP:0009800']
+    return df
 
 
 def add_hpos_phenotips(ep, mrn):
@@ -365,6 +364,8 @@ def main(args):
         logging.warning(f"Project '{args.project}' is not defined")
     logging.info(f"Added HPO terms for project '{args.project}'")
     logging.debug(df_batch[['sample_name', 'biosample', 'status', 'hpos']])
+    validate_hpos(df_batch)
+    logging.info(f"Validated HPO terms")
 
 
     # 3. Add storage provider and label ID's based on project
