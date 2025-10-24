@@ -91,6 +91,16 @@ def add_fastqs(biosample):
         return filenames
 
 
+def validate_hpos():
+    """
+    Validate HPO terms. Remove HPO terms related to maternal conditions, which
+    are rejected by Emedgene.
+    - ep     : [str] Etablissement Public. Ex: CHUSJ
+    - Returns: [str] Semi-column-spearated list of hpo identifiers
+    """
+    return 0
+
+
 def add_hpos_phenotips(ep, mrn):
     """
     Lookup Phenotips ID (PID) and HPO identifiers
