@@ -7,6 +7,8 @@ USAGE: emg_make_batch.py [--file samples_list.csv]
        emg_make_batch.py --help
 
 Reads from a CSV file listing samples from which cases are created. 
+Adds information required to generate a batch file, 'emg_batch_manifest.csv',
+that is used to create cases on Emedgene.
 
 By default, searches for 'samples_list.csv' in the current working directory. 
 File 'samples_list.csv' can be generated using `list_run_samples.py [RUN]`.
