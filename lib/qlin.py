@@ -31,6 +31,11 @@ qlin.py \\
   --termes Termes_HPO_EXOG.txt.formatted.txt \\
   --url    https://qlin-me-hybrid.staging.cqgc.hsj.rtss.qc.ca
 
+
+A valid email and password is required for authentification to the service. 
+Credentials are read from a `~/qlin` file, which can be created as follows:
+`echo -e 'email="user@ssss.gouv.qc.ca"\npassword="qlin_password"' > ~/.qlin`
+replacing the placeholder values with your QLIN email and password.
 """
 
 import requests
