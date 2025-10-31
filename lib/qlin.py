@@ -47,6 +47,7 @@ import re
 import pandas as pd
 import random
 import string
+import logging
 #To format dates properly
 from datetime import datetime
 #importing necessary functions from dotenv library
@@ -100,6 +101,23 @@ def parse_args():
     if args.mode == 'germinal' and not args.termes: raise ArgumentException("Germinal mode does not have a termes argument")
     elif args.mode == 'somatic' and not args.analyses: raise ArgumentException("Somatic mode does not have an analyses argument")
     return(args)
+
+
+def configure_logging(level):
+    """
+    Set logging level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
+    """
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
+
 
 def generate_random_string(length):
     """
@@ -796,6 +814,92 @@ class qlin:
             return response.json()
         else:
             raise APIException (f"Failed pipeline start\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
+
+
+class QLIN():
+    """
+    Return an object to interact with QLIN
+    [Documentation for QLIN API](https://qlin-me-hybrid.cqgc.hsj.rtss.qc.ca/)
+    """
+    CONFIG_FILE = os.path.expanduser('~') + os.sep + '.qlin'
+
+    def __init__(self, email=None, password=None, config_file=CONFIG_FILE):
+        """
+        Configure settings
+        """
+        self.config_file = config_file
+        self.server      = 'https://qlin-me-hybrid.cqgc.hsj.rtss.qc.ca' 
+        self.server_qa   = 'https://qlin-me-hybrid.qa.cqgc.hsj.rtss.qc.ca'
+        self.email       = email
+        self.password    = password
+        self.auth_header = self.get_authenticated_header()
+
+
+    def _set_qlin_credentials(self, file=CONFIG_FILE):
+        """
+        Set QLIN email and password from the `~/qlin` credentials file, 
+        which can be created as follows:
+        `echo -e 'email="user@ssss.gouv.qc.ca"\npassword="qlin_password"' > ~/.qlin`
+        replacing the placeholder values with your QLIN email and password.
+        """
+        try:
+            with open(file, 'r') as auth_fh:
+                auth = auth_fh.readlines()
+        except FileNotFoundError as e:
+            logging.error(e)
+        except Exception as e:
+            logging.error(f"Caught an unexpected ERROR: {e}")
+        else:
+            for line in auth:
+                key, val = line.rstrip().split('=')
+                if key == 'email':
+                    self.email = val.replace('"', '')
+                elif key == 'password':
+                    self.password = val.replace('"', '')
+                else:
+                    logging.warning(f"Something unexpected occured while parsing QLIN credentials file: {auth}")
+        return None
+
+
+    def get_authenticated_header(self):
+        """
+        Authenticates the user and returns an HTTP header with a bearer token, 
+        required for most requests to QLIN.
+        Tokens are valid for an amount of time: duration in seconds.
+        """
+        if self.email is None and self.password is None:
+            self._set_qlin_credentials(file=CONFIG_FILE)
+
+        authHeaders = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}
+        authPayload = {'email': self.email, 'password': self.password}
+
+        response = requests.post(f"{self.server}/api/v1/auth/login/", headers=authHeaders, data=authPayload)
+        response.raise_for_status
+        if response.status_code == 200:
+            token = response.json().get('token')
+            logging.debug(f"QLIN authentication successful")
+            authenticatedHeaders = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': f'Bearer {token}'
+            }
+        return authenticatedHeaders
+    
+
+    def get_hpos(self, analysis_id):
+        """
+        Get HPO terms for patient. Phenotypes are listed under patient.clinical.signs
+        - `patient`: [str] Patient's analysis ID
+        - Returns  : [list] List of dicts with HPO codes
+        """
+        #TODO
+        url = f"{self.server}/api/v1/analysis/{analysis_id}"
+        response = requests.get(url, header=self.auth_header, payload='')
+        response.raise_for_status
+        if response.status_code == 200:
+            phenotypes = response.json().get(patients.clinial.signs)
+        return phenotypes
+
 
 def main():
     """
