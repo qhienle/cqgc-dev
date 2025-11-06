@@ -35,7 +35,7 @@ run_pipeline_emg() {
     log="${WORKDIR}/${fc}/run_pipeline_emg.log"
     if [[ ! -d "${WORKDIR}/${fc}" ]]; then mkdir ${WORKDIR}/${fc}; fi
     cd ${WORKDIR}/${fc}
-    echo "${LOGPREFIX} Get list of samples for run ${fc}" | tee -a ${log}
+    echo "${LOGPREFIX} Get list of samples for run ${fc}" > ${log} 2>&1
     python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${fc}
     echo "${LOGPREFIX} Waiting for sequencing and demux to finish" | tee -a ${log}
     until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
