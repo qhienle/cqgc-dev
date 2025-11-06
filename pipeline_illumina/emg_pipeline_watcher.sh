@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Watcher to detect and run pipeline for submitting cases to Emedgene.
-# USAGE: bash run_pipeline_emg.sh
+# USAGE: bash emg_pipeline_watcher.sh
+#        bash /mnt/spxp-app02/staging2/soft/CQGC-utils/Analysis.pipeline_illumina/emg_pipeline_watcher.sh
 #
 # Logs for the process are written to these files:
 #   - ${WORKDIR}/emg_watcher.log            : logs for this watcher
@@ -15,9 +16,9 @@
 #   - ${BASEDIR}/${FC}/FastqComplete.txt : of BCL-conversion
 
 HISEQ_R='/mnt/spxp-app02/staging/hiseq_raw'
+SOFTDIR="/mnt/spxp-app02/staging2/soft/CQGC-utils"
 BASEDIR='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs'
 WORKDIR='/mnt/vs_nas_chusj/CQGC_PROD/fastqs'
-SOFTDIR="/staging2/soft/CQGC-utils"
 WATCHDIRS=("${BASEDIR}/A00516" "${BASEDIR}/LH00336" "${BASEDIR}/LH00207R" "${HISEQ_R}/LH00336" "${HISEQ_R}/A00977" "${HISEQ_R}/LH00207R")
 LOGPREFIX="[emg-watcher]"
 LOGFILE="${WORKDIR}/emg_watcher.log"
@@ -34,14 +35,14 @@ run_pipeline_emg() {
     log="${WORKDIR}/${fc}/run_pipeline_emg.log"
     if [[ ! -d "${WORKDIR}/${fc}" ]]; then mkdir ${WORKDIR}/${fc}; fi
     cd ${WORKDIR}/${fc}
-    echo "${LOGPREFIX} Get list of samples for run ${fc}" | tee -a ${LOGFILE}
+    echo "${LOGPREFIX} Get list of samples for run ${fc}" | tee -a ${log}
     python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${fc}
-    echo "${LOGPREFIX} Waiting for sequencing and demux to finish" | tee -a ${LOGFILE}
+    echo "${LOGPREFIX} Waiting for sequencing and demux to finish" | tee -a ${log}
     until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
         sleep ${NAPTIME}
     done
-    echo "${LOGPREFIX} Demux has completed" | tee -a ${LOGFILE}
-    echo "${LOGPREFIX} Uploading samples to BaseSpace" | tee -a ${LOGFILE}
+    echo "${LOGPREFIX} Demux has completed" | tee -a ${log}
+    echo "${LOGPREFIX} Uploading samples to BaseSpace" | tee -a ${log}
     ## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
     python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
     touch ${WORKDIR}/${FC}/UploadBsComplete.txt
@@ -60,16 +61,16 @@ for dir in ${WATCHDIRS[@]}; do
                 echo "${LOGPREFIX} PASS: Pipeline already processed or is running for ${fc} | ${xp}" | tee -a ${LOGFILE}
             elif [[ ! -z $( echo ${xp} | grep 'PRAG' ) ]]; then
                 echo "${LOGPREFIX} RUN: pipeline for PRAG ${fc} | ${xp}" | tee -a ${LOGFILE}
-                run_pipeline_emg ${fc} 'prag'
+                (run_pipeline_emg ${fc} 'prag') &
             elif [[ ! -z $( echo ${xp} | grep 'Q1K' ) ]]; then
                 echo "${LOGPREFIX} RUN: pipeline for Q1K ${fc} | ${xp}" | tee -a ${LOGFILE}
-                run_pipeline_emg ${fc} 'q1k'
+                (run_pipeline_emg ${fc} 'q1k') &
             elif [[ ! -z $( echo ${xp} | grep 'AOH' ) ]]; then
                 echo "${LOGPREFIX} RUN: pipeline for AOH ${fc} | ${xp}" | tee -a ${LOGFILE}
-                run_pipeline_emg ${fc} 'aoh'
+                (run_pipeline_emg ${fc} 'aoh') &
             elif [[ ! -z $( echo ${xp} | grep 'C4R' ) ]]; then
                 echo "${LOGPREFIX} RUN: pipeline for C4R ${fc} | ${xp}" | tee -a ${LOGFILE}
-                run_pipeline_emg ${fc} 'c4r'
+                (run_pipeline_emg ${fc} 'c4r') &
             else
                 echo "${LOGPREFIX} Nothing to do for ${fc} (${xp})" | tee -a ${LOGFILE}
             fi
