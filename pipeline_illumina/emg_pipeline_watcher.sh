@@ -2,7 +2,6 @@
 
 # Watcher to detect and run pipeline for submitting cases to Emedgene.
 # USAGE: bash run_pipeline_emg.sh
-#        bash run_pipeline_emg.sh | tee -a /mnt/vs_nas_chusj/CQGC_PROD/fastqs/emg_watcher.log
 #
 # Logs for the process are written to these files:
 #   - ${WORKDIR}/emg_watcher.log            : logs for this watcher
@@ -25,7 +24,7 @@ LOGFILE="${WORKDIR}/emg_watcher.log"
 NAPTIME=900
 
 umask 002
-printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 | tee -a ${LOGFILE}/
+printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 | tee -a ${LOGFILE}
 
 # Run the pipeline
 #
@@ -35,19 +34,19 @@ run_pipeline_emg() {
     log="${WORKDIR}/${fc}/run_pipeline_emg.log"
     if [[ ! -d "${WORKDIR}/${fc}" ]]; then mkdir ${WORKDIR}/${fc}; fi
     cd ${WORKDIR}/${fc}
-    echo "Get list of samples for run ${fc}"
+    echo "${LOGPREFIX} Get list of samples for run ${fc}" | tee -a ${LOGFILE}
     python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${fc}
-    echo "${LOGPREFIX} Waiting for sequencing and demux to finish"
-    # until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
-    #     sleep ${NAPTIME}
-    # done
-    # echo "${LOGPREFIX} Demux has completed"
-    # echo "Uploading samples to BaseSpace"
-    # ## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
-    # python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
-    # touch ${WORKDIR}/${FC}/UploadBsComplete.txt
-    # sleep ${NAPTIME}
-    # python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
+    echo "${LOGPREFIX} Waiting for sequencing and demux to finish" | tee -a ${LOGFILE}
+    until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
+        sleep ${NAPTIME}
+    done
+    echo "${LOGPREFIX} Demux has completed" | tee -a ${LOGFILE}
+    echo "${LOGPREFIX} Uploading samples to BaseSpace" | tee -a ${LOGFILE}
+    ## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
+    python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
+    touch ${WORKDIR}/${FC}/UploadBsComplete.txt
+    sleep ${NAPTIME}
+    python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py --project ${project} >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
 }
 
 for dir in ${WATCHDIRS[@]}; do
@@ -58,24 +57,24 @@ for dir in ${WATCHDIRS[@]}; do
         xp=$( bs -c cac1 list runs --format csv | grep ${fc} | cut -d, -f3 )
         if [[ ! -z ${xp} ]]; then
             if [[ -f "${WORKDIR}/${fc}/run_pipeline_emg.log" ]]; then
-                echo "${LOGPREFIX} PASS: Pipeline already processed or is running for ${fc} | ${xp}"
+                echo "${LOGPREFIX} PASS: Pipeline already processed or is running for ${fc} | ${xp}" | tee -a ${LOGFILE}
             elif [[ ! -z $( echo ${xp} | grep 'PRAG' ) ]]; then
-                echo "${LOGPREFIX} RUN: pipeline for PRAG ${fc} | ${xp}"
+                echo "${LOGPREFIX} RUN: pipeline for PRAG ${fc} | ${xp}" | tee -a ${LOGFILE}
                 run_pipeline_emg ${fc} 'prag'
             elif [[ ! -z $( echo ${xp} | grep 'Q1K' ) ]]; then
-                echo "${LOGPREFIX} RUN: pipeline for Q1K ${fc} | ${xp}"
+                echo "${LOGPREFIX} RUN: pipeline for Q1K ${fc} | ${xp}" | tee -a ${LOGFILE}
                 run_pipeline_emg ${fc} 'q1k'
             elif [[ ! -z $( echo ${xp} | grep 'AOH' ) ]]; then
-                echo "${LOGPREFIX} RUN: pipeline for AOH ${fc} | ${xp}"
+                echo "${LOGPREFIX} RUN: pipeline for AOH ${fc} | ${xp}" | tee -a ${LOGFILE}
                 run_pipeline_emg ${fc} 'aoh'
             elif [[ ! -z $( echo ${xp} | grep 'C4R' ) ]]; then
-                echo "${LOGPREFIX} RUN: pipeline for C4R ${fc} | ${xp}"
+                echo "${LOGPREFIX} RUN: pipeline for C4R ${fc} | ${xp}" | tee -a ${LOGFILE}
                 run_pipeline_emg ${fc} 'c4r'
             else
-                echo "${LOGPREFIX} Nothing to do for ${fc} (${xp})"
+                echo "${LOGPREFIX} Nothing to do for ${fc} (${xp})" | tee -a ${LOGFILE}
             fi
         else
-            echo "${LOGPREFIX} Run ${fc} not found on BaseSpace."
+            echo "${LOGPREFIX} Run ${fc} not found on BaseSpace." | tee -a ${LOGFILE}
         fi
     done
 done
