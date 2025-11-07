@@ -54,7 +54,7 @@ for dir in ${WATCHDIRS[@]}; do
         log="${WORKDIR}/${fc}/emg_pipeline.log"
         parts=($(echo ${fc} | tr '_' '\n'))
         if [[ ${#parts[@]} -eq 4 ]]; then
-            # ${fc} looks valid. Check if it's an experiment for Emedgene.
+            # ${fc} format looks valid. Check if it's an experiment for Emedgene.
             # "RunName" in NovaSeq600's SampleSheet doesn't contain experiment name
             # (PRAG, Q1K,...) so better check Project Name in BaseSpace (with `bs`)
             #
