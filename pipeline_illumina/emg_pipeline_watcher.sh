@@ -60,25 +60,25 @@ for dir in ${WATCHDIRS[@]}; do
             #
             xp=$( bs -c cac1 list runs --format csv | grep ${fc} | cut -d, -f3 )
             if [[ ! -z ${xp} ]]; then
-                if [[ -f "${WORKDIR}/${fc}/run_pipeline_emg.log" ]]; then
-                    echo "${LOGPREFIX} PASS: Pipeline already processed or is running for ${fc} | ${xp}" | tee -a ${LOGFILE}
+                if [[ -f ${log} ]]; then
+                    echo "${LOGPREFIX} PASS: ${fc} | ${xp} running or complete" | tee -a ${LOGFILE}
                 elif [[ ! -z $( echo ${xp} | grep 'PRAG' ) ]]; then
-                    echo "${LOGPREFIX} RUN: pipeline for PRAG ${fc} | ${xp}" | tee -a ${LOGFILE}
+                    echo "${LOGPREFIX} RUN: ${fc} | ${xp} launching pipeline" | tee -a ${LOGFILE}
                     (run_pipeline_emg ${fc} 'prag' > ${log} 2>&1) &
                 elif [[ ! -z $( echo ${xp} | grep 'Q1K' ) ]]; then
-                    echo "${LOGPREFIX} RUN: pipeline for Q1K ${fc} | ${xp}" | tee -a ${LOGFILE}
+                    echo "${LOGPREFIX} RUN: ${fc} | ${xp} launching pipeline" | tee -a ${LOGFILE}
                     (run_pipeline_emg ${fc} 'q1k' > ${log} 2>&1) &
                 elif [[ ! -z $( echo ${xp} | grep 'AOH' ) ]]; then
-                    echo "${LOGPREFIX} RUN: pipeline for AOH ${fc} | ${xp}" | tee -a ${LOGFILE}
+                    echo "${LOGPREFIX} RUN: ${fc} | ${xp} launching pipeline" | tee -a ${LOGFILE}
                     (run_pipeline_emg ${fc} 'aoh' > ${log} 2>&1) &
                 elif [[ ! -z $( echo ${xp} | grep 'C4R' ) ]]; then
-                    echo "${LOGPREFIX} RUN: pipeline for C4R ${fc} | ${xp}" | tee -a ${LOGFILE}
+                    echo "${LOGPREFIX} RUN: ${fc} | ${xp} launching pipeline" | tee -a ${LOGFILE}
                     (run_pipeline_emg ${fc} 'c4r' > ${log} 2>&1) &
                 else
-                    echo "${LOGPREFIX} PASS: Nothing to do for ${fc} (${xp})" | tee -a ${LOGFILE}
+                    echo "${LOGPREFIX} PASS: ${fc} (${xp}) nothing to do" | tee -a ${LOGFILE}
                 fi
             else
-                echo "${LOGPREFIX} PASS: Flowcell ${fc} not found on BaseSpace." | tee -a ${LOGFILE}
+                echo "${LOGPREFIX} PASS: ${fc} not found on BaseSpace." | tee -a ${LOGFILE}
             fi
         fi
         # else: ignore because format of folder name doesn't look like a run
