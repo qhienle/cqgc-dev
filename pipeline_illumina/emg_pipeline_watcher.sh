@@ -38,6 +38,7 @@ run_pipeline_emg() {
     python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${fc}
     echo "${LOGPREFIX} Waiting for sequencing and demux to finish"
     until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]; do
+        printf '.'
         sleep ${NAPTIME}
     done
     echo "${LOGPREFIX} Demux has completed"
@@ -46,7 +47,7 @@ run_pipeline_emg() {
     # python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
     touch ${WORKDIR}/${FC}/UploadBsComplete.txt
     sleep ${NAPTIME}
-    python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py --project ${project} >> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
+    python ${SOFTDIR}/Analysis.pipeline_illumina/emg_make_batch.py --project ${project} #>> ${WORKDIR}/${FC}/emg_make_batch.log 2>&1
 }
 
 for dir in ${WATCHDIRS[@]}; do
