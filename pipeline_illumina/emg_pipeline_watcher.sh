@@ -75,10 +75,10 @@ for dir in ${WATCHDIRS[@]}; do
                     echo "${LOGPREFIX} RUN: pipeline for C4R ${fc} | ${xp}" | tee -a ${LOGFILE}
                     (run_pipeline_emg ${fc} 'c4r' > ${log} 2>&1) &
                 else
-                    echo "${LOGPREFIX} Nothing to do for ${fc} (${xp})" | tee -a ${LOGFILE}
+                    echo "${LOGPREFIX} PASS: Nothing to do for ${fc} (${xp})" | tee -a ${LOGFILE}
                 fi
             else
-                echo "${LOGPREFIX} Flowcell ${fc} not found on BaseSpace." | tee -a ${LOGFILE}
+                echo "${LOGPREFIX} PASS: Flowcell ${fc} not found on BaseSpace." | tee -a ${LOGFILE}
             fi
         fi
         # else: ignore because format of folder name doesn't look like a run
