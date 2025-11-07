@@ -78,7 +78,7 @@ for dir in ${WATCHDIRS[@]}; do
                     echo "${LOGPREFIX} Nothing to do for ${fc} (${xp})" | tee -a ${LOGFILE}
                 fi
             else
-                echo "${LOGPREFIX} Run ${fc} not found on BaseSpace." | tee -a ${LOGFILE}
+                echo "${LOGPREFIX} Flowcell ${fc} not found on BaseSpace." | tee -a ${LOGFILE}
             fi
         fi
         # else: ignore because format of folder name doesn't look like a run
