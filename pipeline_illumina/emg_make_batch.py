@@ -344,6 +344,14 @@ def main(args):
 
     # 2. Get the corresponding HPO Identifiers and add HPO terms
     #
+    # TODO: Use project from samples_list.csv file instead of a global argument
+    #
+    project_ids = {'PRAGMATIQ_CHUSJ': '3703702', 
+               'PRAGMATIQ_CHUS' : '3703703', 
+               'PRAGMATIQ_CHUQ' : '4714713', 
+               'PRAGMATIQ_CUSM' : '5412410',
+               'Q1K_CHUSJ'      : '6197214',
+               'ANGIODEME_CHUSJ': '6050046'}
     logging.debug(f"Fetching HPO terms for project '{args.project}'")
     if args.project == 'prag' or args.project == 'eval':
         # HPO terms are stored in Phenotips for project PRAG. 
