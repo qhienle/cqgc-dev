@@ -98,7 +98,7 @@ def validate_hpos(df):
     - df     : [object] Pandas DataFrame df_batch
     - Returns: [object] Pandas DataFrame df_batch, with validated HPO terms
     """
-    blacklist = ['HP:0009800']
+    blacklist = ['HP:0009800', 'HP:0008071']
     return df
 
 
