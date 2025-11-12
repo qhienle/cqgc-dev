@@ -28,5 +28,6 @@ flowchart TB
     T --> U[Gather demultiplexing stats]
     U --> V[Run cp_RunInfo_Stats.sh]
     V --> W[Run qc_demultiplex_stats.py]
+    W --> Y[Run index_stats.py]
     C & E & G & I & K & M & S --> X[Continue scanning other folders]
-    W --> X
+    Y --> X
