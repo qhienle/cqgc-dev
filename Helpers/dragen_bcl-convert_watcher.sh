@@ -27,6 +27,7 @@
 #   /staging2/soft/CQGC-utils/Helpers/dragen_bcl-convert_launcher.sh
 #   /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py
 
+SOFTDIR="/mnt/spxp-app02/staging2/soft/CQGC-utils"
 BASEDIR='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs'
 HISEQ_R='/mnt/spxp-app02/staging/hiseq_raw'
 #WORKDIR='/mnt/spxp-app02/staging2/dragen'
@@ -63,6 +64,7 @@ launch_run() {
     echo -e "\nDemux has completed. Gathering demultiplexing statstics for QC..." >>qsub_out.txt 2>&1
     bash ${softdir}/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc} >>qsub_out.txt 2>&1
     python ${softdir}/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/1.fastq/Reports/Demultiplex_Stats.csv >>qsub_out.txt 2>&1
+    /staging2/soft/CQGC-utils/QC.dragen_demultiplexing/index_stats.py -d 1.fastq/Reports > ${fc}.index_stats.out # $QC_DIR="4.qualite/"
     conda deactivate
 }
 
