@@ -30,7 +30,6 @@
 SOFTDIR="/mnt/spxp-app02/staging2/soft/CQGC-utils"
 BASEDIR='/mnt/vs_nas_chusj/CQGC_PROD/sequenceurs'
 HISEQ_R='/mnt/spxp-app02/staging/hiseq_raw'
-#WORKDIR='/mnt/spxp-app02/staging2/dragen'
 WORKDIR='/mnt/vs_nas_chusj/CQGC_PROD/fastqs'
 LOGFILE="${WORKDIR}/dragen_bcl-convert_watcher.log"
 LOGPREFIX="[bcl-watcher]"
@@ -45,7 +44,6 @@ launch_run() {
     # and marks the run as done.
     local dir="$1"
     local fc="$2"
-    local softdir="/mnt/spxp-app02/staging2/soft/CQGC-utils"
     
     # Setting up environments for qsub and conda
     . /mnt/spxp-app02/staging2/soft/GE2011.11p1/SGE_ROOT/default/common/settings.sh
@@ -54,7 +52,7 @@ launch_run() {
     cd ${WORKDIR}/${fc}
     echo "${LOGPREFIX} ${fc} RUN: Launching BCL-convert with qsub..."
     # echo "echo 'qsub moot launcher'" | qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" # for testing
-    qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" ${softdir}/Helpers/dragen_bcl-convert_launcher.sh ${fc}
+    qsub -V -o "${WORKDIR}/${fc}/qsub_out.txt" -e "${WORKDIR}/${fc}/qsub_err.txt" ${SOFTDIR}/Helpers/dragen_bcl-convert_launcher.sh ${fc}
     touch ${dir}/${fc}/DemuxStarted.txt
     echo "Waiting for Demux to finish" >>qsub_out.txt 2>&1
     until [ -f "${dir}/${fc}/FastqComplete.txt" ]; do
@@ -62,9 +60,9 @@ launch_run() {
         sleep 900 # 15 minutes
     done
     echo -e "\nDemux has completed. Gathering demultiplexing statstics for QC..." >>qsub_out.txt 2>&1
-    bash ${softdir}/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc} >>qsub_out.txt 2>&1
-    python ${softdir}/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/1.fastq/Reports/Demultiplex_Stats.csv >>qsub_out.txt 2>&1
-    /staging2/soft/CQGC-utils/QC.dragen_demultiplexing/index_stats.py -d 1.fastq/Reports > ${fc}.index_stats.out # $QC_DIR="4.qualite/"
+    bash ${SOFTDIR}/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc} >>qsub_out.txt 2>&1
+    python ${SOFTDIR}/Analysis.dragen_bcl-convert/scripts/qc_demultiplex_stats.py --file ${WORKDIR}/${fc}/1.fastq/Reports/Demultiplex_Stats.csv >>qsub_out.txt 2>&1
+    ${SOFTDIR}/QC.dragen_demultiplexing/index_stats.py -d 1.fastq/Reports > ${fc}.index_stats.out # $QC_DIR="4.qualite/"
     conda deactivate
 }
 
@@ -103,7 +101,7 @@ for dir in ${WATCHDIRS[@]}; do
                         echo "${LOGPREFIX} ${fc} LAUNCH: Could not find ${dir}/${fc}/SampleSheet.csv. Getting files from Nanuq..."
                         mkdir ${WORKDIR}/${fc}
                         cd ${WORKDIR}/${fc}
-                        python3 /staging2/soft/CQGC-utils/Helpers/get_nanuq_files.py --run ${fc}
+                        python3 ${SOFTDIR}/Helpers/get_nanuq_files.py --run ${fc}
                         dos2unix ${WORKDIR}/${fc}/Sample*
                         launch_run ${dir} ${fc} &
                     fi
