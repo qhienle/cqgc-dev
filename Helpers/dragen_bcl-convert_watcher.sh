@@ -39,8 +39,8 @@ umask 002
 printf "\n\n######\n%s %s %s\n######\n\n" ${LOGPREFIX} $( date "+%F@%T" ) $0 #| tee -a ${LOGFILE}/
 
 launch_run() {
-    # Run dragen_bcl-convert_launcher.sh and gather Demultiplex_Stats whn done
-    # FastqComplete.txt is copied to ${BASEDIR} by dragen_bcl-convert_launcher.sh
+    # Run dragen_bcl-convert_launcher.sh and gather Demultiplex_Stats when done
+    # FastqComplete.txt copied to ${BASEDIR} by dragen_bcl-convert_launcher.sh
     # and marks the run as done.
     local dir="$1"
     local fc="$2"
@@ -145,6 +145,8 @@ exit 0
 #                                                         cp_RunInfo_Stats.sh
 #                                                                  V
 #                                                         qc_demultiplex_stats.py
+#                                                                  V
+#                                                         index_stats.py
 
 # ```mermaid
 # ---
@@ -177,7 +179,8 @@ exit 0
 #     T --> U[Gather demultiplexing stats]
 #     U --> V[Run cp_RunInfo_Stats.sh]
 #     V --> W[Run qc_demultiplex_stats.py]
+#     W --> Y[Run index_stats.py]
 #     C & E & G & I & K & M & S --> X[Continue scanning other folders]
-#     W --> X
+#     Y --> X
 # ```
 
