@@ -57,7 +57,8 @@ def parse_args():
     Parse command-line options
     """
     parser = argparse.ArgumentParser(description="Utilities for Nanuq", epilog="Ex.: python nanuq.py -r A00516_0428")
-    parser.add_argument('-r', '--run', required=True, help="Run ID, ex: 'A00516_0428'")
+    parser.add_argument('-r', '--run',      help="Run ID, ex: 'A00516_0428'")
+    parser.add_argument('-s', '--sample',   help="Nanuq sample (CQGC) ID, ex: '40890'")
     parser.add_argument('-u', '--username', help="Nanuq username")
     parser.add_argument('-p', '--password', help="Nanuq password")
     parser.add_argument('-n', '--no-check-run-name', action='store_true', dest='skip_check', help="Do not check run name")
@@ -252,7 +253,7 @@ class Nanuq:
     def get_sample(self, id_cqgc):
         """
         Get sample id_cqgc from Nanuq. Returns a JSON string. 
-        TODO Or a JSON onj is better?
+        TODO Or a JSON is better?
         """
         url = f'{self.server}/nanuqMPS/ws/GetClinicalSampleInfoWS?name={id_cqgc}'
         response = self.get_api(url)
@@ -296,10 +297,14 @@ def main():
     # nq.get_samplenames(args.run, outfile='SampleNames.txt', skip_check=args.skip_check)
     # nq.get_samplepools(args.run, outfile='SamplePools.csv', skip_check=args.skip_check)
     
-    fc_parts = nq.parse_run_name(args.run)
-    print(fc_parts)
-    for t in nq.list_samples(fc_parts[4]):
-        print(t)
+    if args.run:
+        fc_parts = nq.parse_run_name(args.run)
+        print(fc_parts)
+        for t in nq.list_samples(fc_parts[4]):
+            print(t)
+    elif args.sample:
+        print(nq.get_sample(args.sample))
+    
     print("\nDone.\n")
 
 
