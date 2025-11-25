@@ -315,7 +315,7 @@ def main():
     elif args.sample:
         print(nq.get_sample(args.sample))
     
-    print("\`nanuq.py --help` for more on USAGE.\n")
+    print("\n`nanuq.py --help` for more on USAGE.\n")
 
 
 if __name__ == '__main__':
