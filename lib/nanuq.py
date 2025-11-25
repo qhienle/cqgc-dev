@@ -255,7 +255,8 @@ class Nanuq:
         Get sample id_cqgc from Nanuq. Returns a JSON string. 
         TODO Or a JSON object is better?
         """
-        url = f'{self.server}/nanuqMPS/ws/GetSampleInfoWS?name={id_cqgc}'
+        url = f'{self.server}/nanuqMPS/ws/GetClinicalSampleInfoWS?name={id_cqgc}'
+        # url = f'{self.server}/nanuqMPS/ws/GetSampleInfoWS?name={id_cqgc}'
         response = self.get_api(url)
         return(response.text)
     
