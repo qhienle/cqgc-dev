@@ -57,8 +57,9 @@ def parse_args():
     Parse command-line options
     """
     parser = argparse.ArgumentParser(description="Utilities for Nanuq", epilog="Ex.: python nanuq.py -r A00516_0428")
-    parser.add_argument('-r', '--run',      help="Run ID, ex: 'A00516_0428'")
-    parser.add_argument('-s', '--sample',   help="Nanuq sample (CQGC) ID, ex: '40890'")
+    parser.add_argument('-r', '--run',      help="Get Nanuq files for Run ID, ex: 'A00516_0428'")
+    parser.add_argument('-n', '--names',    help="Get sample names in Run ID, ex: 'A00516_0428'")
+    parser.add_argument('-s', '--sample',   help="Get information for Nanuq sample (CQGC) ID, ex: '40890'")
     parser.add_argument('-u', '--username', help="Nanuq username")
     parser.add_argument('-p', '--password', help="Nanuq password")
     parser.add_argument('-n', '--no-check-run-name', action='store_true', dest='skip_check', help="Do not check run name")
@@ -302,22 +303,26 @@ def main():
     args = parse_args()
     os.chdir(os.getcwd())
     nq = Nanuq()
-    
-    # Write Nanuq files:
-    #
-    # nq.get_samplesheet(args.run, outfile='SampleSheet.csv', skip_check=args.skip_check)
-    # nq.get_samplenames(args.run, outfile='SampleNames.txt', skip_check=args.skip_check)
-    # nq.get_samplepools(args.run, outfile='SamplePools.csv', skip_check=args.skip_check)
-    
+        
     if args.run:
-        fc_parts = nq.parse_run_name(args.run)
+        # Write Nanuq files for given 'run'
+        #
+        nq.get_samplesheet(args.run, outfile='SampleSheet.csv', skip_check=args.skip_check)
+        nq.get_samplenames(args.run, outfile='SampleNames.txt', skip_check=args.skip_check)
+        nq.get_samplepools(args.run, outfile='SamplePools.csv', skip_check=args.skip_check)
+    elif args.names:
+        # Convert names for samples in given run
+        #
+        fc_parts = nq.parse_run_name(args.names)
         print(fc_parts)
         for t in nq.list_samples(fc_parts[4]):
             print(t)
     elif args.sample:
+        # Get detailed information for 'sample'
+        #
         print(nq.get_sample(args.sample))
-    
-    print("\nType `nanuq.py --help` for more on usage.\n")
+    else:
+        print("\nType `nanuq.py --help` for more on usage.\n")
 
 
 if __name__ == '__main__':
