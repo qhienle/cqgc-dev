@@ -91,15 +91,13 @@ def add_fastqs(biosample):
         return filenames
 
 
-def validate_hpos(df):
+def add_hpos_qlin():
     """
-    Validate HPO terms. Remove HPO terms related to maternal conditions, which
-    are rejected by Emedgene.
-    - df     : [object] Pandas DataFrame df_batch
-    - Returns: [object] Pandas DataFrame df_batch, with validated HPO terms
+    Lookup HPO identifiers from Qlin for `sample_name`.
+    - sample_name : [str] Qlin identifier. Ex: ''
+    - Return      : [str] Semi-column-spearated list of hpo identifiers
     """
-    blacklist = ['HP:0009800', 'HP:0008071']
-    return df
+    return 0
 
 
 def add_hpos_phenotips(ep, mrn):
@@ -107,7 +105,7 @@ def add_hpos_phenotips(ep, mrn):
     Lookup Phenotips ID (PID) and HPO identifiers
     - ep     : [str] Etablissement Public. Ex: CHUSJ
     - mrn    : [str] Medical Record Number. Ex: 123456
-    - Returns: [str] Semi-column-spearated list of hpo identifiers
+    - Return : [str] Semi-column-spearated list of hpo identifiers
     """
     pho = Phenotips()
     pid = ''
@@ -193,7 +191,7 @@ def add_hpos_redcap(sample_name):
     """
     Lookup HPO identifiers from REDCap for `sample_name`.
     - sample_name : [str] Q1K sample name. Ex: 'Q1K_HSJ_10050_P'
-    - Returns     : [str] HPO identifiers, separated by semi-columns
+    - Return      : [str] Semi-column-spearated list of hpo identifiers
     """
     red  = REDCap()
     return red.get_hpo(sample_name)
@@ -202,9 +200,39 @@ def add_hpos_redcap(sample_name):
 def add_hpos_aoh():
     """
     Add HPO terms for AOH cases (same fixed terms for every cases).
-    - Returns: [str] HPO identifiers, separated by semi-columns
+    - Return : [str] Semi-column-spearated list of hpo identifiers
     """
     return 'HP:0003270;HP:0002027;HP:0100665;HP:0007514;HP:0002574;HP:0010783;HP:0000282;HP:0007430;HP:0012027;HP:0025349;HP:0001004;HP:0005225;HP:0011855;HP:0000988;HP:0031244;HP:0002781'
+
+
+def add_hpo(row):
+    """
+    Add HPO terms for `row`
+    - `row` : a pandas.DataFrame row, representing a line from samples_list.csv
+    - Return: [str] Semi-column-spearated list of hpo identifiers
+    """
+    hpos = ''
+    if row['status'] == 'AFF':
+        if row['project'] in ['PRAGMATIQ_CHUSJ','PRAGMATIQ_CHUS','PRAGMATIQ_CHUQ','PRAGMATIQ_CUSM']:
+            hpos = add_hpos_phenotips(row['ep_label'], row['mrn'])
+        elif row['project'] == 'Q1K_CHUSJ':
+            hpos = add_hpos_redcap(row['sample_name'])
+        elif row['project'] == 'ANGIODEME_CHUSJ':
+            hpos = add_hpos_aoh()
+        else:
+            logging.warning(f"Could not determine project for {row['project']}")
+    return hpos
+
+
+def validate_hpos(df):
+    """
+    Validate HPO terms. Remove HPO terms related to maternal conditions, which
+    are rejected by Emedgene.
+    - df     : [object] Pandas DataFrame df_batch
+    - Returns: [object] Pandas DataFrame df_batch, with validated HPO terms
+    """
+    blacklist = ['HP:0009800', 'HP:0008071']
+    return df
 
 
 def df_to_manifest(df):
@@ -317,7 +345,6 @@ def main(args):
     TODO: Check how QUADs are handled 
     TODO: Raise red flag when sibling or other family member is Affected 
     TODO: Add participants to cases
-    TODO: Archive samples for this run
     """
     # Read samples in --file and retrieve required information to build Cases:
     #
@@ -343,16 +370,10 @@ def main(args):
 
 
     # 2. Get the corresponding HPO Identifiers and add HPO terms
-    #
     # TODO: Use project from samples_list.csv file instead of a global argument
     #
-    project_ids = {'PRAGMATIQ_CHUSJ': '3703702', 
-               'PRAGMATIQ_CHUS' : '3703703', 
-               'PRAGMATIQ_CHUQ' : '4714713', 
-               'PRAGMATIQ_CUSM' : '5412410',
-               'Q1K_CHUSJ'      : '6197214',
-               'ANGIODEME_CHUSJ': '6050046'}
     logging.debug(f"Fetching HPO terms for project '{args.project}'")
+    # df_batch['hpos'] = df_batch.apply(lambda x: add_hpo(x), axis=1)
     if args.project == 'prag' or args.project == 'eval':
         # HPO terms are stored in Phenotips for project PRAG. 
         # Also grab 'PID', which will populate 'Clinical Notes'
@@ -410,6 +431,7 @@ def main(args):
 
     # 5. Add 'Clinical Notes'
     # TODO: Move this section to df_to_manifest(df)
+    # TODO: Validate HPO terms
     #
     if args.project == 'prag' or args.project == 'eval':
         df_batch['Clinical Notes'] = df_batch['pid']
