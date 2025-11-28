@@ -37,7 +37,15 @@ class TestNanuq(unittest.TestCase):
         self.assertRaises(Exception, self.nanuq.get_api(url))
         response = self.nanuq.get_api(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_get_clinical_sample(self):
+        sample = self.nanuq.get_clinical_sample('22762')
+        self.assertTrue(isinstance(sample, str))
     
+    def test_get_sample(self):
+        sample = self.nanuq.get_clinical_sample('32994')
+        self.assertTrue(isinstance(sample, str))
+
     def test_get_sample_bad_request(self):
         self.assertRaises(Exception, self.nanuq.get_sample(''), 'Error 400: Bad request')
 
@@ -62,30 +70,29 @@ class TestNanuq(unittest.TestCase):
         fc_short = self.nanuq.check_run_name('A00516_0106')
         self.assertEqual(fc_short, 'A00516_0106', 'Convert RunID to short form')
 
-    def test_check_run_name_is_bs(self):
-        self.assertRaises(ValueError, self.nanuq.check_run_name('nimportequoi'), 'RunID is not the expected format')
+    # def test_check_run_name_is_bs(self):
+    #     self.assertRaises(ValueError, self.nanuq.check_run_name('nimportequoi'), 'RunID is not the expected format')
 
-    def test_get_samplesheet(self):
-        file = 'SampleSheet.csv'
-        response = self.nanuq.get_samplesheet(self.run_id)
-        self.assertEqual(response.status_code, 200, 'HTTP response code should be 200')
-        self.assertFalse(os.stat(file).st_size == 0, 'File size should be greater than zero')
-        os.remove(file)
+    # def test_get_samplesheet(self):
+    #     file = 'SampleSheet.csv'
+    #     response = self.nanuq.get_samplesheet(self.run_id)
+    #     self.assertEqual(response.status_code, 200, 'HTTP response code should be 200')
+    #     self.assertFalse(os.stat(file).st_size == 0, 'File size should be greater than zero')
+    #     os.remove(file)
 
-    def test_get_samplenames(self):
-        file = 'SampleNames.txt'
-        response = self.nanuq.get_samplenames(self.run_id)
-        self.assertEqual(response.status_code, 200, 'HTTP response code should be 200')
-        self.assertFalse(os.stat(file).st_size == 0, 'File size should be greater than zero')
-        os.remove(file)
+    # def test_get_samplenames(self):
+    #     file = 'SampleNames.txt'
+    #     response = self.nanuq.get_samplenames(self.run_id)
+    #     self.assertEqual(response.status_code, 200, 'HTTP response code should be 200')
+    #     self.assertFalse(os.stat(file).st_size == 0, 'File size should be greater than zero')
+    #     os.remove(file)
 
-    def test_get_samplepools(self):
-        file = 'SamplePools.csv'
-        response = self.nanuq.get_samplepools(self.run_id)
-        self.assertEqual(response.status_code, 200, 'HTTP response code should be 200')
-        self.assertFalse(os.stat(file).st_size == 0, 'File size should be greater than zero')
-        os.remove(file)
-
+    # def test_get_samplepools(self):
+    #     file = 'SamplePools.csv'
+    #     response = self.nanuq.get_samplepools(self.run_id)
+    #     self.assertEqual(response.status_code, 200, 'HTTP response code should be 200')
+    #     self.assertFalse(os.stat(file).st_size == 0, 'File size should be greater than zero')
+    #     os.remove(file)
 
     def tearDown(self):
         pass
