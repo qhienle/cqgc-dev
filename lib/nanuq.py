@@ -252,11 +252,11 @@ class Nanuq:
 
     def get_sample(self, id_cqgc):
         """
-        Get sample id_cqgc from Nanuq. Returns a JSON string. 
-        TODO Or a JSON object is better?
+        Get sample id_cqgc from Nanuq. Returns a JSON string.
+        - id_cqgc: [str] e.g. 32994
+        - Returns: [str] in JSON format
         """
-        url = f'{self.server}/nanuqMPS/ws/GetClinicalSampleInfoWS?name={id_cqgc}'
-        # url = f'{self.server}/nanuqMPS/ws/GetSampleInfoWS?name={id_cqgc}'
+        url = f'{self.server}/nanuqMPS/ws/GetSampleInfoWS?name={id_cqgc}'
         response = self.get_api(url)
         return(response.text)
     
@@ -264,7 +264,8 @@ class Nanuq:
     def get_clinical_sample(self, id_cqgc):
         """
         Get sample id_cqgc from Nanuq. Returns a JSON string. 
-        TODO Or a JSON object is better?
+        - id_cqgc: [str] e.g. 22762
+        - Returns: [str] in JSON format
         """
         url = f'{self.server}/nanuqMPS/ws/GetClinicalSampleInfoWS?name={id_cqgc}'
         response = self.get_api(url)
