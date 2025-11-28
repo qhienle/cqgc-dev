@@ -444,7 +444,6 @@ if __name__ == '__main__':
 
 
 """
-
 # batch_manifest.csv
 # (See Emedgene Help for specifications to the current file format). 
 # For the example, "Files Names" truncated after the first two.
@@ -454,58 +453,4 @@ Family Id,Case Type,Files Names,Sample Type,BioSample Name,Visualization Files,S
 18-4493-T1,Whole Genome,/projects/3703703/biosamples/4407403/datasets/ds.4458d03cfc314c6a8d87ea9545a92226/sequenced files/297927630;/projects/3703703/biosamples/4407403/datasets/ds.4458d03cfc314c6a8d87ea9545a92226/sequenced files/297927631;,FASTQ,18-4493-T1,,10126,PRAGMatIQ_CHUS,False,proband,M,,HP:0001258;HP:0001264,2013-09-08,,,,Default,12,P0000468,,
 18-4493-T1,Whole Genome,/projects/3703703/biosamples/4407404/datasets/ds.08fa2204208a409191b54c23829d5826/sequenced files/297927646;/projects/3703703/biosamples/4407404/datasets/ds.08fa2204208a409191b54c23829d5826/sequenced files/297927647;,FASTQ,24-07358-T1,,10126,PRAGMatIQ_CHUS,False,mother,F,Healthy,,1985-04-11,,,,Default,12,,,
 18-4493-T1,Whole Genome,/projects/3703703/biosamples/4407405/datasets/ds.c55aa956bd9342b1a0eb1388dd91be5b/sequenced files/297928186;/projects/3703703/biosamples/4407405/datasets/ds.c55aa956bd9342b1a0eb1388dd91be5b/sequenced files/297928187;,FASTQ,24-07574-T1,,10126,PRAGMatIQ_CHUS,False,father,M,Healthy,,1975-07-04,,,,Default,12,,,
-
-```
-from lib.nanuq import Nanuq
-samplenames = Nanuq().get_samplenames("LH00336_0100")
-print(samplenames.text)
-```
-##2024-09-18
-##Centre for Pediatric Clinical Genomics
-##Flow Cell: 22333HLT1
-##Principal Investigator: Dr Leora Witkowski
-##Nanuq References: LH00336_0100
-##Content: Internal_Sample_ID -> Client_Sample_Name Conversion grid
-##-------------------------------------------
-##Internal_Sample_ID	Client_Sample_Name
-##-------------------------------------------
-28978	MO-24-012091
-28979	MO-24-012127
-28980	MO-24-012125
-##-------------------------------------------
-##Description of the conversion grid:
-##A "Client_Sample_Name" represents the name of a sequencing sample initially assigned by the client.
-##The "Internal_Sample_ID" is the internal identifier assigned by the Center for this sample.
-##Use of an "Internal_Sample_ID" ensures the traceability of this sample throughout the sequencing
-##process, but also the anonymization of the information generated and transferred in the
-##frame of this project.
-
-
-Example of Nanuq sample: `json.loads(Nanuq().get_sample(22283))`
-[{'libType': 'DNA PCR-Free',
-  'ldmServiceRequestId': '23-06383-T1',
-  'labAliquotId': '22283',
-  'panelCode': 'PRAGMATIQ',
-  'projectGroup': 'PRAGMATIQ',
-  'sampleType': 'DNA',
-  'priority': '',
-  'ldmSampleId': '23-06383-T1',
-  'ldm': 'LDM-CHUS',
-  'patient': {'designFamily': 'TRIO',
-   'familyId': '23-05982-T1',
-   'familyMember': 'FTH',
-   'firstName': 'Jean',
-   'lastName': 'DUPONT',
-   'ramq': 'ABCD12345678',
-   'sex': 'MALE',
-   'mrn': '00000000',
-   'ep': 'CHUS',
-   'birthDate': '01/01/1111',
-   'fetus': False,
-   'status': 'UNK'},
-  'labAliquotReceptionDate': '03/08/2023',
-  'labAliquotSubmissionDate': '01/08/2023',
-  'specimenType': 'NBL',
-  'projectName': 'PRAGMATIQ_CHUS',
-  'ldmSpecimenId': '23-06383-T1'}]
-  """
+"""

@@ -61,7 +61,7 @@ def get_nanuq_sample_data(cqgc_id):
     """
     sample_infos = {}
     try:
-        data = json.loads(Nanuq().get_sample(cqgc_id))
+        data = json.loads(Nanuq().get_clinical_sample(cqgc_id))
     except Exception as e:
         logging.error(f"JSONDecodeError {e} could not decode biosample {cqgc_id}")
     else:
