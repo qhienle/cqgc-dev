@@ -183,6 +183,34 @@ class qlin:
         return authenticatedHeaders
    
 
+    def search_analysis(self, aliquot=None, sample=None, specimen=None, jhn=None, mrn=None, analysis_id=None, sequencing_id=None):
+        """
+        Implement method for endpoint '/api/v1/search/analysis'.
+        Multiple arguments are treated in params as 'AND' condition.
+        - aliquot: [str] CQGC lab id. Ex: '40250'
+        # TODO: args for sample, specimen, mrn, jhn, ...
+        - return : [dict] Analysis, if found. 
+                   Else, HTTP errors 400 (bad request) or 403 (forbidden).
+        """
+        endpoint = '/api/v1/search/analysis?'
+        params   = ''
+        if aliquot: params += f'aliquot={aliquot}&'
+
+        response = requests.get(f"{self.url}{endpoint}{params}", headers=self.authenticatedHeaders)
+        if response.status_code == 200:
+            return response.json().get('analysis')
+        else:
+            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
+
+
+    def search_aliquot(self, cqgc_id):
+        """
+        Search analysis for CQGC ID (aliquot)
+        - cqgc_id: [str] ex: '40250'
+        - return : [dict] Analysis
+        """
+        return self.search_analysis(aliquot=cqgc_id)
+
 
     def get_analyses_payloads_EXOG(self, file_termes):
         # Parse using Panda read_csv utility
