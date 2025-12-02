@@ -189,12 +189,14 @@ class qlin:
         Multiple arguments are treated in params as 'AND' condition.
         - aliquot: [str] CQGC lab id. Ex: '40250'
         # TODO: args for sample, specimen, mrn, jhn, ...
-        - return : [dict] Analysis, if found. 
+        - return : [list] Analysis, if found. 
                    Else, HTTP errors 400 (bad request) or 403 (forbidden).
         """
         endpoint = '/api/v1/search/analysis?'
         params   = ''
-        if aliquot: params += f'aliquot={aliquot}&'
+        if aliquot:     params += f'aliquot={aliquot}&'
+        if analysis_id: params += f'aliquot={analysis_id}&'
+        if mrn:         params += f'aliquot={mrn}&'
 
         response = requests.get(f"{self.url}{endpoint}{params}", headers=self.authenticatedHeaders)
         if response.status_code == 200:
@@ -203,13 +205,27 @@ class qlin:
             raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
 
 
-    def search_aliquot(self, cqgc_id):
+    def get_an_analysis(self, analysis_id):
         """
-        Search analysis for CQGC ID (aliquot)
-        - cqgc_id: [str] ex: '40250'
-        - return : [dict] Analysis
+        GET analysis by `analysis_id` from Qlin
+        - analysis_id: [str] ex: '822034'
+        - return     : [dict] Analysis
         """
-        return self.search_analysis(aliquot=cqgc_id)
+        endpoint = '/api/v1/analysis/'
+        response = requests.get(f"{self.url}{endpoint}{analysis_id}", headers=self.authenticatedHeaders)
+        if response.status_code == 200:
+            return response.json()#.get('analysis')
+        else:
+            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\Analysis ID:\n{analysis_id}")
+
+
+    def get_hpo_terms(self, analysis_id):
+        """
+        GET HPO terms for analysis_id
+        - analysis_id: [str] ex: '822034'
+        - return     : TODO
+        """
+        return analysis_id
 
 
     def get_analyses_payloads_EXOG(self, file_termes):
@@ -331,7 +347,6 @@ class qlin:
              patient['last_name'] = generate_random_string(8)
 #             patient['sample'] = generate_random_string(8)
         return analysis_payload
-
 
 
 #    def search_analysis_all (self, analysis_payload):
@@ -588,13 +603,6 @@ class qlin:
 #            return response.json()
 #        else:
 #            raise APIException (f"Failed pipeline start\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
-
-
-
-
-
-
-
 
 
     def germinal_termes_to_analysis_payload(self, file_termes, fix):
