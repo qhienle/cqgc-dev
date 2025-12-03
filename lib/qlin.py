@@ -219,7 +219,7 @@ class qlin:
             raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\Analysis ID:\n{analysis_id}")
 
 
-    def extract_hpo_terms(analysis):
+    def extract_hpo_terms(mrn, self=ql):
         """
         Extract HPO terms from analysis (Qlin data structure).
         - analysis: [dict] ex: {}
@@ -227,14 +227,20 @@ class qlin:
         Ex: q.extract_hpo_terms(q.search_analysis(mrn=3554393))
         """
         hpos = []
+        analysis = self.search_analysis(mrn=mrn)
+        if len(analysis) != 1:
+            print(f"WARNING: Number of analyses for MRN {mrn} is not equal to 1. {len(analysis)}:\n{analysis}")
+        else:
+            analysis = analysis[0]
         for patient in analysis['patients']:
-            try:
-                phenotypes = patient['clinical']['signs']
-            except KeyError as e:
-                print(f"ERROR!: while getting `patient['clinical']['signs']` {e}")
-            else:
-                for pheno in phenotypes:
-                    hpos.append(pheno['code'])
+            if patient['mrn'] == mrn:
+                try:
+                    phenotypes = patient['clinical']['signs']
+                except KeyError as e:
+                    logging.error(e)
+                else:
+                    for pheno in phenotypes:
+                        hpos.append(pheno['code'])
         return hpos
 
 
