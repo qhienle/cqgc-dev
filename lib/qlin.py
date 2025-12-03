@@ -237,7 +237,7 @@ class qlin:
                 try:
                     phenotypes = patient['clinical']['signs']
                 except KeyError as e:
-                    logging.error(e)
+                    print(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
                 else:
                     for pheno in phenotypes:
                         hpos.append(pheno['code'])
