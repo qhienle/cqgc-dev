@@ -195,8 +195,8 @@ class qlin:
         endpoint = '/api/v1/search/analysis?'
         params   = ''
         if aliquot:     params += f'aliquot={aliquot}&'
-        if analysis_id: params += f'aliquot={analysis_id}&'
-        if mrn:         params += f'aliquot={mrn}&'
+        if analysis_id: params += f'analysis_id={analysis_id}&'
+        if mrn:         params += f'mrn={mrn}&'
 
         response = requests.get(f"{self.url}{endpoint}{params}", headers=self.authenticatedHeaders)
         if response.status_code == 200:
