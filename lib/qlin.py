@@ -219,7 +219,7 @@ class qlin:
             raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\Analysis ID:\n{analysis_id}")
 
 
-    def extract_hpo_terms(mrn, self=ql):
+    def extract_hpo_terms(self, mrn):
         """
         Extract HPO terms from analysis (Qlin data structure).
         - analysis: [dict] ex: {}
