@@ -58,12 +58,12 @@ class ArgumentException (Exception):
     def __init__(self, message):
         super().__init__(message)
 
-#class ParsingException (Exception):
-#    """
-#    Defines a Parsingexception
-#    """
-#    def __init__(self, message):
-#        super().__init__(message)
+class ParsingException (Exception):
+    """
+    Defines a Parsingexception
+    """
+    def __init__(self, message):
+        super().__init__(message)
 
 class APIException (Exception):
     """
@@ -126,6 +126,7 @@ class qlin:
 
     Args:
         url (string): the url to the QLIN API
+        termes (string): a file containing cases to insert into QLIN
     """
 
     def __init__(self, url):
@@ -182,6 +183,66 @@ class qlin:
         return authenticatedHeaders
    
 
+    def search_analysis(self, aliquot=None, sample=None, specimen=None, jhn=None, mrn=None, analysis_id=None, sequencing_id=None):
+        """
+        Implement method for endpoint '/api/v1/search/analysis'.
+        Multiple arguments are treated in params as 'AND' condition.
+        - aliquot: [str] CQGC lab id. Ex: '40250'
+        # TODO: args for sample, specimen, mrn, jhn, ...
+        - return : [list] Analysis, if found. 
+                   Else, HTTP errors 400 (bad request) or 403 (forbidden).
+        """
+        endpoint = '/api/v1/search/analysis?'
+        params   = ''
+        if aliquot:     params += f'aliquot={aliquot}&'
+        if analysis_id: params += f'analysis_id={analysis_id}&'
+        if mrn:         params += f'mrn={mrn}&'
+
+        response = requests.get(f"{self.url}{endpoint}{params}", headers=self.authenticatedHeaders)
+        if response.status_code == 200:
+            return response.json().get('analysis')
+        else:
+            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
+
+
+    def get_an_analysis(self, analysis_id):
+        """
+        GET analysis by `analysis_id` from Qlin
+        - analysis_id: [str] ex: '822034'
+        - return     : [dict] Analysis
+        """
+        endpoint = '/api/v1/analysis/'
+        response = requests.get(f"{self.url}{endpoint}{analysis_id}", headers=self.authenticatedHeaders)
+        if response.status_code == 200:
+            return response.json()#.get('analysis')
+        else:
+            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\Analysis ID:\n{analysis_id}")
+
+
+    def extract_hpo_terms(mrn, self=ql):
+        """
+        Extract HPO terms from analysis (Qlin data structure).
+        - analysis: [dict] ex: {}
+        - return  : [list] HPO terms
+        Ex: q.extract_hpo_terms(q.search_analysis(mrn=3554393))
+        """
+        hpos = []
+        analysis = self.search_analysis(mrn=mrn)
+        if len(analysis) != 1:
+            print(f"WARNING: Number of analyses for MRN {mrn} is not equal to 1. {len(analysis)}:\n{analysis}")
+        else:
+            analysis = analysis[0]
+        for patient in analysis['patients']:
+            if patient['mrn'] == mrn:
+                try:
+                    phenotypes = patient['clinical']['signs']
+                except KeyError as e:
+                    print(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
+                else:
+                    for pheno in phenotypes:
+                        hpos.append(pheno['code'])
+        return hpos
+
 
     def get_analyses_payloads_EXOG(self, file_termes):
         # Parse using Panda read_csv utility
@@ -213,7 +274,7 @@ class qlin:
             # Setting up defaulkt values for EXOG
             analysis_payload['type'] = "GERMLINE"
             analysis_payload['sequencing_types'] = ["WXS"]
-            analysis_payload['diagnosis_hypothesis'] = 'unknown_hypothesis'
+            analysis_payload['diagnosis_hypothesis'] = 'diagnosis_hypothesis'
 
             # Update patients information using the Termes Dataframe
             patients=[]
@@ -245,36 +306,36 @@ class qlin:
         return analyses_payloads
 
 
-    def update_validate_EXOG_analysis_payload_from_nanuq(self, analysis_payload):
+    def update_validate_analysis_payload_from_nanuq(self, analysis_payload):
         nq = Nanuq()
         # Iterate trought family members to merge data from Nanuq and termes HPO 
         for patient in analysis_payload['patients']:
             sample_nanuq = json.loads(nq.get_clinical_sample(patient['aliquot']))[0]
             if (str(sample_nanuq['labAliquotId']) != str(patient['aliquot'])):
-                raise ValidationException(f"aliquot mismatch: {patient['aliquot']}, {sample_nanuq['labAliquotId']}")
+                raise ParsingException(f"aliquot mismatch: {patient['aliquot']}, {sample_nanuq['labAliquotId']}")
             if (str(sample_nanuq['ldmSampleId']) != str(patient['sample']) ):
-                raise ValidationException (f"ldmSampleId mismatch: {sample_nanuq['ldmSampleId']}, {patient['sample']}" )
+                raise ParsingException (f"ldmSampleId mismatch: {sample_nanuq['ldmSampleId']}, {patient['sample']}" )
             if (str(sample_nanuq['ldmSpecimenId']) != str(patient['specimen']) ):
-                raise ValidationException (f"ldmSpecimenId mismatch: {sample_nanuq['ldmSpecimenId']}, {patient['specimen']}" )
+                raise ParsingException (f"ldmSpecimenId mismatch: {sample_nanuq['ldmSpecimenId']}, {patient['specimen']}" )
             if (str(sample_nanuq['patient']['mrn']) != str(patient['mrn']) ):
                 if (str(sample_nanuq['patient']['mrn']) != f"{int(patient['mrn']):08d}"):
-                    raise ValidationException (f"mrn mismatch: cannot fix {sample_nanuq['patient']['mrn']}, {patient['mrn']}" )
+                    raise ParsingException (f"mrn mismatch: cannot fix {sample_nanuq['patient']['mrn']}, {patient['mrn']}" )
                 else:
                     print (f"mrn mismatch: fixing {patient['mrn']} to {sample_nanuq['patient']['mrn']}" )
                     patient['mrn'] = '0'+str(patient['mrn'])
             try:
                 if (str(sample_nanuq['patient']['ramq']) != str(patient['jhn']) ):
-                    raise ValidationException (f"ramq mismatch: {sample_nanuq['patient']['ramq']}, {patient['jhn']}" )
+                    raise ParsingException (f"ramq mismatch: {sample_nanuq['patient']['ramq']}, {patient['jhn']}" )
             except KeyError:
                 print (f"Sample {patient['aliquot']} doesn't have ramq but mrn is valid")
             if (str(sample_nanuq['patient']['sex']) != str(patient['sex']) ):
-                raise ValidationException (f"sex mismatch: {sample_nanuq['patient']['sex']}, {patient['sex']}" )
+                raise ParsingException (f"sex mismatch: {sample_nanuq['patient']['sex']}, {patient['sex']}" )
 
             #Fixing fields for MOTHER and FATHER
             if (str(sample_nanuq['patient']['familyMember']) == "MTH"): sample_nanuq['patient']['familyMember'] = 'MOTHER'
             if (str(sample_nanuq['patient']['familyMember']) == "FTH"): sample_nanuq['patient']['familyMember'] = 'FATHER'
             if (str(sample_nanuq['patient']['familyMember']) != str(patient['family_member']) ):
-                raise ValidationException (f"familyMember mismatch: {sample_nanuq['patient']['familyMember']}, {patient['family_member']}" )
+                raise ParsingException (f"familyMember mismatch: {sample_nanuq['patient']['familyMember']}, {patient['family_member']}" )
 
             # Fix improper panel codes from Nanuq
             if sample_nanuq['panelCode'] == 'PGDI':
@@ -294,119 +355,6 @@ class qlin:
         return analysis_payload
 
 
-    def get_analyses_payloads_EXOS(self, file_analyses):
-        # Parse using Panda read_csv utility
-        analysesDF_column_names = ['Date', 'Analysis_Run', 'Analysis_Sample', 'Normal_Run', 'Normal_Sample', 'Lab_Individual', 'Lab_Sample', 'Analysis_Name', 'Analysis_Type']
-        analysesDF = pd.read_csv(file_analyses, sep='\t', header=None, names=analysesDF_column_names)
-
-        # Iterate through cases to create analysis payload
-        analyses_payloads = []
-        for index, analyse in analysesDF.iterrows():
-            patient = {}
-            if analyse['Analysis_Type'] != 'WES_somatic-tumor_only':
-                raise ValidationException(f"The analyses file for EXOS contains Analysis_Type different then WES_somatic-tumor_only")
-            patient['family_member'] = 'PROBAND'
-            patient['run_name'] = str(analyse['Analysis_Run'])
-            patient['aliquot'] = str(analyse['Analysis_Sample'])
-            patient['clinical'] = {'signs':[{'code':'HP:0000005', 'observed': True}]}
-            analysis_payload = {
-                'type':'SOMATIC_TUMOR_ONLY', 
-                'sequencing_types':['WXS'], 
-                'diagnosis_hypothesis':'unknown_hypothesis',
-                'patients':[patient]
-            }
-            analyses_payloads.append(analysis_payload)
-        return analyses_payloads
-
-
-    def update_validate_EXOS_analysis_payload_from_nanuq(self, analysis_payload):
-        nq = Nanuq()
-        # Iterate trought family members to merge data from Nanuq
-        for patient in analysis_payload['patients']:
-            sample_nanuq = json.loads(nq.get_clinical_sample(patient['aliquot']))[0]
-            birth_date_nanuq = str(sample_nanuq['patient']['birthDate'])
-
-            run = patient['run_name']
-            m=re.search('(.*)/(.*)/(.*)', birth_date_nanuq)
-            birth_date_clin = m.group(3) + "-" + m.group(2) + "-" + m.group(1)
-            patient['birth_date'] = birth_date_clin
-#"patients[0].birth_date":["'09/12/2022' should be formatted like: yyyy-MM-dd"]
-
-            patient['sample'] = str(sample_nanuq['ldmSampleId'])
-            patient['specimen'] = str(sample_nanuq['ldmSpecimenId'])
-            patient['mrn'] = str(sample_nanuq['patient']['mrn'])
-            patient['jhn'] = str(sample_nanuq['patient']['ramq'])
-            patient['sex'] = str(sample_nanuq['patient']['sex'])
-            patient['first_name'] = str(sample_nanuq['patient']['firstName'])
-            patient['last_name'] = str(sample_nanuq['patient']['lastName'])
-            patient['laboratory_id'] = str(sample_nanuq['ldm'])
-            patient['organization_id'] = str(sample_nanuq['patient']['ep'])
-            patient['sample_code'] = str(sample_nanuq['sampleType'])
-            patient['specimen_code'] = str(sample_nanuq['specimenType'])
-            analysis_payload['analysis_code'] = str(sample_nanuq['panelCode'])
-            analysis_payload['priority'] = str(sample_nanuq['priority']) if (sample_nanuq['priority'] != '') else 'ROUTINE'
-
-        return analysis_payload
-
-
-    def get_analyses_payloads_TRAN(self, file_analyses):
-        # Parse using Panda read_csv utility
-        analysesDF_column_names = ['Date', 'Analysis_Run', 'Analysis_Sample', 'Normal_Run', 'Normal_Sample', 'Lab_Individual', 'Lab_Sample', 'Analysis_Name', 'Analysis_Type']
-        analysesDF = pd.read_csv(file_analyses, sep='\t', header=None, names=analysesDF_column_names)
-
-        # Iterate through cases to create analysis payload
-        analyses_payloads = []
-        for index, analyse in analysesDF.iterrows():
-            patient = {}
-            if analyse['Analysis_Type'] != 'RNASeq_somatic':
-                raise ValidationException(f"The analyses file for TRAN contains Analysis_Type different then RNASeq_somatic")
-            patient['family_member'] = 'PROBAND'
-            patient['run_name'] = str(analyse['Analysis_Run'])
-            patient['aliquot'] = str(analyse['Analysis_Sample'])
-            patient['clinical'] = {'signs':[{'code':'HP:0000005', 'observed': True}]}
-            analysis_payload = {
-                'type':'SOMATIC_TUMOR_ONLY',
-                'sequencing_types':['WTS'],
-                'diagnosis_hypothesis':'unknown_hypothesis',
-                'patients':[patient]
-            }
-            analyses_payloads.append(analysis_payload)
-        return analyses_payloads
-
-
-
-    def update_validate_TRANS_analysis_payload_from_nanuq(self, analysis_payload):
-        nq = Nanuq()
-        # Iterate trought family members to merge data from Nanuq
-        for patient in analysis_payload['patients']:
-            sample_nanuq = json.loads(nq.get_clinical_sample(patient['aliquot']))[0]
-            birth_date_nanuq = str(sample_nanuq['patient']['birthDate'])
-
-            run = patient['run_name']
-            m=re.search('(.*)/(.*)/(.*)', birth_date_nanuq)
-            birth_date_clin = m.group(3) + "-" + m.group(2) + "-" + m.group(1)
-            patient['birth_date'] = birth_date_clin
-#"patients[0].birth_date":["'09/12/2022' should be formatted like: yyyy-MM-dd"]
-
-            patient['sample'] = str(sample_nanuq['ldmSampleId'])
-            patient['specimen'] = str(sample_nanuq['ldmSpecimenId'])
-            patient['mrn'] = str(sample_nanuq['patient']['mrn'])
-            patient['jhn'] = str(sample_nanuq['patient']['ramq'])
-            patient['sex'] = str(sample_nanuq['patient']['sex'])
-            patient['first_name'] = str(sample_nanuq['patient']['firstName'])
-            patient['last_name'] = str(sample_nanuq['patient']['lastName'])
-            patient['laboratory_id'] = str(sample_nanuq['ldm'])
-            patient['organization_id'] = str(sample_nanuq['patient']['ep'])
-            patient['sample_code'] = str(sample_nanuq['sampleType'])
-            patient['specimen_code'] = str(sample_nanuq['specimenType'])
-            analysis_payload['analysis_code'] = str(sample_nanuq['panelCode'])
-            analysis_payload['priority'] = str(sample_nanuq['priority']) if (sample_nanuq['priority'] != '') else 'ROUTINE'
-
-        return analysis_payload
-
-
-
-
     def anonymise_analysis_payload(self, analysis_payload):
         for patient in analysis_payload['patients']:
              patient['mrn'] = generate_random_string(8)
@@ -417,8 +365,7 @@ class qlin:
         return analysis_payload
 
 
-
-#    def search_analysis_from_payload_all (self, analysis_payload):
+#    def search_analysis_all (self, analysis_payload):
 #        params = ""
 #        for patient in analysis_payload['patients']:
 #            if patient['jhn']: params += 'jhn=' + patient['jhn'] + '&'
@@ -435,7 +382,7 @@ class qlin:
 #            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
 #             
 #
-#    def search_analysis_from_payload_jhn_mrn (self, analysis_payload):
+#    def search_analysis_jhn_mrn (self, analysis_payload):
 #        params = ""
 #        for patient in analysis_payload['patients']:
 #            if patient['jhn']: params += 'jhn=' + patient['jhn'] + '&'
@@ -450,7 +397,7 @@ class qlin:
 #            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
 
 
-    def search_analysis_from_aliquot_sample_in_payload (self, analysis_payload):
+    def search_analysis_aliquot_sample (self, analysis_payload):
         params = ""
         for patient in analysis_payload['patients']:
             params += 'aliquot=' + patient['aliquot'] + '&'
@@ -465,7 +412,7 @@ class qlin:
             raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
 
     def validate_analysis_payload(self, analysis_payload):
-        analyses = self.search_analysis_from_aliquot_sample_in_payload(analysis_payload)
+        analyses = self.search_analysis_aliquot_sample(analysis_payload)
         if (len(analyses) > 0):
             raise ValidationException (f"Sample exists in QLIN:\n\nanalysis_payload: {analysis_payload}\n\nanalyses: {analyses}")
 
@@ -547,7 +494,6 @@ class qlin:
                 { "type": "IGV",      "format": "BW",   "path": path_prefix + ".seg.bw" },
                 { "type": "IGV",      "format": "BW",   "path": path_prefix + ".hard-filtered.baf.bw" },
                 { "type": "IGV",      "format": "BED",  "path": path_prefix + ".HyperExomeV2_combined_targets.bed" },
-#                { "type": "IGV",      "format": "BED",  "path": path_prefix + ".KAPA_HyperExome_hg38_combined_targets.bed" },
 #                { "type": "CNVVIS",   "format": "PNG",  "path": path_prefix + ".cnv.calls.png" },
                 { "type": "COVGENE",  "format": "CSV",  "path": path_prefix + ".coverage_by_gene.GENCODE_CODING_CANONICAL.csv" },
                 { "type": "QCRUN",    "format": "JSON", "path": path_prefix + ".QC_report.json" }
@@ -580,86 +526,7 @@ class qlin:
         return sequencing_payload
 
 
-
-
-
-    def get_sequencing_payload_EXOS(self, analysis_payload):
-        """
-        Generates the payload to pass to create_sequencings using the updated analysis_payload from create_analysis. Data consists of the sequencing info and the files generated by the bioinformatic analysis.
-
-        Args:
-            analysis_payload (json): a payload containing the case and the associated sequencing_ids
-
-        Returns:
-            sequencing_payload (json): a json payload
-        """
-        sequencing_payload = {}
-        sequencings = []
-        for patient in analysis_payload['patients']:
-            run = patient['run_name']
-            m=re.search('(.*)_(.*)_(.*)_(.*)', run)
-            date_tmp=m.group(1)
-            if len (date_tmp) == 8: #NovaX
-                year = date_tmp[:4]
-                if len(year) == 2: year = '20' + year
-                date = year + "-" + date_tmp[4:6] + "-" + date_tmp[6:8]
-            else: # Nova6000
-                year = date_tmp[:2]
-                if len(year) == 2: year = '20' + year
-                date = year + "-" + date_tmp[2:4] + "-" + date_tmp[4:6]
-            sequencer=m.group(2)
-            run_id=m.group(3)
-            flowcell=m.group(4)
-
-            path_prefix = '/' + run + '_somatic/' + patient['aliquot']
-            patient['resequencing'] = False
-            files = [
-                { "type": "ALIR",     "format": "CRAM", "path": path_prefix + ".dragen.WES_somatic-tumor_only.cram" },
-                { "type": "ALIR",     "format": "CRAI", "path": path_prefix + ".dragen.WES_somatic-tumor_only.cram.crai" },
-                { "type": "SNV",      "format": "VCF",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.hard-filtered.gvcf.gz" },
-                { "type": "SNV",      "format": "TBI",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.hard-filtered.gvcf.gz.tbi" },
-                { "type": "SCNV",     "format": "VCF",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.cnv.vcf.gz" },
-                { "type": "SCNV",     "format": "TBI",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.cnv.vcf.gz.tbi" },
-                { "type": "SSUP",     "format": "TGZ",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.extra.tgz" },
-                { "type": "IGV",      "format": "BW",   "path": path_prefix + ".dragen.WES_somatic-tumor_only.seg.bw" },
-                { "type": "IGV",      "format": "BW",   "path": path_prefix + ".dragen.WES_somatic-tumor_only.hard-filtered.baf.bw" },
-                { "type": "IGV",      "format": "BED",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.KAPA_HyperExome_hg38_combined_targets.bed" },
-                { "type": "COVGENE",  "format": "CSV",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.coverage_by_gene.GENCODE_CODING_CANONICAL.csv" },
-                { "type": "QCRUN",    "format": "JSON", "path": path_prefix + ".dragen.WES_somatic-tumor_only.QC_report.json" },
-                { "type": "NORM_VEP", "format": "VCF",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.hard-filtered.norm.VEP.vcf.gz" },
-                { "type": "NORM_VEP", "format": "TBI",  "path": path_prefix + ".dragen.WES_somatic-tumor_only.hard-filtered.norm.VEP.vcf.gz.tbi" }
-            ]
-            patient['files'] = files
-            patient['experiment'] = {
-                "platform": "Illumina",
-                "sequencer": sequencer,
-                "run_name": run,
-                "run_date": date,
-                "run_alias": run_id,
-                "flowcell_id": flowcell,
-                "is_paired_end": True,
-                "fragment_size": 100,
-                "experimental_strategy": "WXS",
-                "capture_kit": "RocheKapaHyperExome",
-                "bait_definition": "KAPA_HyperExome_hg38_capture_targets",
-                "protocol": "HyperPlus"
-            }
-            patient['workflow'] = { "name": "Dragen", "version": "4.2.4", "genome_build": "GRCh38" }
-            sequencings.append(patient)
-        sequencing_payload['sequencings'] = sequencings
-        return sequencing_payload
-
-
-
-
-
-
-
-
-
-
-
-    def search_sequencing_from_aliquot_sample_in_payload (self, sequencing_payload):
+    def search_sequencing_aliquot_sample (self, sequencing_payload):
         params = ""
         for sequencing in sequencing_payload['sequencings']:
             params += 'aliquot=' + sequencing['aliquot'] + '&'
@@ -675,7 +542,7 @@ class qlin:
 
 
     def validate_sequencing_payload(self, sequencing_payload):
-        analyses = self.search_sequencing_from_aliquot_sample_in_payload(sequencing_payload)
+        analyses = self.search_sequencing_aliquot_sample(sequencing_payload)
         if (len(analyses) > 0):
             raise ValidationException (f"Sample exists in QLIN:\n\nsequencing_payload: {sequencing_payload}\n\nanalyses: {analyses}")
 
@@ -701,67 +568,129 @@ class qlin:
 
         response = requests.post(self.url + '/api/v1/analysis/sequencings?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(sequencing_payload))
         # Check if the request was successful
-        if response.status_code == 201 or response.status_code == 500: 
-### A enlever quand le bug response=500 sera corrige dans QLIN
+        if response.status_code == 201:
             print(f"Sequencing created {response.status_code}\n{json.dumps(sequencing_payload,indent=2)}\n{response.text}")
-### A Remettre quand le bug response=500 sera corrige dans QLIN
-#            return response.json()
+            return response.json()
         else:
             print (f"Failed sequencing creation\n\n{response}")
             raise APIException (f"Failed sequencing creation\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(sequencing_payload,indent=2)}")
 
 
-    def get_pipeline_payload(self, sequencing_payload):
+#    def get_pipeline_payload(self, sequencing_payload):
+#        """
+#        Generates the payload to pass to create_pipeline using the updated sequencing_payload from create_sequencings. Data consists of the sequencing ids to launch the pipeline.
+#
+#        Args:
+#            sequencing_payload (json): a payload containing the sequencing ids to launch pipelines
+#
+#        Returns:
+#            pipeline_payload (json): a json payload
+#        """
+#
+#        pipeline_payload = {}
+#        sequencing_ids = []
+#        for sequencing in sequencing_payload['sequencings']:
+#            sequencing_ids.append(sequencing['sequencing_id'])
+#        pipeline_payload['sequencing_ids'] = sequencing_ids
+#        return pipeline_payload
+#
+#
+#    def validate_pipeline_payload(self, pipeline_payload):
+#
+#
+#    def push_pipeline_payload(self, pipeline_payload):
+#        """
+#        Triggers the pipeline that inserts sequencing data into QLIN by sending a POST to the '/api/v1/analysis/run' endpoint.
+#
+#        Args:
+#            pipeline_payload (json): json object containing the sequencing ids to launch
+#
+#        Raises:
+#            APIException: if the API returns a status other then 201 (insertion succes)
+#
+#        Returns:
+#            response (json): the response of the API call
+#        """
+#
+#        response = requests.post(self.url + '/api/v1/analysis/run?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(pipeline_payload))
+#        # Check if the request was successful
+#        if response.status_code == 201:
+#            print(f"Pipeline started Case: {pipeline_payload}")
+#            return response.json()
+#        else:
+#            raise APIException (f"Failed pipeline start\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
+
+
+    def germinal_termes_to_analysis_payload(self, file_termes, fix):
         """
-        Generates the payload to pass to create_pipeline using the updated sequencing_payload from create_sequencings. Data consists of the sequencing ids to launch the pipeline.
+        NEW!
+        """
+        nq = Nanuq()
+
+        termesDF_column_names = [ 'run_name', 'aliquot', 'Statut séquençage', 'sample', 'specimen', 'mrn', 'jhn', 'birth_date', 'sex', 'Design de famille', 'Famille ID',  'family_member', 'Statut', 'HPO', 'In current batch', 'Run associée', 'FAM', 'Individual', 'Father', 'Mother', 'Sex', 'Pheno', 'sequencing_types', 'type', 'analysis_code', 'priority', 'first_name', 'last_name', 'organization_id', 'laboratory_id' ]
+
+        termesDF = pd.read_csv(file_termes, sep='\t', header=None, names=termesDF_column_names)
+
+        # Redefine column types after overwritten types from pd.read_csv
+        for col in termesDF_column_names:
+            if col not in termesDF.columns:
+                termesDF[col] = pd.Series(dtype='str')
+            else:
+                termesDF[col] = termesDF[col].astype('str')
+
+        # Replance known values
+        mappings = {'Mâle': 'MALE', 'Femelle': 'FEMALE', 'Inconnu': 'UNKNOWN', 'Proband': 'PROBAND', 'Père': 'FTH', 'Mère':'MTH', 'Frère':'BRO', 'Soeur':'SIS' }
+        termesDF = termesDF.replace(mappings)
+
+        print (termesDF)
+        print (termesDF.to_json())
+        print (termesDF.to_json(orient='records', indent=4))
+#        for family in termesDF['FAM'].unique():
+#            family_members = termesDF[termesDF['FAM'] == family]
+#    
+#            # Iterate trought family members to merge data from Nanuq and termes HPO 
+#            for index, individual in family_members.iterrows():
+#                sample_nanuq = json.loads(nq.get_sample(individual['aliquot']))[0]
+#                print (f"sample_nanuq {sample_nanuq}")
+##                print (f"{nq.get_sample(41307)}")
+#                family_members.loc[index] = self.fix_nanuq_termes (sample_nanuq, individual)
+#    
+#            # Create and push analysis
+#            analysis_payload = self.get_analysis_payload(family_members, fix)
+#            if anonymise: analysis_payload = self.anonymize_analysis_payload(analysis_payload)
+        analysis_payload = self.nanuq_validate_analysis_payload(termesDF)
+        #print (f"analysis_payload: {analysis_payload}")
+#        if anonymise: analysis_payload = self.anonymize_analysis_payload(analysis_payload)
+        return analysis_payload
+
+    def load_termes(self, file_termes):
+        """
+        Parses the content of the termes file into a valid dataframe
 
         Args:
-            sequencing_payload (json): a payload containing the sequencing ids to launch pipelines
+            file_termes (string): the name of the file to convert into dataframe
 
         Returns:
-            pipeline_payload (json): a json payload
+            termesDF (pandas.DataFrame): a dataframe contaning the information in the termes file
         """
 
-        pipeline_payload = {}
-        sequencing_ids = []
-        for sequencing in sequencing_payload['sequencings']:
-            sequencing_ids.append(sequencing['sequencing_id'])
-        pipeline_payload['sequencing_ids'] = sequencing_ids
-        return pipeline_payload
+        termesDF = pd.read_csv(file_termes, sep='\t', header=None, names=self.termesDF_column_types.keys(), dtype=self.termesDF_column_types)
 
+        # Replance known values
+        mappings = {'Mâle': 'MALE', 'Femelle': 'FEMALE', 'Inconnu': 'UNKNOWN', 'Proband': 'PROBAND', 'Père': 'FTH', 'Mère':'MTH', 'Frère':'BRO', 'Soeur':'SIS' }
+        termesDF = termesDF.replace(mappings)
 
-    def validate_pipeline_payload(self, pipeline_payload):
-        response = requests.post(self.url + '/api/v1/analysis/run?validate-only=true', headers=self.authenticatedHeaders, data=json.dumps(pipeline_payload))
-        # Check if the request was successful
-        if response.status_code != 200:
-            raise ValidationException (f"Pipeline creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
+        # Create columns not present Termes for payload
+#        termesDF['sequencing_types'] = None
+#        termesDF['type'] = None
+#        termesDF['analysis_code'] = None
+#        termesDF['priority'] = None
+#        termesDF['first_name'] = None
+#        termesDF['last_name'] = None
+#        termesDF['organization_id'] = None
+#        termesDF['laboratory_id'] = None
 
-
-    def push_pipeline_payload(self, pipeline_payload):
-        """
-        Triggers the pipeline that inserts sequencing data into QLIN by sending a POST to the '/api/v1/analysis/run' endpoint.
-
-        Args:
-            pipeline_payload (json): json object containing the sequencing ids to launch
-
-        Raises:
-            APIException: if the API returns a status other then 201 (insertion succes)
-
-        Returns:
-            response (json): the response of the API call
-        """
-
-        response = requests.post(self.url + '/api/v1/analysis/run?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(pipeline_payload))
-        # Check if the request was successful
-        if response.status_code == 201:
-            print(f"Pipeline started Case: {pipeline_payload}")
-            return response.json()
-        else:
-            raise APIException (f"Failed pipeline start\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
-
-
-
-
+        return termesDF
 
     def load_analyses(self, file_analyses):
         """
@@ -786,6 +715,137 @@ class qlin:
         ]
         analysesDF = pd.read_csv(file_analyses, sep='\t', header=None, names=analysesDF_column_names)
         return analysesDF
+
+
+    def nanuq_validate_analysis_payload(self, analysis_payload):
+        nq = Nanuq()
+        print (analysis_payload)
+        for patient in analysis_payload['patients']:
+            print (f"patient: {patient}")
+            sample_nanuq = json.loads(nq.get_sample(patient['aliquot']))[0]
+            print (f"sample_nanuq: {sample_nanuq}")
+
+    def fix_nanuq_termes_old(self, nanuqJSON, termesDF):
+        """
+        Compares and combine one individual patient data from a Nanuq json object and the termes DataFrame. Fixes common differences and fails raising a ParsingException otherwise 
+
+        Args:
+            nanuqJSON (json): json object containing the individual clinical attributes submitted in Nanuq
+            termesDF (pandas.DataFrame): the dataframe containing the patient info included in the termes file
+
+        Raises:
+            ParsingException
+
+        Returns:
+            termesDF (pandas.DataFrame): a modified dataframe contaning the aggregate of the json and the dataframe data
+        """
+
+        # JSON format
+        #{
+        #    "labAliquotId": "36272",
+        #    "labAliquotReceptionDate": "16/05/2025",
+        #    "labAliquotSubmissionDate": "16/05/2025",
+        #    "ldm": "LDM-CHUSJ",
+        #    "ldmSampleId": "DM253501",
+        #    "ldmServiceRequestId": ".",
+        #    "ldmSpecimenId": "ZR050933",
+        #    "libType": "KAPA HyperExome",
+        #    "panelCode": "TUHEM",
+        #    "patient": {
+        #        "birthDate": "18/04/2006",
+        #        "ep": "CHUSJ",
+        #        "familyMember": "PROBAND",
+        #        "fetus": false,
+        #        "firstName": "MICHAEL",
+        #        "lastName": "METIVIER",
+        #        "mrn": "02310192",
+        #        "ramq": "METM06041815",
+        #        "sex": "MALE",
+        #        "status": "AFF"
+        #    },
+        #    "priority": "ROUTINE",
+        #    "projectGroup": "Exome_Germinal",
+        #    "projectName": "Exome_Germinal_CHUSJ",
+        #    "sampleType": "DNA",
+        #    "specimenType": "NBL"
+        #}
+
+        # TermesDF format
+        #run_name             250530_A00516_0683_AH5FYMDMX2
+        #aliquot                                      36272
+        #Statut séquençage                         séquencé
+        #sample                                    DM253501
+        #specimen                                  ZR050933
+        #mrn                                        2310192
+        #ramq                                  METM06041815
+        #birth_date                              2006-04-18
+        #sex                                           Mâle
+        #Design de famille                                -
+        #Famille ID                                 2310192
+        #family_member                              Proband
+        #Statut                                     Affecté
+        #HPO                                     HP:0006727
+        #In current batch                                 X
+        #Run associée                                   NaN
+        #FAM                                        2310192
+        #Individual                                   36272
+        #Father                                           0
+        #Mother                                           0
+        #Sex                                              1
+        #Pheno                                            2
+
+        if (str(nanuqJSON['labAliquotId']) != str(termesDF['aliquot'])):
+            raise ParsingException(f"aliquot mismatch: {termesDF['aliquot']}, {nanuqJSON['labAliquotId']}")
+        if (str(nanuqJSON['ldmSampleId']) != str(termesDF['sample']) ):
+            raise ParsingException (f"ldmSampleId mismatch: {nanuqJSON['ldmSampleId']}, {termesDF['sample']}" )
+        if (str(nanuqJSON['ldmSpecimenId']) != str(termesDF['specimen']) ):
+            raise ParsingException (f"ldmSpecimenId mismatch: {nanuqJSON['ldmSpecimenId']}, {termesDF['specimen']}" )
+        if (str(nanuqJSON['patient']['mrn']) != str(termesDF['mrn']) ):
+            if (str(nanuqJSON['patient']['mrn']) != f"{int(termesDF['mrn']):08d}"):
+#            if (str(nanuqJSON['patient']['mrn']) != str('0'+str(termesDF['mrn'])) ):
+                raise ParsingException (f"mrn mismatch: cannot fix {nanuqJSON['patient']['mrn']}, {termesDF['mrn']}" )
+            else:
+                print (f"mrn mismatch: fixing {termesDF['mrn']} to {nanuqJSON['patient']['mrn']}" )
+                termesDF['mrn'] = '0'+termesDF['mrn']
+        try:
+            if (str(nanuqJSON['patient']['ramq']) != str(termesDF['jhn']) ):
+                raise ParsingException (f"ramq mismatch: {nanuqJSON['patient']['ramq']}, {termesDF['jhn']}" )
+        except KeyError:
+            print (f"Sample {termesDF['aliquot']} doesn't have ramq but mrn is valid")
+        if (str(nanuqJSON['patient']['sex']) != str(termesDF['sex']) ):
+            raise ParsingException (f"sex mismatch: {nanuqJSON['patient']['sex']}, {termesDF['sex']}" )
+        if (str(nanuqJSON['patient']['familyMember']) != str(termesDF['family_member']) ):
+            raise ParsingException (f"familyMember mismatch: {nanuqJSON['patient']['familyMember']}, {termesDF['family_member']}" )
+
+#        # Analysis/Sequencing Type
+##        if nanuqJSON["projectGroup"] == "Exome_Somatique":
+#        if nanuqJSON["libType"] == "KAPA HyperExome" and nanuqJSON["specimenType"] == "TUMOR":
+#            termesDF['type'] = "SOMATIC_TUMOR_ONLY"
+#            termesDF['sequencing_types'] = ["WXS"]
+##        elif nanuqJSON["projectGroup"] == "Exome_Germinal":
+#        elif nanuqJSON["libType"] == "KAPA HyperExome" and nanuqJSON["specimenType"] == "NBL":
+#            termesDF['type'] = "GERMLINE"
+#            termesDF['sequencing_types'] = ["WXS"]
+#        elif nanuqJSON["libType"] == "Stranded Total RNA" and nanuqJSON["specimenType"] == "TUMOR":
+#            termesDF['type'] = "SOMATIC_TUMOR_ONLY"
+#            termesDF['sequencing_types'] = ["WTS"]
+#        else:
+#            raise ParsingException (f"Unknown sequence type {sample_nanuq} for {args.sample}")
+
+        # Define values from nanuq
+
+        # Fix improper panel codes from Nanuq
+        if nanuqJSON['panelCode'] == 'PGDI':
+            nanuqJSON['panelCode'] = 'EIDI'
+
+        termesDF['analysis_code'] = nanuqJSON['panelCode']
+        termesDF['priority'] = nanuqJSON['priority'] if (nanuqJSON['priority'] != '') else 'ROUTINE'
+        termesDF['first_name'] = nanuqJSON['patient']['firstName']
+        termesDF['last_name'] = nanuqJSON['patient']['lastName']
+        termesDF['laboratory_id'] = nanuqJSON['ldm']
+        termesDF['organization_id'] = nanuqJSON['patient']['ep']
+
+        return termesDF
 
     def reset_analyse_to_termes(self, analyse, run, termesDF):
         """
@@ -832,7 +892,197 @@ class qlin:
         termesDF.loc[len(termesDF)] = new_row_data
         return termesDF
 
+    def get_analysis_payload_from_termes(self, termesFAM, fix):
+        """
+        Generates the payload to pass to QLIN '/api/v1/analysis' endpoint using the case termes DataFrame
+
+        Args:
+            termesFAM (pandas.Dataframe): a dataframe containing the data for all members of the case
+            fix (boolean): indicates if we modify patient names, accepting only alphabetic caracters
+
+        Returns:
+            analysis_payload (json): a json payload
+        """
+
+        analysis_payload = {}
+        proband = termesFAM[termesFAM['family_member']=='PROBAND'].iloc[0]
+        analysis_payload['type'] = proband['type']
+        analysis_payload['analysis_code'] = proband['analysis_code']
+#        if analysis_payload['analysis_code'] == 'VEOIB' : analysis_payload['analysis_code'] = 'VEOIBD'
+        analysis_payload['priority'] = proband['priority']
+        analysis_payload['diagnosis_hypothesis'] = 'diagnosis_hypothesis'
+        analysis_payload['sequencing_types'] = proband['sequencing_types']
+        patients=[]
+        for index, individual in termesFAM.iterrows():
+            patient = {}
+            patient['family_member'] = individual['family_member']
+            if patient['family_member'] == 'MTH': patient['family_member'] = 'MOTHER'
+            if patient['family_member'] == 'FTH': patient['family_member'] = 'FATHER'
+            patient['first_name'] = individual['first_name']
+            regex = r'[^a-zA-Z]'
+            if fix and re.findall(regex, patient['first_name']):
+                first_name = patient['first_name']
+                patient['first_name'] = re.sub(regex, '', patient['first_name'])
+                print ("Patient {patient} first name {first_name} renamed to {patient['first_name']}")
+            patient['last_name'] = individual['last_name']
+            if fix and re.findall(regex, patient['last_name']):
+                last_name = patient['last_name']
+                patient['last_name'] = re.sub(regex, '', patient['last_name'])
+                print ("Patient {patient} last name {last_name} renamed to {patient['last_name']}")
+            if (str(individual['jhn']) != 'nan'): patient['jhn'] = individual['jhn']
+            patient['mrn'] = individual['mrn']
+            patient['sex'] = individual['sex']
+            patient['birth_date'] = individual['birth_date']
+            patient['organization_id'] = individual['organization_id']
+            patient['laboratory_id'] = individual['laboratory_id']
+            patient['sample'] = individual['sample']
+            patient['specimen'] = individual['specimen']
+            patient['aliquot'] = individual['aliquot']
+            if patient['family_member'] != 'PROBAND':
+              patient['affected'] = True if individual['Statut'] == 'Affecté' else False
+              patient['status'] = 'NOW'
+            if patient['family_member'] == 'PROBAND' or patient['affected'] == True:
+                if str(individual['HPO']) == 'nan': individual['HPO'] = 'HP:0000005'
+                clinical_signs = []
+                for hpo in str(individual['HPO']).split():
+                    clinical_signs.append({'code': hpo.rstrip(';.,'), 'observed': True})
+                patient['clinical'] = {'signs':clinical_signs}
+            patients.append(patient)
+        analysis_payload['patients'] = patients
+        return analysis_payload
+
+    def anonymize_analysis_payload (self, analysis_payload):
+        """
+        Returns a scrambled version of all sensible information in the analysis payload. This includes the mrn, jhn, first_name and last_name.
+
+        Args:
+            analysis_payload (json): the payload to modify
+
+        Returns:
+            analysis_payload (json): the updated payload
+        """
+
+        for patient in analysis_payload['patients']:
+             patient['mrn'] = generate_random_string(8)
+             if 'jhn' in patient: patient['jhn'] = str(generate_random_string(4) + patient['jhn'][4:]).upper()
+             patient['first_name'] = generate_random_string(8)
+             patient['last_name'] = generate_random_string(8)
+        return analysis_payload
+
+
+    def create_analysis (self, analysis_payload, validatation=False):
+        """
+        Creates patients and sequencings (the analysis) of a case by sending a POST to the '/api/v1/analysis' endpoint.
+
+        Args:
+            analysis_payload (json): json object containing the case analysis to create in QLIN
+            validatation (Boolean): a flag that indicates this is a dry run (no insertion in QLIN).
+
+        Raises:
+            APIException: if the API returns a status other then 200 (valid test) or 201 (insertion succes)
+
+        Returns:
+            analysis_payload (json): an updated payload containing the associated analysis_id, patient_id and sequencing_id created alongside the new case
+        """
+
+        response = requests.post(self.url + '/api/v1/analysis?validate-only=' + str(validatation), headers=self.authenticatedHeaders, data=json.dumps(analysis_payload))
+        # Check if the request was successful
+        if response.status_code == 201:
+            response_json = response.json()
+            for payload_patient in analysis_payload['patients']:
+              for response_patient in response_json['patients']:
+                if payload_patient['family_member'] == response_patient['family_member']:
+                  payload_patient['analysis_id'] = response_json['analysis_id']
+                  payload_patient['patient_id'] = response_patient['patient_id']
+                  payload_patient['sequencing_id'] = response_patient['sequencings'][0]['sequencing_id']
+            return analysis_payload
     
+        elif response.status_code == 200:
+            return None
+    
+        else:
+            raise APIException (f"Failed case creation\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(analysis_payload,indent=2)}")
+    
+    
+    def get_germinal_sequencings_payload(self, analysis_payload):
+        """
+        Generates the payload to pass to create_sequencings using the updated analysis_payload from create_analysis. Data consists of the sequencing info and the files generated by the bioinformatic analysis.
+
+        Args:
+            analysis_payload (json): a payload containing the case and the associated sequencing_ids
+
+        Returns:
+            sequencing_payload (json): a json payload
+        """
+
+        run = self.run
+        m=re.search('(.*)_(.*)_(.*)_(.*)', run)
+        date_tmp=m.group(1)
+        year = date_tmp[:2]
+        if len(year) == 2: year = '20' + year
+        date = year + "-" + date_tmp[2:4] + "-" + date_tmp[4:6]
+        sequencer=m.group(2)
+        run_id=m.group(3)
+        flowcell=m.group(4)
+    
+        sequencing_payload = {}
+        sequencings = []
+        for patient in analysis_payload['patients']:
+            path_prefix = '/' + run + '_germinal/' + patient['aliquot']
+            sequencing = {}
+            sequencing['sequencing_id'] = patient['sequencing_id']
+            sequencing['resequencing'] = False
+            sequencing['laboratory_id'] = patient['laboratory_id']
+            sequencing['sample'] = patient['sample']
+            sequencing['specimen'] = patient['specimen']
+            sequencing['specimen_code'] = "NBL"
+            sequencing['sample_code'] = "DNA"
+            sequencing['aliquot'] = patient['aliquot']
+            files = [
+                { "type": "ALIR",     "format": "CRAM", "path": path_prefix + ".cram" },
+                { "type": "ALIR",     "format": "CRAI", "path": path_prefix + ".cram.crai" },
+                { "type": "SNV",      "format": "VCF",  "path": path_prefix + ".hard-filtered.gvcf.gz" },
+                { "type": "SNV",      "format": "TBI",  "path": path_prefix + ".hard-filtered.gvcf.gz.tbi" },
+                { "type": "GCNV",     "format": "VCF",  "path": path_prefix + ".cnv.vcf.gz" },
+                { "type": "GCNV",     "format": "TBI",  "path": path_prefix + ".cnv.vcf.gz.tbi" },
+                { "type": "GSV",      "format": "VCF",  "path": path_prefix + ".sv.vcf.gz" },
+                { "type": "GSV",      "format": "TBI",  "path": path_prefix + ".sv.vcf.gz.tbi" },
+                { "type": "SSUP",     "format": "TGZ",  "path": path_prefix + ".extra.tgz" },
+                { "type": "IGV",      "format": "BW",   "path": path_prefix + ".seg.bw" },
+                { "type": "IGV",      "format": "BW",   "path": path_prefix + ".hard-filtered.baf.bw" },
+                { "type": "IGV",      "format": "BED",  "path": path_prefix + ".KAPA_HyperExome_hg38_combined_targets.bed" },
+                { "type": "CNVVIS",   "format": "PNG",  "path": path_prefix + ".cnv.calls.png" },
+                { "type": "COVGENE",  "format": "CSV",  "path": path_prefix + ".coverage_by_gene.GENCODE_CODING_CANONICAL.csv" },
+                { "type": "QCRUN",    "format": "JSON", "path": path_prefix + ".QC_report.json" }
+            ]
+            if  patient['family_member'] == 'PROBAND':
+                files.append( { "type": "NORM_VEP", "format": "VCF", "path": path_prefix + ".hard-filtered.formatted.norm.VEP.vcf.gz" } )
+                files.append( { "type": "NORM_VEP", "format": "TBI", "path": path_prefix + ".hard-filtered.formatted.norm.VEP.vcf.gz.tbi" } )
+                if patient['organization_id'] == "CHUSJ":
+                    files.append( { "type": "EXOMISER", "format": "HTML", "path": path_prefix + ".exomiser.html" } )
+                    files.append( { "type": "EXOMISER", "format": "JSON", "path": path_prefix + ".exomiser.json" } )
+                    files.append( { "type": "EXOMISER", "format": "TSV",  "path": path_prefix + ".exomiser.variants.tsv" } )
+            sequencing['files'] = files 
+            sequencing['experiment'] = {
+                "platform": "Illumina",
+                "sequencer": sequencer,
+                "run_name": run,
+                "run_date": date,
+                "run_alias": run_id,
+                "flowcell_id": flowcell,
+                "is_paired_end": True,
+                "fragment_size": 100,
+                "experimental_strategy": "WXS",
+                "capture_kit": "RocheKapaHyperExome",
+                "bait_definition": "KAPA_HyperExome_hg38_capture_targets",
+                "protocol": "HyperPrep"
+            }
+            sequencing['workflow'] = { "name": "Dragen", "version": "4.2.4", "genome_build": "GRCh38" }
+            sequencings.append(sequencing)
+        sequencing_payload['sequencings'] = sequencings
+        return sequencing_payload
+
+   
     def get_somatic_sequencings_payload(self, analysis_payload):
         """
         Generates the payload to pass to create_sequencings using the updated analysis_payload from create_analysis. Data consists of the sequencing info and the files generated by the bioinformatic analysis.
@@ -906,6 +1156,71 @@ class qlin:
         return sequencing_payload
 
 
+ 
+    def create_sequencings(self, sequencing_payload):
+        """
+        Links the sequencings to the patients created previously in the electronic prescription by sending a POST to the '/api/v1/analysis/sequencings' endpoint.
+
+        Args:
+            sequencing_payload (json): json object containing the sequencings to associate in QLIN
+
+        Raises:
+            APIException: if the API returns a status other then 201 (insertion succes)
+
+        Returns:
+            response (json): the response of the API call
+        """
+
+        response = requests.post(self.url + '/api/v1/analysis/sequencings?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(sequencing_payload))
+        # Check if the request was successful
+        if response.status_code == 201:
+    #        print(f"Sequencing created {response.status_code}\n{json.dumps(sequencing_payload,indent=2)}\n{response.text}")
+            return response.json()
+        else:
+            raise APIException (f"Failed sequencing creation\n\nStatus code: {response.status_code}\n\nResponse:\n{json.dumps(response.json(),indent=2)}\n\nPayload:\n{json.dumps(sequencing_payload,indent=2)}")
+
+ 
+    def get_pipeline_payload(self, sequencing_payload):
+        """
+        Generates the payload to pass to create_pipeline using the updated sequencing_payload from create_sequencings. Data consists of the sequencing ids to launch the pipeline.
+
+        Args:
+            sequencing_payload (json): a payload containing the sequencing ids to launch pipelines
+
+        Returns:
+            pipeline_payload (json): a json payload
+        """
+
+        pipeline_payload = {}
+        sequencing_ids = []
+        for sequencing in sequencing_payload['sequencings']:
+            sequencing_ids.append(sequencing['sequencing_id'])
+        pipeline_payload['sequencing_ids'] = sequencing_ids
+        return pipeline_payload
+    
+    
+    def create_pipeline(self, pipeline_payload):
+        """
+        Triggers the pipeline that inserts sequencing data into QLIN by sending a POST to the '/api/v1/analysis/run' endpoint.
+
+        Args:
+            pipeline_payload (json): json object containing the sequencing ids to launch
+
+        Raises:
+            APIException: if the API returns a status other then 201 (insertion succes)
+
+        Returns:
+            response (json): the response of the API call
+        """
+
+        response = requests.post(self.url + '/api/v1/analysis/run?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(pipeline_payload))
+        # Check if the request was successful
+        if response.status_code == 201:
+            print(f"Pipeline started Case: {pipeline_payload}")
+            return response.json()
+        else:
+            raise APIException (f"Failed pipeline start\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
+
 def main():
     """
     This is the main function of the standalone app.
@@ -916,6 +1231,18 @@ def main():
         --url -u: the url to the QLIN API. Usually https://qlin-me-hybrid.cqgc.hsj.rtss.qc.ca or https://qlin-me-hybrid.staging.cqgc.hsj.rtss.qc.ca
         --validate -v: Flag that indicates we only want to validate input data without creating any new patients and cases.
     """
+
+
+
+#        self.run                  = run
+#        self.mode                 = mode
+#        self.analyses             = analyses
+#        if mode == 'germinal':
+#            self.termesDF         = self.load_termes(termes)
+#        elif mode == 'somatic':
+#            self.termesDF         = pd.DataFrame(columns=self.termesDF_column_types.keys()).astype(self.termesDF_column_types)
+
+
 
     args = parse_args()
     nq = Nanuq()
@@ -981,39 +1308,34 @@ def main():
 
 
     elif args.mode == 'somatic':
-#        termesDF = pd.DataFrame(columns=q.termesDF_column_types.keys()).astype(q.termesDF_column_types)
-        analyses_payloads = q.get_analyses_payloads_EXOS(analyses)
-        print (f"Avant: {analyses_payloads}")
-        for analysis_payload in analyses_payloads:
-            analysis_payload = q.update_validate_EXOS_analysis_payload_from_nanuq(analysis_payload)
-            print (f"Apres: {analysis_payload}")
-#        analysesDF = q.load_analyses(analyses)
-#
-#        for index, analyse in analysesDF.iterrows():
-#            print (analyse)
-#            termesDF = q.reset_analyse_to_termes(analyse, termesDF)
-#
-#            # Validates the input analyses by iterating members
-#            family_members = termesDF
-#
-#            # Iterate trought family members
-#            for index, individual in family_members.iterrows():
-#                sample_nanuq = json.loads(nq.get_sample(individual['aliquot']))[0]
-#                family_members.loc[index] = q.fix_nanuq_termes (sample_nanuq, individual)
-#
-#            # Create and push analysis
-#            analysis_payload = q.get_analysis_payload(family_members, args.fix)
-#            if args.validate: 
-#                analysis_payload = q.create_analysis(analysis_payload, True)
-#                print (f"Validation succesfull")
-#            else: 
-#                analysis_payload = q.create_analysis(analysis_payload, False)
-#                # Push sequencings data
-#                sequencing_payload = q.get_somatic_sequencings_payload(analysis_payload)
-#                sequencing_response = q.create_sequencings(sequencing_payload)
-#                # Start pipeline
-#                pipeline_payload = q.get_pipeline_payload(sequencing_payload)
-#                pipeline_response = q.create_pipeline(pipeline_payload)
+        termesDF = pd.DataFrame(columns=q.termesDF_column_types.keys()).astype(q.termesDF_column_types)
+        analysesDF = q.load_analyses(analyses)
+
+        for index, analyse in analysesDF.iterrows():
+            print (analyse)
+            termesDF = q.reset_analyse_to_termes(analyse, termesDF)
+
+            # Validates the input analyses by iterating members
+            family_members = termesDF
+
+            # Iterate trought family members
+            for index, individual in family_members.iterrows():
+                sample_nanuq = json.loads(nq.get_sample(individual['aliquot']))[0]
+                family_members.loc[index] = q.fix_nanuq_termes (sample_nanuq, individual)
+
+            # Create and push analysis
+            analysis_payload = q.get_analysis_payload(family_members, args.fix)
+            if args.validate: 
+                analysis_payload = q.create_analysis(analysis_payload, True)
+                print (f"Validation succesfull")
+            else: 
+                analysis_payload = q.create_analysis(analysis_payload, False)
+                # Push sequencings data
+                sequencing_payload = q.get_somatic_sequencings_payload(analysis_payload)
+                sequencing_response = q.create_sequencings(sequencing_payload)
+                # Start pipeline
+                pipeline_payload = q.get_pipeline_payload(sequencing_payload)
+                pipeline_response = q.create_pipeline(pipeline_payload)
 
     print (f"Completed")
 
