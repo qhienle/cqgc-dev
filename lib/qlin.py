@@ -219,13 +219,23 @@ class qlin:
             raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\Analysis ID:\n{analysis_id}")
 
 
-    def get_hpo_terms(self, analysis_id):
+    def extract_hpo_terms(analysis):
         """
-        GET HPO terms for analysis_id
-        - analysis_id: [str] ex: '822034'
-        - return     : TODO
+        Extract HPO terms from analysis (Qlin data structure).
+        - analysis: [dict] ex: {}
+        - return  : [list] HPO terms
+        Ex: q.extract_hpo_terms(q.search_analysis(mrn=3554393))
         """
-        return analysis_id
+        hpos = []
+        for patient in analysis['patients']:
+            try:
+                phenotypes = patient['clinical']['signs']
+            except KeyError as e:
+                print(f"ERROR!: while getting `patient['clinical']['signs']` {e}")
+            else:
+                for pheno in phenotypes:
+                    hpos.append(pheno['code'])
+        return hpos
 
 
     def get_analyses_payloads_EXOG(self, file_termes):
