@@ -227,20 +227,27 @@ class qlin:
         Ex: q.extract_hpo_terms(q.search_analysis(mrn=3554393))
         """
         hpos = []
-        analysis = self.search_analysis(mrn=mrn)
-        if len(analysis) != 1:
-            print(f"WARNING: Number of analyses for MRN {mrn} is not equal to 1. {len(analysis)}:\n{analysis}")
+        analyses_list = self.search_analysis(mrn=mrn)
+        if len(analyses_list) <= 0:
+            print(f"ERROR: No analysis found for MRN={mrn}!")
+        elif len(analyses_list) > 1:
+            print(f"WARNING: More than one analysis found for MRN={mrn}.\n{analyses_list}")
         else:
-            analysis = analysis[0]
-        for patient in analysis['patients']:
-            if patient['mrn'] == mrn:
+            analysis = analyses_list[0]
+            for patient in analysis['patients']:
                 try:
-                    phenotypes = patient['clinical']['signs']
+                    if patient['mrn'] == mrn:
+                        try:
+                            phenotypes = patient['clinical']['signs']
+                        except KeyError as e:
+                            print(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
+                        else:
+                            for pheno in phenotypes:
+                                hpos.append(pheno['code'])
                 except KeyError as e:
-                    print(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
-                else:
-                    for pheno in phenotypes:
-                        hpos.append(pheno['code'])
+                    print(f"ERROR: No MRN for patient_id={patient['patient_id']}.\n{e}")
+                except Exception as e:
+                    print(f"ERROR: Caught an unexpected error while looking fo `patient['mrn']`.\n{e}")
         return hpos
 
 
