@@ -21,6 +21,7 @@ import json
 import sys
 import os
 import argparse
+import logging
 import re
 import pandas as pd
 import random
@@ -73,12 +74,31 @@ def parse_args():
     parser.add_argument('-v', '--validate', action='store_true', required=False, help="Will validate input data with dry run")
     parser.add_argument('-f', '--fix', action='store_true', required=False, help="Will fix incorrect fields in Nanuq")
     parser.add_argument('-n', '--anonymise', action='store_true', required=False, help="Will anonymise patient infos")
+    parser.add_argument('-l', '--logging-level', dest='level', default='info',
+                        help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     args = parser.parse_args()
     print (args)
     if args.mode != 'germinal' and args.mode != 'somatic': raise ArgumentException("--mode must be one of [germinal,somatic]")
     if args.mode == 'germinal' and not args.termes: raise ArgumentException("Germinal mode does not have a termes argument")
     elif args.mode == 'somatic' and not args.analyses: raise ArgumentException("Somatic mode does not have an analyses argument")
     return(args)
+
+
+def configure_logging(level):
+    """
+    Set logging level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
+    """
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
+
 
 def generate_random_string(length):
     """
