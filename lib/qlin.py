@@ -217,6 +217,38 @@ class qlin:
             raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\Analysis ID:\n{analysis_id}")
 
             
+    def extract_hpo_terms(self, mrn):
+        """
+        Extract HPO terms from analysis (Qlin data structure).
+        - analysis: [dict] ex: {}
+        - return  : [list] HPO terms
+        Ex: q.extract_hpo_terms(q.search_analysis(mrn=3554393))
+        """
+        hpos = []
+        analyses_list = self.search_analysis(mrn=mrn)
+        if len(analyses_list) <= 0:
+            print(f"ERROR: No analysis found for MRN={mrn}!")
+        elif len(analyses_list) > 1:
+            print(f"WARNING: More than one analysis found for MRN={mrn}.\n{analyses_list}")
+        else:
+            analysis = analyses_list[0]
+            for patient in analysis['patients']:
+                try:
+                    if patient['mrn'] == mrn:
+                        try:
+                            phenotypes = patient['clinical']['signs']
+                        except KeyError as e:
+                            print(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
+                        else:
+                            for pheno in phenotypes:
+                                hpos.append(pheno['code'])
+                except KeyError as e:
+                    print(f"ERROR: No MRN for patient_id={patient['patient_id']}.\n{e}")
+                except Exception as e:
+                    print(f"ERROR: Caught an unexpected error while looking fo `patient['mrn']`.\n{e}")
+        return hpos
+
+    
     def search_analysis_from_payload_all (self, analysis_payload):
         """
         Searches QLIN and return the analyses that matches all information from an analysis payload.
