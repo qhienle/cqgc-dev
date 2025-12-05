@@ -25,6 +25,7 @@ import re
 import pandas as pd
 import random
 import string
+import logging
 #To format dates properly
 from datetime import datetime
 #importing necessary functions from dotenv library
@@ -35,6 +36,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 from lib.nanuq import Nanuq
 
 __version__ = "0.3"
+
+# Get a logger for this module using __name__ for hierarchical logging
+logger = logging.getLogger(__name__)
 
 class ArgumentException (Exception):
     """
@@ -58,6 +62,23 @@ class ValidationException (Exception):
         super().__init__(message)
 
 
+#def configure_logging(level):
+#    """
+#    Set logging level, based on the level names of the `logging` module.
+#    - level (str): 'debug', 'info' or 'warning'
+#    """
+#    if level == 'debug':
+#        level_name = logging.DEBUG
+#    elif level == 'info':
+#        level_name = logging.INFO
+#    else:
+#        level_name = logging.WARNING
+#
+#    logging.basicConfig(level=level_name,
+#                        format='[%(asctime)s] %(levelname)s: %(message)s',
+#                        datefmt='%Y-%m-%d@%H:%M:%S')
+
+
 def parse_args():
     """
     Parses command-line options
@@ -74,7 +95,7 @@ def parse_args():
     parser.add_argument('-f', '--fix', action='store_true', required=False, help="Will fix incorrect fields in Nanuq")
     parser.add_argument('-n', '--anonymise', action='store_true', required=False, help="Will anonymise patient infos")
     args = parser.parse_args()
-    print (args)
+    logger.info (args)
     if args.mode != 'germinal' and args.mode != 'somatic': raise ArgumentException("--mode must be one of [germinal,somatic]")
     if args.mode == 'germinal' and not args.termes: raise ArgumentException("Germinal mode does not have a termes argument")
     elif args.mode == 'somatic' and not args.analyses: raise ArgumentException("Somatic mode does not have an analyses argument")
@@ -109,6 +130,7 @@ class qlin:
     def __init__(self, url):
         self.url                  = url
         self.authenticatedHeaders = self.authenticate(url)
+#        configure_logging(level)
 
     def authenticate(self, url):
         """
@@ -147,7 +169,7 @@ class qlin:
         if response.status_code == 200:
             # Extract the token
             token = response.json().get('token')
-            print(f"Authentication successful")
+#            logging.debug(f"Authentication successful")
             authenticatedHeaders = {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -158,6 +180,120 @@ class qlin:
 
         return authenticatedHeaders
    
+
+    def search_analysis_from_payload_all (self, analysis_payload):
+        """
+        Searches QLIN and return the analyses that matches all information from an analysis payload.
+
+        Args:
+            analysis_payload (json): the payload to search from
+
+        Raises:
+            a APIException if the response is not valid
+
+        Returns:
+            a list of analysis from QLIN
+        """
+
+        params = ""
+        for patient in analysis_payload['patients']:
+            if patient['jhn']: params += 'jhn=' + patient['jhn'] + '&'
+            if patient['mrn']: params += 'mrn=' + patient['mrn'] + '&'
+            params += 'aliquot=' + patient['aliquot'] + '&'
+            params += 'sample=' + patient['sample'] + '&'
+        params = params[:-1]
+        response = requests.get(self.url + '/api/v1/search/analysis?' + str(params), headers=self.authenticatedHeaders)
+        # Check if the request was successful
+        if response.status_code == 200:
+            response_json = response.json()
+            return response_json
+        else:
+            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
+
+
+    def search_analysis_from_payload_jhn_mrn (self, analysis_payload):
+        """
+        Searches QLIN and return the analyses that matches the jhn and mrn included in an analysis payload.
+
+        Args:
+            analysis_payload (json): the payload to search from
+
+        Raises:
+            a APIException if the response is not valid
+
+        Returns:
+            a list of analysis from QLIN
+        """
+
+        params = ""
+        for patient in analysis_payload['patients']:
+            if patient['jhn']: params += 'jhn=' + patient['jhn'] + '&'
+            if patient['mrn']: params += 'mrn=' + patient['mrn'] + '&'
+        params = params[:-1]
+        response = requests.get(self.url + '/api/v1/search/analysis?' + str(params), headers=self.authenticatedHeaders)
+        # Check if the request was successful
+        if response.status_code == 200:
+            response_json = response.json()
+            return response_json['analysis']
+        else:
+            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
+
+
+
+    def search_analysis_from_payload_aliquot_sample (self, analysis_payload):
+        """
+        Searches QLIN and return the analyses that matches the aliquot and sample id  included in an analysis payload.
+
+        Args:
+            analysis_payload (json): the payload to search from
+
+        Raises:
+            a APIException if the response is not valid
+
+        Returns:
+            a list of analysis from QLIN
+        """
+
+        params = ""
+        for patient in analysis_payload['patients']:
+            params += 'aliquot=' + patient['aliquot'] + '&'
+            params += 'sample=' + patient['sample'] + '&'
+        params = params[:-1]
+        response = requests.get(self.url + '/api/v1/search/analysis?' + str(params), headers=self.authenticatedHeaders)
+        # Check if the request was successful
+        if response.status_code == 200:
+            response_json = response.json()
+            return response_json['analysis']
+        else:
+            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
+
+
+    def search_sequencing_from_aliquot_sample_in_payload (self, sequencing_payload):
+        """
+        Searches QLIN and return the sequncing that matches the aliquot and sample id included in an sequencing payload.
+
+        Args:
+            analysis_payload (json): the payload to search from
+
+        Raises:
+            a APIException if the response is not valid
+
+        Returns:
+            a list of analysis from QLIN
+        """	
+        params = ""
+        for sequencing in sequencing_payload['sequencings']:
+            params += 'aliquot=' + sequencing['aliquot'] + '&'
+            params += 'sample=' + sequencing['sample'] + '&'
+        params = params[:-1]
+        response = requests.get(self.url + '/api/v1/search/analysis?' + str(params), headers=self.authenticatedHeaders)
+        # Check if the request was successful
+        if response.status_code == 200:
+            response_json = response.json()
+            return response_json['analysis']
+        else:
+            raise APIException (f"Failed search sequencing\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
+
 
     def get_analyses_payloads_from_EXOG_Termes(self, file_termes):
         """
@@ -332,13 +468,13 @@ class qlin:
                 if (str(sample_nanuq['patient']['mrn']) != f"{int(patient['mrn']):08d}"):
                     raise ValidationException (f"mrn mismatch: cannot fix {sample_nanuq['patient']['mrn']}, {patient['mrn']}" )
                 else:
-                    print (f"mrn mismatch: fixing {patient['mrn']} to {sample_nanuq['patient']['mrn']}" )
+                    logger.info (f"mrn mismatch: fixing {patient['mrn']} to {sample_nanuq['patient']['mrn']}" )
                     patient['mrn'] = '0'+str(patient['mrn'])
             try:
                 if (str(sample_nanuq['patient']['ramq']) != str(patient['jhn']) ):
                     raise ValidationException (f"ramq mismatch: {sample_nanuq['patient']['ramq']}, {patient['jhn']}" )
             except KeyError:
-                print (f"Sample {patient['aliquot']} doesn't have ramq but mrn is valid")
+                logging.info (f"Sample {patient['aliquot']} doesn't have ramq but mrn is valid")
             if (str(sample_nanuq['patient']['sex']) != str(patient['sex']) ):
                 raise ValidationException (f"sex mismatch: {sample_nanuq['patient']['sex']}, {patient['sex']}" )
 
@@ -419,95 +555,8 @@ class qlin:
              if 'jhn' in patient: patient['jhn'] = str(generate_random_string(4) + patient['jhn'][4:]).upper()
              patient['first_name'] = generate_random_string(8)
              patient['last_name'] = generate_random_string(8)
-             patient['sample'] = generate_random_string(8)
+#             patient['sample'] = generate_random_string(8)
         return analysis_payload
-
-
-
-    def search_analysis_from_payload_all (self, analysis_payload):
-        """
-        Searches QLIN and return the analyses that matches all information from an analysis payload.
-
-        Args:
-            analysis_payload (json): the payload to search from
-
-        Raises:
-            a APIException if the response is not valid
-
-        Returns:
-            a list of analysis from QLIN
-        """
-
-        params = ""
-        for patient in analysis_payload['patients']:
-            if patient['jhn']: params += 'jhn=' + patient['jhn'] + '&'
-            if patient['mrn']: params += 'mrn=' + patient['mrn'] + '&'
-            params += 'aliquot=' + patient['aliquot'] + '&'
-            params += 'sample=' + patient['sample'] + '&'
-        params = params[:-1]
-        response = requests.get(self.url + '/api/v1/search/analysis?' + str(params), headers=self.authenticatedHeaders)
-        # Check if the request was successful
-        if response.status_code == 200:
-            response_json = response.json()
-            return response_json
-        else:
-            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
-             
-
-    def search_analysis_from_payload_jhn_mrn (self, analysis_payload):
-        """
-        Searches QLIN and return the analyses that matches the jhn and mrn included in an analysis payload.
-
-        Args:
-            analysis_payload (json): the payload to search from
-
-        Raises:
-            a APIException if the response is not valid
-
-        Returns:
-            a list of analysis from QLIN
-        """
-
-        params = ""
-        for patient in analysis_payload['patients']:
-            if patient['jhn']: params += 'jhn=' + patient['jhn'] + '&'
-            if patient['mrn']: params += 'mrn=' + patient['mrn'] + '&'
-        params = params[:-1]
-        response = requests.get(self.url + '/api/v1/search/analysis?' + str(params), headers=self.authenticatedHeaders)
-        # Check if the request was successful
-        if response.status_code == 200:
-            response_json = response.json()
-            return response_json['analysis']
-        else:
-            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
-
-
-    def search_analysis_from_payload_aliquot_sample (self, analysis_payload):
-        """
-        Searches QLIN and return the analyses that matches the aliquot and sample id  included in an analysis payload.
-
-        Args:
-            analysis_payload (json): the payload to search from
-
-        Raises:
-            a APIException if the response is not valid
-
-        Returns:
-            a list of analysis from QLIN
-        """
-
-        params = ""
-        for patient in analysis_payload['patients']:
-            params += 'aliquot=' + patient['aliquot'] + '&'
-            params += 'sample=' + patient['sample'] + '&'
-        params = params[:-1]
-        response = requests.get(self.url + '/api/v1/search/analysis?' + str(params), headers=self.authenticatedHeaders)
-        # Check if the request was successful
-        if response.status_code == 200:
-            response_json = response.json()
-            return response_json['analysis']
-        else:
-            raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
 
 
     def validate_analysis_payload(self, analysis_payload):
@@ -524,7 +573,7 @@ class qlin:
         Returns:
             True if the analysis_payload validatese
         """
-        analyses = self.search_analysis_from_aliquot_sample_in_payload(analysis_payload)
+        analyses = self.search_analysis_from_payload_aliquot_sample(analysis_payload)
         if (len(analyses) > 0):
             raise ValidationException (f"Sample exists in QLIN:\n\nanalysis_payload: {analysis_payload}\n\nanalyses: {analyses}")
 
@@ -624,8 +673,8 @@ class qlin:
             if  patient['family_member'] == 'PROBAND':
                 files.append( { "type": "NORM_VEP", "format": "VCF", "path": path_prefix + ".hard-filtered.formatted.norm.VEP.vcf.gz" } )
                 files.append( { "type": "NORM_VEP", "format": "TBI", "path": path_prefix + ".hard-filtered.formatted.norm.VEP.vcf.gz.tbi" } )
-                if patient['organization_id'] == "CHUSJ":
-#                if len(patient['clinical']['signs']) > 0:
+#                if patient['organization_id'] == "CHUSJ":
+                if len(patient['clinical']['signs']) > 0:
                     files.append( { "type": "EXOMISER", "format": "HTML", "path": path_prefix + ".exomiser.html" } )
                     files.append( { "type": "EXOMISER", "format": "JSON", "path": path_prefix + ".exomiser.json" } )
                     files.append( { "type": "EXOMISER", "format": "TSV",  "path": path_prefix + ".exomiser.variants.tsv" } )
@@ -657,10 +706,8 @@ class qlin:
             sequencings.append(patient)
 
         sequencing_payload['sequencings'] = sequencings
+#        logger.debug(sequencing_payload)
         return sequencing_payload
-
-
-
 
 
     def get_sequencing_payload_EXOS(self, analysis_payload):
@@ -803,31 +850,26 @@ class qlin:
         return sequencing_payload
 
 
-
-    def search_sequencing_from_aliquot_sample_in_payload (self, sequencing_payload):
-        params = ""
-        for sequencing in sequencing_payload['sequencings']:
-            params += 'aliquot=' + sequencing['aliquot'] + '&'
-            params += 'sample=' + sequencing['sample'] + '&'
-        params = params[:-1]
-        response = requests.get(self.url + '/api/v1/search/analysis?' + str(params), headers=self.authenticatedHeaders)
-        # Check if the request was successful
-        if response.status_code == 200:
-            response_json = response.json()
-            return response_json['analysis']
-        else:
-            raise APIException (f"Failed search sequencing\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nparams:\n{params}")
-
-
     def validate_sequencing_payload(self, sequencing_payload):
-        analyses = self.search_sequencing_from_aliquot_sample_in_payload(sequencing_payload)
-        if (len(analyses) > 0):
-            raise ValidationException (f"Sample exists in QLIN:\n\nsequencing_payload: {sequencing_payload}\n\nanalyses: {analyses}")
+        """
+        Validates a sequencing payload using QLIN '/api/v1/analysis/sequncings' enpoint.
+
+        Args:
+            sequencing_payload (json): json object containing the sequencing to associate to a case in QLIN
+
+        Raises:
+            APIException if the API returns a status other then 200 (valid test)
+
+        Returns:
+            True if the sequencing_payload validates
+        """
 
         response = requests.post(self.url + '/api/v1/analysis/sequencings?validate-only=true', headers=self.authenticatedHeaders, data=json.dumps(sequencing_payload))
         # Check if the request was successful
         if response.status_code != 200:
-            raise ValidationException (f"Sequencing creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(sequencing_payload,indent=2)}")
+            raise APIException (f"Sequencing creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(sequencing_payload,indent=2)}")
+
+        return True
 
 
     def push_sequencing_payload(self, sequencing_payload):
@@ -846,13 +888,15 @@ class qlin:
 
         response = requests.post(self.url + '/api/v1/analysis/sequencings?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(sequencing_payload))
         # Check if the request was successful
-        if response.status_code == 201 or response.status_code == 500: 
+#        if response.status_code == 201 or response.status_code == 500: 
+        if response.status_code == 201:
 ### A enlever quand le bug response=500 sera corrige dans QLIN
-            print(f"Sequencing created {response.status_code}\n{json.dumps(sequencing_payload,indent=2)}\n{response.text}")
+#            print(f"Sequencing created {response.status_code}\n{json.dumps(sequencing_payload,indent=2)}\n{response.text}")
 ### A Remettre quand le bug response=500 sera corrige dans QLIN
 #            return response.json()
+            return response.json()
         else:
-            print (f"Failed sequencing creation\n\n{response}")
+#            logging.error (f"Failed sequencing creation\n\n{response}")
             raise APIException (f"Failed sequencing creation\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(sequencing_payload,indent=2)}")
 
 
@@ -876,10 +920,25 @@ class qlin:
 
 
     def validate_pipeline_payload(self, pipeline_payload):
+        """
+        Validates a pipeline payload using QLIN '/api/v1/analysis/run' enpoint.
+
+        Args:
+            pipeline_payload (json): json object containing the sequencing to associate to a case in QLIN
+
+        Raises:
+            APIException if the API returns a status other then 200 (valid test)
+
+        Returns:
+            True if the sequencing_payload validates
+        """
+
         response = requests.post(self.url + '/api/v1/analysis/run?validate-only=true', headers=self.authenticatedHeaders, data=json.dumps(pipeline_payload))
         # Check if the request was successful
         if response.status_code != 200:
             raise ValidationException (f"Pipeline creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
+
+        return True
 
 
     def push_pipeline_payload(self, pipeline_payload):
@@ -899,156 +958,153 @@ class qlin:
         response = requests.post(self.url + '/api/v1/analysis/run?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(pipeline_payload))
         # Check if the request was successful
         if response.status_code == 201:
-            print(f"Pipeline started Case: {pipeline_payload}")
+#            print(f"Pipeline started Case: {pipeline_payload}")
             return response.json()
         else:
             raise APIException (f"Failed pipeline start\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
 
 
-
-
-
-    def load_analyses(self, file_analyses):
-        """
-        Parses the content of the analyses file into a valid dataframe
-
-        Args:
-            file_analyses (string): the name of the file to convert into dataframe
-
-        Returns:
-            analyses (pandas.DataFrame): a dataframe contaning the information in the analyses file
-        """
-        analysesDF_column_names = [
-            'Date',
-            'Analysis_Run',
-            'Analysis_Sample',
-            'Normal_Run',
-            'Normal_Sample',
-            'Lab_Individual',
-            'Lab_Sample',
-            'Analysis_Name',
-            'Analysis_Type'
-        ]
-        analysesDF = pd.read_csv(file_analyses, sep='\t', header=None, names=analysesDF_column_names)
-        return analysesDF
-
-    def reset_analyse_to_termes(self, analyse, run, termesDF):
-        """
-        Transforms the analyse dataframe and apprends it to the termeDF local object
-
-        Args:
-            analyse (json): Dataframe coming from the somatic exomes analyses.txt file
-
-        Returns:
-            The modified termesDF dataframe
-        """
-
-
-        nq = Nanuq()
-        sample_nanuq = json.loads(nq.get_sample(analyse['Analysis_Sample']))[0]
-#        date_string_dd_mm_yyyy = "14/07/2025"
-#        date_object = datetime.strptime(date_string_dd_mm_yyyy, "%d/%m/%Y")
-#        date_string_yyyy_mm_dd = date_object.strftime("%Y-%m-%d")
-
-        formatted_birthdate = datetime.strptime(sample_nanuq['patient']['birthDate'], "%d/%m/%Y").strftime("%Y-%m-%d")
-        new_row_data = {
-            'run_name': run, 
-            'aliquot': sample_nanuq['labAliquotId'],
-            'sample': sample_nanuq['ldmSampleId'],
-            'specimen': sample_nanuq['ldmSpecimenId'],
-            'mrn': sample_nanuq['patient']['mrn'],
-            'birth_date': formatted_birthdate,
-            'sex': sample_nanuq['patient']['sex'],
-            'family_member': sample_nanuq['patient']['familyMember'],
-            'Statut': sample_nanuq['patient']['status'],
-            'sequencing_types': None,
-            'type': None,
-            'analysis_code': None,
-            'priority': None,
-            'first_name': None,
-            'last_name': None,
-            'organization_id': None,
-            'laboratory_id': None
-        }
-        if 'ramq' in sample_nanuq['patient']:
-            new_row_data['jhn'] = sample_nanuq['patient']['ramq']
-
-        termesDF = pd.DataFrame(columns=self.termesDF_column_types.keys()).astype(self.termesDF_column_types)
-        termesDF.loc[len(termesDF)] = new_row_data
-        return termesDF
-
-    
-    def get_somatic_sequencings_payload(self, analysis_payload):
-        """
-        Generates the payload to pass to create_sequencings using the updated analysis_payload from create_analysis. Data consists of the sequencing info and the files generated by the bioinformatic analysis.
-
-        Args:
-            analysis_payload (json): a payload containing the case and the associated sequencing_ids
-
-        Returns:
-            sequencing_payload (json): a json payload
-        """
-
-        run = self.run
-        m=re.search('(.*)_(.*)_(.*)_(.*)', run)
-        date_tmp=m.group(1)
-        year = date_tmp[:2]
-        if len(year) == 2: year = '20' + year
-        date = year + "-" + date_tmp[2:4] + "-" + date_tmp[4:6]
-        sequencer=m.group(2)
-        run_id=m.group(3)
-        flowcell=m.group(4)
-
-        sequencing_payload = {}
-        sequencings = []
-
-        for patient in analysis_payload['patients']:
-            path_prefix = '/' + run + '_somatic/' + patient['aliquot'] + '.dragen.WES_somatic-tumor_only'
-            sequencing = {}
-            sequencing['sequencing_id'] = patient['sequencing_id']
-            sequencing['resequencing'] = False
-            sequencing['laboratory_id'] = patient['laboratory_id']
-            sequencing['sample'] = patient['sample']
-            sequencing['specimen'] = patient['specimen']
-            sequencing['specimen_code'] = "TUMOR"
-            sequencing['sample_code'] = "DNA"
-            sequencing['aliquot'] = patient['aliquot']
-            files = [
-                { "type": "ALIR",     "format": "CRAM", "path": path_prefix + ".cram" },
-                { "type": "ALIR",     "format": "CRAI", "path": path_prefix + ".cram.crai" },
-                { "type": "CNVVIS",   "format": "PNG",  "path": path_prefix + ".cnv.png" },
-                { "type": "SCNV",     "format": "VCF",  "path": path_prefix + ".cnv.vcf.gz" },
-                { "type": "SCNV",     "format": "TBI",  "path": path_prefix + ".cnv.vcf.gz.tbi" },
-                { "type": "COVGENE",  "format": "CSV",  "path": path_prefix + ".coverage_by_gene.GENCODE_CODING_CANONICAL.csv" },
-                { "type": "SSUP",     "format": "TGZ",  "path": path_prefix + ".extra.tgz" },
-                { "type": "IGV",      "format": "BW",   "path": path_prefix + ".hard-filtered.baf.bw" },
-                { "type": "SSNV",     "format": "VCF",  "path": path_prefix + ".hard-filtered.gvcf.gz" },
-                { "type": "SSNV",     "format": "TBI",  "path": path_prefix + ".hard-filtered.gvcf.gz.tbi" },
-                { "type": "NORM_VEP", "format": "VCF",  "path": path_prefix + ".hard-filtered.norm.VEP.vcf.gz" },
-                { "type": "NORM_VEP", "format": "TBI",  "path": path_prefix + ".hard-filtered.norm.VEP.vcf.gz.tbi" },
-                { "type": "IGV",      "format": "BED",  "path": path_prefix + ".KAPA_HyperExome_hg38_combined_targets.bed" },
-                { "type": "QCRUN",    "format": "JSON", "path": path_prefix + ".QC_report.json" },
-                { "type": "IGV",      "format": "BW",   "path": path_prefix + ".seg.bw" },
-            ]
-            sequencing['files'] = files
-            sequencing['experiment'] = {
-                "platform": "Illumina",
-                "sequencer": sequencer,
-                "run_name": run,
-                "run_date": date,
-                "run_alias": run_id,
-                "flowcell_id": flowcell,
-                "is_paired_end": True,
-                "fragment_size": 100,
-                "experimental_strategy": "WXS",
-                "capture_kit": "RocheKapaHyperExome",
-                "bait_definition": "KAPA_HyperExome_hg38_capture_targets",
-                "protocol": "HyperPlus"
-            }
-            sequencing['workflow'] = { "name": "Dragen", "version": "4.2.4", "genome_build": "GRCh38" }
-            sequencings.append(sequencing)
-        sequencing_payload['sequencings'] = sequencings
-        return sequencing_payload
+#    def load_analyses(self, file_analyses):
+#        """
+#        Parses the content of the analyses file into a valid dataframe
+#
+#        Args:
+#            file_analyses (string): the name of the file to convert into dataframe
+#
+#        Returns:
+#            analyses (pandas.DataFrame): a dataframe contaning the information in the analyses file
+#        """
+#        analysesDF_column_names = [
+#            'Date',
+#            'Analysis_Run',
+#            'Analysis_Sample',
+#            'Normal_Run',
+#            'Normal_Sample',
+#            'Lab_Individual',
+#            'Lab_Sample',
+#            'Analysis_Name',
+#            'Analysis_Type'
+#        ]
+#        analysesDF = pd.read_csv(file_analyses, sep='\t', header=None, names=analysesDF_column_names)
+#        return analysesDF
+#
+#    def reset_analyse_to_termes(self, analyse, run, termesDF):
+#        """
+#        Transforms the analyse dataframe and apprends it to the termeDF local object
+#
+#        Args:
+#            analyse (json): Dataframe coming from the somatic exomes analyses.txt file
+#
+#        Returns:
+#            The modified termesDF dataframe
+#        """
+#
+#
+#        nq = Nanuq()
+#        sample_nanuq = json.loads(nq.get_sample(analyse['Analysis_Sample']))[0]
+##        date_string_dd_mm_yyyy = "14/07/2025"
+##        date_object = datetime.strptime(date_string_dd_mm_yyyy, "%d/%m/%Y")
+##        date_string_yyyy_mm_dd = date_object.strftime("%Y-%m-%d")
+#
+#        formatted_birthdate = datetime.strptime(sample_nanuq['patient']['birthDate'], "%d/%m/%Y").strftime("%Y-%m-%d")
+#        new_row_data = {
+#            'run_name': run, 
+#            'aliquot': sample_nanuq['labAliquotId'],
+#            'sample': sample_nanuq['ldmSampleId'],
+#            'specimen': sample_nanuq['ldmSpecimenId'],
+#            'mrn': sample_nanuq['patient']['mrn'],
+#            'birth_date': formatted_birthdate,
+#            'sex': sample_nanuq['patient']['sex'],
+#            'family_member': sample_nanuq['patient']['familyMember'],
+#            'Statut': sample_nanuq['patient']['status'],
+#            'sequencing_types': None,
+#            'type': None,
+#            'analysis_code': None,
+#            'priority': None,
+#            'first_name': None,
+#            'last_name': None,
+#            'organization_id': None,
+#            'laboratory_id': None
+#        }
+#        if 'ramq' in sample_nanuq['patient']:
+#            new_row_data['jhn'] = sample_nanuq['patient']['ramq']
+#
+#        termesDF = pd.DataFrame(columns=self.termesDF_column_types.keys()).astype(self.termesDF_column_types)
+#        termesDF.loc[len(termesDF)] = new_row_data
+#        return termesDF
+#
+#    
+#    def get_somatic_sequencings_payload(self, analysis_payload):
+#        """
+#        Generates the payload to pass to create_sequencings using the updated analysis_payload from create_analysis. Data consists of the sequencing info and the files generated by the bioinformatic analysis.
+#
+#        Args:
+#            analysis_payload (json): a payload containing the case and the associated sequencing_ids
+#
+#        Returns:
+#            sequencing_payload (json): a json payload
+#        """
+#
+#        run = self.run
+#        m=re.search('(.*)_(.*)_(.*)_(.*)', run)
+#        date_tmp=m.group(1)
+#        year = date_tmp[:2]
+#        if len(year) == 2: year = '20' + year
+#        date = year + "-" + date_tmp[2:4] + "-" + date_tmp[4:6]
+#        sequencer=m.group(2)
+#        run_id=m.group(3)
+#        flowcell=m.group(4)
+#
+#        sequencing_payload = {}
+#        sequencings = []
+#
+#        for patient in analysis_payload['patients']:
+#            path_prefix = '/' + run + '_somatic/' + patient['aliquot'] + '.dragen.WES_somatic-tumor_only'
+#            sequencing = {}
+#            sequencing['sequencing_id'] = patient['sequencing_id']
+#            sequencing['resequencing'] = False
+#            sequencing['laboratory_id'] = patient['laboratory_id']
+#            sequencing['sample'] = patient['sample']
+#            sequencing['specimen'] = patient['specimen']
+#            sequencing['specimen_code'] = "TUMOR"
+#            sequencing['sample_code'] = "DNA"
+#            sequencing['aliquot'] = patient['aliquot']
+#            files = [
+#                { "type": "ALIR",     "format": "CRAM", "path": path_prefix + ".cram" },
+#                { "type": "ALIR",     "format": "CRAI", "path": path_prefix + ".cram.crai" },
+#                { "type": "CNVVIS",   "format": "PNG",  "path": path_prefix + ".cnv.png" },
+#                { "type": "SCNV",     "format": "VCF",  "path": path_prefix + ".cnv.vcf.gz" },
+#                { "type": "SCNV",     "format": "TBI",  "path": path_prefix + ".cnv.vcf.gz.tbi" },
+#                { "type": "COVGENE",  "format": "CSV",  "path": path_prefix + ".coverage_by_gene.GENCODE_CODING_CANONICAL.csv" },
+#                { "type": "SSUP",     "format": "TGZ",  "path": path_prefix + ".extra.tgz" },
+#                { "type": "IGV",      "format": "BW",   "path": path_prefix + ".hard-filtered.baf.bw" },
+#                { "type": "SSNV",     "format": "VCF",  "path": path_prefix + ".hard-filtered.gvcf.gz" },
+#                { "type": "SSNV",     "format": "TBI",  "path": path_prefix + ".hard-filtered.gvcf.gz.tbi" },
+#                { "type": "NORM_VEP", "format": "VCF",  "path": path_prefix + ".hard-filtered.norm.VEP.vcf.gz" },
+#                { "type": "NORM_VEP", "format": "TBI",  "path": path_prefix + ".hard-filtered.norm.VEP.vcf.gz.tbi" },
+#                { "type": "IGV",      "format": "BED",  "path": path_prefix + ".KAPA_HyperExome_hg38_combined_targets.bed" },
+#                { "type": "QCRUN",    "format": "JSON", "path": path_prefix + ".QC_report.json" },
+#                { "type": "IGV",      "format": "BW",   "path": path_prefix + ".seg.bw" },
+#            ]
+#            sequencing['files'] = files
+#            sequencing['experiment'] = {
+#                "platform": "Illumina",
+#                "sequencer": sequencer,
+#                "run_name": run,
+#                "run_date": date,
+#                "run_alias": run_id,
+#                "flowcell_id": flowcell,
+#                "is_paired_end": True,
+#                "fragment_size": 100,
+#                "experimental_strategy": "WXS",
+#                "capture_kit": "RocheKapaHyperExome",
+#                "bait_definition": "KAPA_HyperExome_hg38_capture_targets",
+#                "protocol": "HyperPlus"
+#            }
+#            sequencing['workflow'] = { "name": "Dragen", "version": "4.2.4", "genome_build": "GRCh38" }
+#            sequencings.append(sequencing)
+#        sequencing_payload['sequencings'] = sequencings
+#        return sequencing_payload
 
 
 def main():
