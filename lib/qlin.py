@@ -118,6 +118,7 @@ def generate_random_string(length):
     random_string = ''.join(random.choice(characters) for i in range(length))
     return random_string
 
+
 class qlin:
     """
     Returns an object to interact with QLIN. The url and termes parameters are used to authenticate to the API.
