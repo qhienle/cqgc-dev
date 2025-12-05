@@ -181,8 +181,6 @@ class qlin:
         return authenticatedHeaders
    
 
-<<<<<<< HEAD
-=======
     def search_analysis(self, aliquot=None, sample=None, specimen=None, jhn=None, mrn=None, analysis_id=None, sequencing_id=None):
         """
         Implement method for endpoint '/api/v1/search/analysis'.
@@ -251,7 +249,6 @@ class qlin:
         return hpos
 
     
->>>>>>> add_logging
     def search_analysis_from_payload_all (self, analysis_payload):
         """
         Searches QLIN and return the analyses that matches all information from an analysis payload.
@@ -777,11 +774,7 @@ class qlin:
             sequencings.append(patient)
 
         sequencing_payload['sequencings'] = sequencings
-<<<<<<< HEAD
-#        logger.debug(sequencing_payload)
-=======
         logger.debug(sequencing_payload)
->>>>>>> add_logging
         return sequencing_payload
 
 
