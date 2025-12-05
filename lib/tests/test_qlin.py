@@ -22,6 +22,22 @@ class TestQlin(unittest.TestCase):
         self.assertIsNotNone(self.q.authenticatedHeaders, 'Server URL should not be NoneType')
         self.assertIsInstance(self.q.authenticatedHeaders, dict, 'qlin.authenticatedHeaders should be of type dict')
         self.assertIsInstance(self.q.authenticatedHeaders['Authorization'], str, 'qlin.authenticatedHeaders["Authorization"] should be of type str')
+ 
+    def test_search_analysis_by_aliquot(self):
+        analyses = self.q.search_analysis(aliquot='40250')
+        self.assertIsInstance(analyses, list, 'qlin.search_analysis() should return a list')
+        with self.assertRaises(Exception):
+            print('qlin.search_analysis() without params returns an error')
+            self.q.search_analysis()
+
+    def test_search_analysis_by_mrn(self):
+        analyses = self.q.search_analysis(mrn='3554393')
+        self.assertIsInstance(analyses, list, 'qlin.search_analysis() should return a list')
+
+    def test_get_an_analysis(self):
+        analysis_id = '822034'
+        analyses    = self.q.get_an_analysis(analysis_id)
+        self.assertIsInstance(analyses, dict, 'Expected a dict')
         
     def tearDown(self):
         pass
