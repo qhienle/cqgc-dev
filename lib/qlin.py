@@ -61,23 +61,20 @@ class ValidationException (Exception):
     def __init__(self, message):
         super().__init__(message)
 
-
-#def configure_logging(level):
-#    """
-#    Set logging level, based on the level names of the `logging` module.
-#    - level (str): 'debug', 'info' or 'warning'
-#    """
-#    if level == 'debug':
-#        level_name = logging.DEBUG
-#    elif level == 'info':
-#        level_name = logging.INFO
-#    else:
-#        level_name = logging.WARNING
-#
-#    logging.basicConfig(level=level_name,
-#                        format='[%(asctime)s] %(levelname)s: %(message)s',
-#                        datefmt='%Y-%m-%d@%H:%M:%S')
-
+def configure_logging(level):
+    """
+    Set logging level, based on the level names of the `logging` module.
+    - level (str): 'debug', 'info' or 'warning'
+    """
+    if level == 'debug':
+        level_name = logging.DEBUG
+    elif level == 'info':
+        level_name = logging.INFO
+    else:
+        level_name = logging.WARNING
+    logging.basicConfig(level=level_name, 
+                        format='[%(asctime)s] %(levelname)s: %(message)s', 
+                        datefmt='%Y-%m-%d@%H:%M:%S')
 
 def parse_args():
     """
@@ -130,7 +127,6 @@ class qlin:
     def __init__(self, url):
         self.url                  = url
         self.authenticatedHeaders = self.authenticate(url)
-#        configure_logging(level)
 
     def authenticate(self, url):
         """
@@ -169,7 +165,7 @@ class qlin:
         if response.status_code == 200:
             # Extract the token
             token = response.json().get('token')
-#            logging.debug(f"Authentication successful")
+            logger.debug(f"Authentication successful")
             authenticatedHeaders = {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -217,36 +213,41 @@ class qlin:
             raise APIException (f"Failed search analyses\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\Analysis ID:\n{analysis_id}")
 
             
-    def extract_hpo_terms(self, mrn):
+    def get_hpo(self, mrn):
         """
-        Extract HPO terms from analysis (Qlin data structure).
-        - analysis: [dict] ex: {}
+        Extract HPO terms from analysis that matches `mrn`.
+        - analysis: [dict] Qlin data structure for a case. Ex: [{'analysis_id':...}, ...]
         - return  : [list] HPO terms
         Ex: q.extract_hpo_terms(q.search_analysis(mrn=3554393))
         """
-        hpos = []
         analyses_list = self.search_analysis(mrn=mrn)
         if len(analyses_list) <= 0:
-            print(f"ERROR: No analysis found for MRN={mrn}!")
+            logging.warning(f"No analysis found for MRN={mrn}!")
         elif len(analyses_list) > 1:
-            print(f"WARNING: More than one analysis found for MRN={mrn}.\n{analyses_list}")
+            logging.warning(f"More than one analysis found for MRN={mrn}.\n{analyses_list}")
         else:
             analysis = analyses_list[0]
             for patient in analysis['patients']:
-                try:
-                    if patient['mrn'] == mrn:
-                        try:
-                            phenotypes = patient['clinical']['signs']
-                        except KeyError as e:
-                            print(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
-                        else:
-                            for pheno in phenotypes:
-                                hpos.append(pheno['code'])
-                except KeyError as e:
-                    print(f"ERROR: No MRN for patient_id={patient['patient_id']}.\n{e}")
-                except Exception as e:
-                    print(f"ERROR: Caught an unexpected error while looking fo `patient['mrn']`.\n{e}")
-        return hpos
+                if patient['affected'] == True:
+                    hpos = []
+                    try:
+                        if patient['mrn'] == mrn:
+                            try:
+                                phenotypes = patient['clinical']['signs']
+                            except KeyError as e:
+                                logging.error(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
+                            else:
+                                for pheno in phenotypes:
+                                    hpos.append(pheno['code'])
+                    except KeyError as e:
+                        logging.error(f"ERROR: No MRN for patient_id={patient['patient_id']}.\n{e}")
+                    except Exception as e:
+                        logging.error(f"ERROR: Caught an unexpected error while looking fo `patient['mrn']`.\n{e}")
+                    else:
+                        return hpos
+                else:
+                    logging.debug(f"Patient MRN={mrn} is not affected: No HPO to report")
+                    return []
 
     
     def search_analysis_from_payload_all (self, analysis_payload):
@@ -542,7 +543,7 @@ class qlin:
                 if (str(sample_nanuq['patient']['ramq']) != str(patient['jhn']) ):
                     raise ValidationException (f"ramq mismatch: {sample_nanuq['patient']['ramq']}, {patient['jhn']}" )
             except KeyError:
-                logging.info (f"Sample {patient['aliquot']} doesn't have ramq but mrn is valid")
+                logger.info (f"Sample {patient['aliquot']} doesn't have ramq but mrn is valid")
             if (str(sample_nanuq['patient']['sex']) != str(patient['sex']) ):
                 raise ValidationException (f"sex mismatch: {sample_nanuq['patient']['sex']}, {patient['sex']}" )
 
@@ -602,7 +603,10 @@ class qlin:
             patient['organization_id'] = str(sample_nanuq['patient']['ep'])
             patient['sample_code'] = str(sample_nanuq['sampleType'])
             patient['specimen_code'] = str(sample_nanuq['specimenType'])
+#FIX: remove when bug fixed in QLIN
             analysis_payload['analysis_code'] = str(sample_nanuq['panelCode'])
+#            analysis_payload['analysis_code'] = 'EXTUM'
+#FIX: remove when bug fixed in QLIN
             analysis_payload['priority'] = str(sample_nanuq['priority']) if (sample_nanuq['priority'] != '') else 'ROUTINE'
 
         return analysis_payload
@@ -624,6 +628,8 @@ class qlin:
              patient['first_name'] = generate_random_string(8)
              patient['last_name'] = generate_random_string(8)
 #             patient['sample'] = generate_random_string(8)
+#             patient['specimen'] = generate_random_string(8)
+#             patient['aliquot'] = generate_random_string(8)
         return analysis_payload
 
 
@@ -645,10 +651,12 @@ class qlin:
         if (len(analyses) > 0):
             raise ValidationException (f"Sample exists in QLIN:\n\nanalysis_payload: {analysis_payload}\n\nanalyses: {analyses}")
 
+        logger.debug (f"validate_analysis_payload\nurl: {self.url + '/api/v1/analysis?validate-only=true'}\ndata: {json.dumps(analysis_payload)}")
         response = requests.post(self.url + '/api/v1/analysis?validate-only=true', headers=self.authenticatedHeaders, data=json.dumps(analysis_payload))
+        logger.debug (f"validate_analysis_payload response: {response}")
         # Check if the request was successful
         if response.status_code != 200:
-            raise APIException (f"Case creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(analysis_payload,indent=2)}")
+            raise APIException (f"Case creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{analysis_payload}")
 
         return True
 
@@ -667,7 +675,9 @@ class qlin:
             analysis_payload (json): an updated payload containing the associated analysis_id, patient_id and sequencing_id created alongside the new case
         """
 
+        logger.debug (f"push_analysis_payload\nurl: {self.url + '/api/v1/analysis?validate-only=false'}\ndata: {json.dumps(analysis_payload)}")
         response = requests.post(self.url + '/api/v1/analysis?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(analysis_payload))
+        logger.debug (f"push_analysis_payload response: {response}")
         # Check if the request was successful
         if response.status_code == 201:
             response_json = response.json()
@@ -679,7 +689,7 @@ class qlin:
                   payload_patient['sequencing_id'] = response_patient['sequencings'][0]['sequencing_id']
             return analysis_payload
         else:
-            raise APIException (f"Failed case creation\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(analysis_payload,indent=2)}")
+            raise APIException (f"Failed case creation\n\nStatus code: {response.status_code}\n\nResponse:\n{response.text}\n\nPayload:\n{analysis_payload}")
 
 
     def get_sequencing_payload_EXOG(self, analysis_payload):
@@ -716,13 +726,21 @@ class qlin:
             files = [
                 { "type": "ALIR",     "format": "CRAM", "path": path_prefix + ".dragen.WES_germinal.cram" },
                 { "type": "ALIR",     "format": "CRAI", "path": path_prefix + ".dragen.WES_germinal.cram.crai" },
-#                { "type": "ALIRPG"    "format": "CRAM", "path": path_prefix + ".masked.bam" },
-#                { "type": "ALIRPG",   "format": "CRAI", "path": path_prefix + ".masked.bam.bai" },
-#                { "type": "SNVPG",    "format": "VCF",  "path": path_prefix + ".maskedfiltered.norm.vcf.gz" },
-#                { "type": "SNVPG",    "format": "TBI",  "path": path_prefix + ".maskedfiltered.norm.vcf.gz.tbi" },
-#                { "type": "NRRV",     "format": "XLSX", "path": path_prefix + ".maskedfiltered.norm.VEP.annotated.xlsx" },
-#                { "type": "PEC",      "format": "CSV",  "path": path_prefix + ".ploidy_estimation_metrics.csv" },
-#                { "type": "ROH",      "format": "BED",  "path": path_prefix + ".roh.bed" },
+#SUIVANT
+                { "type": "ALIRPG",   "format": "CRAM", "path": path_prefix + ".masked.bam" },
+#SUIVANT
+                { "type": "ALIRPG",   "format": "CRAI", "path": path_prefix + ".masked.bam.bai" },
+#SUIVANT
+                { "type": "SNVPG",    "format": "VCF",  "path": path_prefix + ".maskedfiltered.norm.vcf.gz" },
+#SUIVANT
+                { "type": "SNVPG",    "format": "TBI",  "path": path_prefix + ".maskedfiltered.norm.vcf.gz.tbi" },
+#SUIVANT
+                { "type": "NRRV",     "format": "XLSX", "path": path_prefix + ".maskedfiltered.norm.VEP.annotated.xlsx" },
+#SUIVANT
+                { "type": "PEC",      "format": "CSV",  "path": path_prefix + ".ploidy_estimation_metrics.csv" },
+#SUIVANT
+                { "type": "ROH",      "format": "BED",  "path": path_prefix + ".roh.bed" },
+#FIN
                 { "type": "SNV",      "format": "VCF",  "path": path_prefix + ".hard-filtered.gvcf.gz" },
                 { "type": "SNV",      "format": "TBI",  "path": path_prefix + ".hard-filtered.gvcf.gz.tbi" },
                 { "type": "GCNV",     "format": "VCF",  "path": path_prefix + ".cnv.vcf.gz" },
@@ -741,11 +759,11 @@ class qlin:
             if  patient['family_member'] == 'PROBAND':
                 files.append( { "type": "NORM_VEP", "format": "VCF", "path": path_prefix + ".hard-filtered.formatted.norm.VEP.vcf.gz" } )
                 files.append( { "type": "NORM_VEP", "format": "TBI", "path": path_prefix + ".hard-filtered.formatted.norm.VEP.vcf.gz.tbi" } )
-#                if patient['organization_id'] == "CHUSJ":
-                if len(patient['clinical']['signs']) > 0:
+                if not (len(patient['clinical']['signs']) == 1 and patient['clinical']['signs'] == [{'code': 'HP:0000005', 'observed': True}]):
                     files.append( { "type": "EXOMISER", "format": "HTML", "path": path_prefix + ".exomiser.html" } )
                     files.append( { "type": "EXOMISER", "format": "JSON", "path": path_prefix + ".exomiser.json" } )
                     files.append( { "type": "EXOMISER", "format": "TSV",  "path": path_prefix + ".exomiser.variants.tsv" } )
+
             patient['files'] = files
 
             patient['experiment'] = {
@@ -774,7 +792,6 @@ class qlin:
             sequencings.append(patient)
 
         sequencing_payload['sequencings'] = sequencings
-        logger.debug(sequencing_payload)
         return sequencing_payload
 
 
@@ -912,7 +929,7 @@ class qlin:
                 "bait_definition": "KAPA_HyperExome_hg38_capture_targets",
                 "protocol": "HyperPlus"
             }
-            patient['workflow'] = { "name": "Dragen", "version": "4.2.4", "genome_build": "GRCh38" }
+            patient['workflow'] = { "name": "Dragen", "version": "4.4.4", "genome_build": "GRCh38" }
             sequencings.append(patient)
         sequencing_payload['sequencings'] = sequencings
         return sequencing_payload
@@ -931,11 +948,12 @@ class qlin:
         Returns:
             True if the sequencing_payload validates
         """
-
+        logger.debug (f"validate_sequencing_payload\nurl: {self.url + '/api/v1/analysis/sequencings?validate-only=false'}\ndata: {json.dumps(sequencing_payload)}")
         response = requests.post(self.url + '/api/v1/analysis/sequencings?validate-only=true', headers=self.authenticatedHeaders, data=json.dumps(sequencing_payload))
+        logger.debug (f"validate_sequencing_payload response: {response}")
         # Check if the request was successful
         if response.status_code != 200:
-            raise APIException (f"Sequencing creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(sequencing_payload,indent=2)}")
+            raise APIException (f"Sequencing creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{sequencing_payload}")
 
         return True
 
@@ -953,19 +971,14 @@ class qlin:
         Returns:
             response (json): the response of the API call
         """
-
+        logger.debug (f"push_sequencing_payload\nurl: {self.url + '/api/v1/analysis/sequencings?validate-only=false'}\ndata: {json.dumps(sequencing_payload)}")
         response = requests.post(self.url + '/api/v1/analysis/sequencings?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(sequencing_payload))
+        logger.debug(f"push_sequencing_payload response: {response}")
         # Check if the request was successful
-#        if response.status_code == 201 or response.status_code == 500: 
         if response.status_code == 201:
-### A enlever quand le bug response=500 sera corrige dans QLIN
-#            print(f"Sequencing created {response.status_code}\n{json.dumps(sequencing_payload,indent=2)}\n{response.text}")
-### A Remettre quand le bug response=500 sera corrige dans QLIN
-#            return response.json()
             return response.json()
         else:
-#            logging.error (f"Failed sequencing creation\n\n{response}")
-            raise APIException (f"Failed sequencing creation\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(sequencing_payload,indent=2)}")
+            raise APIException (f"Failed sequencing creation\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{sequencing_payload}")
 
 
     def get_pipeline_payload(self, sequencing_payload):
@@ -1000,11 +1013,12 @@ class qlin:
         Returns:
             True if the sequencing_payload validates
         """
-
+        logger.debug (f"validate_pipeline_payload\nurl: {self.url + '/api/v1/analysis/run?validate-only=true'}\ndata: {json.dumps(pipeline_payload)}")
         response = requests.post(self.url + '/api/v1/analysis/run?validate-only=true', headers=self.authenticatedHeaders, data=json.dumps(pipeline_payload))
+        logger.debug (f"validate_pipeline_payload response: {response}")
         # Check if the request was successful
         if response.status_code != 200:
-            raise ValidationException (f"Pipeline creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
+            raise ValidationException (f"Pipeline creation could not validate\n\nResponse:\n{response.text}\n\nPayload:\n{pipeline_payload}")
 
         return True
 
@@ -1022,14 +1036,15 @@ class qlin:
         Returns:
             response (json): the response of the API call
         """
-
+        logger.debug (f"push_pipeline_payload\nurl: {self.url + '/api/v1/analysis/run?validate-only=false'}\ndata: {json.dumps(pipeline_payload)}")
         response = requests.post(self.url + '/api/v1/analysis/run?validate-only=false', headers=self.authenticatedHeaders, data=json.dumps(pipeline_payload))
+        logger.debug (f"push_pipeline_payload response: {response}")
         # Check if the request was successful
         if response.status_code == 201:
 #            print(f"Pipeline started Case: {pipeline_payload}")
             return response.json()
         else:
-            raise APIException (f"Failed pipeline start\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload:\n{json.dumps(pipeline_payload,indent=2)}")
+            raise APIException (f"Failed pipeline start\n\nStatus code: {response.status_code}\n\nResponse:\n{response}\n\nPayload: {pipeline_payload}")
 
 
 #    def load_analyses(self, file_analyses):
