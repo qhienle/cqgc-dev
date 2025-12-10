@@ -39,19 +39,15 @@ class TestQlin(unittest.TestCase):
         analyses    = self.q.get_an_analysis(analysis_id)
         self.assertIsInstance(analyses, dict, 'Expected a dict')
         
-    def test_extract_hpo_terms_by_mrn(self):
+    def test_get_hpo(self):
         mrns = ['3554393', '3554229', '3552343', '3555439']
-        bad_mrn = mrns[3]
-        self.assertIsInstance(self.q.extract_hpo_terms(mrns[0]), list, 'Expected a list')
-        self.assertEqual(self.q.extract_hpo_terms(mrns[1])[0], 'HP:0001644', 'Expected HP:0001644')
-        self.assertEqual(len(self.q.extract_hpo_terms(mrns[2])), 2, 'Expected 2')
+        self.assertIsInstance(self.q.get_hpo(mrns[0]), list, 'Expected a list')
+        self.assertEqual(self.q.get_hpo(mrns[1])[0], 'HP:0001644', 'Expected HP:0001644')
+        self.assertEqual(len(self.q.get_hpo(mrns[2])), 2, 'Expected 2')
 
-    def test_extract_hpo_terms_mrn_not_found(self):
-        mrns = ['3554393', '3554229', '3552343', '3555439']
-        bad_mrn = mrns[3]
-        self.assertEqual(len(self.q.extract_hpo_terms(bad_mrn)), 0, 'Expected 0')
-        # TODO: test when patient has no MRN
-        
+    def test_get_hpo_mrn_notfound(self):
+        self.assertIsNone(self.q.get_hpo('inexistant_mrn'), 'Expected NoneType')
+
     def tearDown(self):
         pass
 

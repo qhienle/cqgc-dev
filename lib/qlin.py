@@ -216,9 +216,9 @@ class qlin:
     def get_hpo(self, mrn):
         """
         Extract HPO terms from analysis that matches `mrn`.
-        - analysis: [dict] Qlin data structure for a case. Ex: [{'analysis_id':...}, ...]
-        - return  : [list] HPO terms
-        Ex: q.extract_hpo_terms(q.search_analysis(mrn=3554393))
+        - mrn: [str] MRN number. Ex: '3554393' (has HPOs) or '3555439' (no HPOs)
+        - return  : [list or None] List of HPO terms or None, if MRN not found
+        # TODO: Check MRN with an additional info, like EP.
         """
         analyses_list = self.search_analysis(mrn=mrn)
         if len(analyses_list) <= 0:
@@ -229,7 +229,6 @@ class qlin:
             analysis = analyses_list[0]
             for patient in analysis['patients']:
                 if patient['affected'] == True:
-                    hpos = []
                     try:
                         if patient['mrn'] == mrn:
                             try:
@@ -237,8 +236,7 @@ class qlin:
                             except KeyError as e:
                                 logging.error(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
                             else:
-                                for pheno in phenotypes:
-                                    hpos.append(pheno['code'])
+                                hpos = [pheno['code'] for pheno in phenotypes]
                     except KeyError as e:
                         logging.error(f"ERROR: No MRN for patient_id={patient['patient_id']}.\n{e}")
                     except Exception as e:
