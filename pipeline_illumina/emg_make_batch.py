@@ -44,6 +44,7 @@ sys.path.append(src_path)
 from lib.gapp import Phenotips
 from lib.gapp import REDCap
 from lib.gapp import BSSH
+from lib.qlin import qlin
 
 __version__ = "0.3"
 
@@ -98,13 +99,24 @@ def clean_mrn(mrn):
     return mrn
 
 
-def add_hpos_qlin():
+def add_hpos_qlin(mrn):
     """
     Lookup HPO identifiers from Qlin for `sample_name`.
     - sample_name : [str] Qlin identifier. Ex: ''
     - Return      : [str] Semi-column-spearated list of hpo identifiers
     """
-    return 0
+    q = qlin('https://qlin-me-hybrid.cqgc.hsj.rtss.qc.ca')
+    try:
+        hpos = q.get_hpo(mrn)
+    except TypeError as e:
+        logging.warning(e)
+    except Exception as e:
+        logging.warning(f"Caught an unexpected exception {e}")
+    else:
+        if hpos:
+            return ';'.join(hpos)
+        else:
+            return ''
 
 
 def add_hpos_phenotips(ep, mrn):
@@ -214,14 +226,13 @@ def add_hpos_aoh():
 
 def add_hpo(row):
     """
-    Add HPO terms for `row`
-    - `row` : a pandas.DataFrame row, representing a line from samples_list.csv
-    - Return: [str] Semi-column-spearated list of hpo identifiers
+    Add HPO terms from `row`, which should be a pandas.DataFrame row
+    representing a line from samples_list.csv
     """
     hpos = ''
     if row['status'] == 'AFF':
         if row['project'] in ['PRAGMATIQ_CHUSJ','PRAGMATIQ_CHUS','PRAGMATIQ_CHUQ','PRAGMATIQ_CUSM']:
-            hpos = add_hpos_phenotips(row['ep_label'], row['mrn'])
+            hpos = add_hpos_qlin(row['mrn'])
         elif row['project'] == 'Q1K_CHUSJ':
             hpos = add_hpos_redcap(row['sample_name'])
         elif row['project'] == 'ANGIODEME_CHUSJ':
