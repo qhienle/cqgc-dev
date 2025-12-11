@@ -91,6 +91,13 @@ def add_fastqs(biosample):
         return filenames
 
 
+def clean_mrn(mrn):
+    """
+    Clean mrn
+    """
+    return mrn
+
+
 def add_hpos_qlin():
     """
     Lookup HPO identifiers from Qlin for `sample_name`.
