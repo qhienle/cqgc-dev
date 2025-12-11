@@ -46,7 +46,7 @@ from lib.gapp import REDCap
 from lib.gapp import BSSH
 from lib.qlin import qlin
 
-__version__ = "0.3"
+__version__ = "0.4"
 
 
 def parse_args():
@@ -391,6 +391,7 @@ def main(args):
     # TODO: Use project from samples_list.csv file instead of a global argument
     #
     logging.debug(f"Fetching HPO terms for project '{args.project}'")
+    # df_batch['mrn'] = df_batch.apply(clean_mrn) # TODO
     df_batch['hpos'] = df_batch.apply(lambda x: add_hpo(x), axis=1)
     # if args.project == 'prag' or args.project == 'eval':
     #     # HPO terms are stored in Phenotips for project PRAG. 
