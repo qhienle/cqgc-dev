@@ -137,31 +137,6 @@ def plot_plotly_box(df, threshold, outfile='demux_reads_per_sample-box.html'):
         return fig
 
 
-# def write_html_report(df, fc_short):
-#     """
-#     Write HTML report from data in `df`.
-#     - `df`: Pandas DataFrame.
-#     - Returns: HTML file.
-#     """
-#     css = """
-#             html body {
-#                 background: #f8f9f9;
-#                 font-size: 11px;
-#             }
-#     """
-#     out_html = f"demux_report.html"
-#     title    = f"Demultiplex Report"
-
-#     with open(out_html, 'w') as fh:
-#         fh.write('<!doctype html>\n<html>\n\t<head>\n')
-#         fh.write(f'\t\t<title>{title}</title>\n\t\t<meta charset="UTF-8">\n')
-#         fh.write(f'\t\t<style type="text/css">{css}\t\t</style>\n')
-#         fh.write('\t</head>\n\t<body>\n')
-#         fh.write(f'\t\t<h1>{title}</h1>\n\t\t')
-#         #fh.write(fig1.to_html(full_html=False, include_plotlyjs='cdn'))
-#         fh.write('\n\t</body>\n</html>')
-
-
 def plot_seaborn_bar(df, threshold, outfile='demux_reads_per_sample-bar.png'):
     """
     Plot bar chart as a PNG file using Seaborn.
@@ -239,14 +214,14 @@ def main():
     logging.debug(df_demux_stats)
 
     # Print bar charts of read counts per sample to an HTML file and STDOUT
-    # PNG output to PNG using Plotly has a dependency on Google Chrome!
+    # PNG output using Plotly has a dependency on Google Chrome!
     #
     logging.info(f"Creating bar charts")
     workdir = os.path.dirname(os.path.abspath(args.file))
     os.chdir(workdir)
-    plot_seaborn_bar(df_demux_stats, threshold=args.threshold)
-    fig_bar = plot_plotly_bar(df_demux_stats, threshold=args.threshold)
-    fig_box = plot_plotly_box(df_demux_stats, threshold=args.threshold)
+    plot_seaborn_bar(df_demux_stats, threshold=args.threshold) # to png file
+    plot_plotly_bar(df_demux_stats, threshold=args.threshold)  # to html file
+    # plot_plotly_box(df_demux_stats, threshold=args.threshold)
 
     logging.info(f"Distribution of the number of reads per sample\n")
     data = [] # Create list of tuples for `plot_ascii_bar(list_oftuples)`
