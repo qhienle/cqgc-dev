@@ -236,6 +236,23 @@ def add_hpo(row):
     return hpos
 
 
+def lookup_patient_id_for_mrn(mrn):
+    """
+    Return Qlin's patient_id for MRN.
+    - mrn:    [str] MRN (clean! Eg: 5715359, and not RVH_5715359)
+    - Return: [int]
+    """
+    q = qlin('https://qlin-me-hybrid.cqgc.hsj.rtss.qc.ca')
+    analyses_list = q.search_analysis(mrn=mrn)
+    if len(analyses_list) <= 0:
+        logging.warning(f"No analysis found for MRN={mrn}!")
+    elif len(analyses_list) > 1:
+        logging.warning(f"More than one analysis found for MRN={mrn}.\n{analyses_list}")
+    else:
+        for patient in analyses_list[0]['patients']:
+            return patient['patient_id'] if patient['mrn'] == mrn else None
+
+
 def validate_hpos(df):
     """
     Validate HPO terms. Remove HPO terms related to maternal conditions, which
