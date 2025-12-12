@@ -41,6 +41,7 @@ import pandas as pd
 #
 src_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(src_path)
+from lib.gapp import clean_mrn
 from lib.gapp import Phenotips
 from lib.gapp import REDCap
 from lib.gapp import BSSH
@@ -90,13 +91,6 @@ def add_fastqs(biosample):
         filenames = ';'.join(fastqs)
     finally:
         return filenames
-
-
-def clean_mrn(mrn):
-    """
-    Clean mrn
-    """
-    return mrn
 
 
 def add_hpos_qlin(mrn):
@@ -391,27 +385,8 @@ def main(args):
     # TODO: Use project from samples_list.csv file instead of a global argument
     #
     logging.debug(f"Fetching HPO terms for project '{args.project}'")
-    # df_batch['mrn'] = df_batch.apply(clean_mrn) # TODO
+    df_batch['mrn'] = df_batch['mrn'].apply(clean_mrn)
     df_batch['hpos'] = df_batch.apply(lambda x: add_hpo(x), axis=1)
-    # if args.project == 'prag' or args.project == 'eval':
-    #     # HPO terms are stored in Phenotips for project PRAG. 
-    #     # Also grab 'PID', which will populate 'Clinical Notes'
-    #     #
-    #     df_batch['hpos'] = df_batch.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[2] if row.status == 'AFF' else '', axis=1)
-    #     df_batch['pid']  = df_batch.apply(lambda row: add_hpos_phenotips(row.ep_label, row.mrn)[0] if row.status == 'AFF' else '', axis=1)
-    #     logging.debug(f"Subset of DataFrame to show PIDs and HPO terms:\n{df_batch[['biosample', 'sample_name', 'status', 'pid', 'hpos']]}")
-    # elif args.project == 'q1k':
-    #     # HPO terms are stored in REDCap for project Q1K.
-    #     # add_hpos_redcap(sample_name) returns a semi-column-separated list of HPO terms.
-    #     #
-    #     df_batch['hpos'] = df_batch.apply(lambda row: add_hpos_redcap(row.sample_name) if row.status == 'AFF' else '', axis=1)
-    # elif args.project == 'aoh':
-    #     # HPO terms are fixed.
-    #     # add_hpos_aoh() returns a semi-column-separated FIXED list of HPO terms.
-    #     #
-    #     df_batch['hpos'] = df_batch.apply(lambda row: add_hpos_aoh() if row.status == 'AFF' else '', axis=1)
-    # else:
-    #     logging.warning(f"Project '{args.project}' is not defined")
     logging.info(f"Added HPO terms for project '{args.project}'")
     logging.debug(df_batch[['sample_name', 'biosample', 'status', 'hpos']])
     validate_hpos(df_batch)
