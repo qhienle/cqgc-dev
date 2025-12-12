@@ -28,8 +28,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Quality Control of BCL-convert's Demultiplex_Stats")
     parser.add_argument('--file', '-f', nargs='?', default='Demultiplex_Stats.csv', 
                         help="Dragen BCL-convert demultiplexing report. Default='Demultiplex_Stats.csv'")
-    parser.add_argument('--threshold', '-t', default=600_000_000,
-                        help="Minimum threshold value for number of counts. Default='6000_000_000'")
+    parser.add_argument('--threshold', '-t', default=300_000_000,
+                        help="Minimum threshold value for number of counts. Default='3000_000_000'")
     parser.add_argument('--logging-level', '-l', dest='level', default='info',
                         help="Logging level (str), can be 'debug', 'info', 'warning'. Default='info'")
     return parser.parse_args()
@@ -80,7 +80,7 @@ def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
     """
     Plot bar chart as a HTML file using Plotly
     - `df`: Pandas DataFrame with columns ['SampleID', 'Expected', '# Reads']
-    - `threshold`: value to mark as threshold. Default=600,000,000
+    - `threshold`: value to mark as threshold.
     - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.html'
     - Returns: 0
     """
@@ -107,11 +107,11 @@ def plot_plotly_bar(df, threshold, outfile='demux_reads_per_sample-bar.html'):
         return fig
 
 
-def plot_plotly_box(df, threshold, outfile='demux_reads_per_sample-bar.html'):
+def plot_plotly_box(df, threshold, outfile='demux_reads_per_sample-box.html'):
     """
     Plot bar chart as a HTML file using Plotly
     - `df`: Pandas DataFrame with columns ['SampleID', 'Expected', '# Reads']
-    - `threshold`: value to mark as threshold. Default=600,000,000
+    - `threshold`: value to mark as threshold.
     - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.html'
     - Returns: 0
     """
@@ -132,6 +132,8 @@ def plot_plotly_box(df, threshold, outfile='demux_reads_per_sample-bar.html'):
                           marker_line_width=1.5,
                           opacity=0.6)
         fig.add_hline(y=threshold, line=dict(color="red", width=1, dash="dashdot"))
+        # fig.write_image('demux_reads_per_sample-bar.png') # requires kaleido which depends on Google Chrome
+        plotly.offline.plot(fig, filename=outfile)
         return fig
 
 
@@ -164,11 +166,11 @@ def plot_seaborn_bar(df, threshold, outfile='demux_reads_per_sample-bar.png'):
     """
     Plot bar chart as a PNG file using Seaborn.
     - `df`: Pandas DataFrame with columns ['SampleID', 'Expected', '# Reads']
-    - `threshold`: value to mark as threshold. Default=600,000,000
+    - `threshold`: value to mark as threshold.
     - `outfile`  : Name of output file. Default='demux_reads_per_sample-bar.png'
     - Returns: 0
     """
-    bar_colors = ['red' if val < 600_000_000 else 'orange' for val in df['# Reads']]
+    bar_colors = ['red' if val < threshold else 'orange' for val in df['# Reads']]
     plt.figure(figsize=(14, 6))
     sns.barplot(data=df, x='SampleID', y='# Reads', palette=bar_colors, edgecolor='navy', alpha=0.6)
     plt.axhline(threshold, color='grey', linestyle='dashed', linewidth=1)
@@ -238,7 +240,6 @@ def main():
 
     # Print bar charts of read counts per sample to an HTML file and STDOUT
     # PNG output to PNG using Plotly has a dependency on Google Chrome!
-    # TODO: use Seaborn instead of plotly?
     #
     logging.info(f"Creating bar charts")
     workdir = os.path.dirname(args.file)
