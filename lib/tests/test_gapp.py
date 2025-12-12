@@ -10,6 +10,22 @@ from gapp import Configurator
 from gapp import Phenotips
 from gapp import REDCap
 from gapp import Emedgene
+from gapp import clean_mrn
+
+
+class TestGAPPFunctions(unittest.TestCase):
+    def test_clean_mrn_chusj(self):
+        clean = clean_mrn('03554229')
+        self.assertEqual(clean, '3554229', f"Expected 3554229 but got {clean}")
+
+    def test_clean_mrn_ok(self):
+        clean = clean_mrn('1814815') # Nothing to clean
+        self.assertEqual(clean, '1814815', f"Expected 1814815 but got {clean}")
+
+    def test_clean_mrn_cusm(self):
+        clean = clean_mrn('MCH_6116183')
+        self.assertEqual(clean, '6116183', f"Expected 6116183 but got {clean}")
+        self.assertEqual(clean_mrn('RVH_6067239'), '6067239', f"Expected 6067239 but got {clean_mrn('RVH_6067239')}")
 
 
 class TestConfigurator(unittest.TestCase):
@@ -82,7 +98,7 @@ class TestEmedgene(unittest.TestCase):
         self.assertIsInstance(self.emg.case['test_data'], dict, "Case test_data should be a dict")
 
     def test_authenticate_emedgene(self):
-        auth = self.emg.authenticate()
+        auth = self.emg.authenticate(server='https://chusaintejustine.emedgene.com/')
         self.assertIsInstance(auth, str, '`auth key must be instance of str`')
         self.assertTrue(auth.startswith('Bearer '))
 
