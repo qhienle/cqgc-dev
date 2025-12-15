@@ -58,7 +58,6 @@ OUTDIR="${WORKDIR}/${FC}/1.fastq"
 
 
 # Set SampleSheet.csv. Fix funky characters in SampleNames.txt and other Nanuq files
-# TODO: Fix this in get_nanuq_files.py
 # Run bcl-convert depending on the instrument and SampleSheet
 samplesheet="${WORKDIR}/${FC}/SampleSheet.csv"
 if [[ -f ${samplesheet} ]]; then
