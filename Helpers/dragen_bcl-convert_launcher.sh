@@ -91,6 +91,7 @@ if [[ -f ${samplesheet} ]]; then
         mv ${OUTDIR}/dragen* ${OUTDIR}/Logs/
     else
         mark_failed "ERROR: Something went wrong! DRAGEN exit code not equal to zero."
+        touch ${BASEDIR}/${FC}/FastqComplete.txt # or FastqFailed.txt ?
     fi
 else
     mark_failed "ERROR: Did you forget to setup environment variables or provide the SampleSheet?\n" >&2
