@@ -99,6 +99,7 @@ for dir in ${WATCHDIRS[@]}; do
                         fi
                     else
                         echo "${LOGPREFIX} ${fc} LAUNCH: Could not find ${dir}/${fc}/SampleSheet.csv. Getting files from Nanuq..."
+                        # TODO: Check if there's already a custom SampleSheet in $WORKDIR/$FC
                         mkdir ${WORKDIR}/${fc}
                         cd ${WORKDIR}/${fc}
                         python3 ${SOFTDIR}/Helpers/get_nanuq_files.py --run ${fc}
