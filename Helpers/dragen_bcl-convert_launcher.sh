@@ -24,7 +24,7 @@ mark_failed() {
     # In case of error, mark run with "DemuxFailed.txt"
     echo "$1" >&2
     touch DemuxFailed.txt
-    echo "$1" | mutt -s "[bcl-convert] DEMUX FAILED: ${FC}" bioinfo.cqgc.hsj@ssss.gouv.qc.ca -e 'set sendmail=/usr/sbin/ssmtp'
+    #echo "$1" | mutt -s "[bcl-convert] DEMUX FAILED: ${FC}" -e 'set sendmail=/usr/sbin/ssmtp' -- bioinfo.cqgc.hsj@ssss.gouv.qc.ca
     exit 1
 }
 
