@@ -229,6 +229,7 @@ class qlin:
             analysis = analyses_list[0]
             for patient in analysis['patients']:
                 if patient['affected'] == True:
+                    hpos = []
                     try:
                         if patient['mrn'] == mrn:
                             try:
@@ -236,9 +237,8 @@ class qlin:
                             except KeyError as e:
                                 logging.error(f"KeyError raised while accessing `patient['clinical']['signs']`: {e}")
                             else:
-                                hpos = [pheno['code'] for pheno in phenotypes]
-                    except KeyError as e:
-                        logging.error(f"ERROR: No MRN for patient_id={patient['patient_id']}.\n{e}")
+                                for pheno in phenotypes:
+                                    hpos.append(pheno['code']) if pheno['observed'] else None
                     except Exception as e:
                         logging.error(f"ERROR: Caught an unexpected error while looking fo `patient['mrn']`.\n{e}")
                     else:
