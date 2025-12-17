@@ -56,8 +56,13 @@ launch_run() {
     touch ${dir}/${fc}/DemuxStarted.txt
     echo "Waiting for Demux to finish" >>qsub_out.txt 2>&1
     until [ -f "${dir}/${fc}/FastqComplete.txt" ]; do
-        printf '.' >>qsub_out.txt 2>&1
-        sleep 900 # 15 minutes
+        if [[ -f "${dir}/${fc}/DemuxFailed.txt" ]] || [[ -f "${dir}/${fc}/failed.txt" ]]; then
+            echo "${LOGPREFIX} ${fc} ERROR: Denux Failed!" >>qsub_out.txt 2>&1
+            exit 1
+        else
+            printf '.' >>qsub_out.txt 2>&1
+            sleep 900 # 15 minutes
+        fi
     done
     echo -e "\nDemux has completed. Gathering demultiplexing statstics for QC..." >>qsub_out.txt 2>&1
     bash ${SOFTDIR}/Analysis.dragen_bcl-convert/scripts/cp_RunInfo_Stats.sh ${dir} ${WORKDIR} ${fc} >>qsub_out.txt 2>&1
@@ -79,7 +84,7 @@ for dir in ${WATCHDIRS[@]}; do
                 # Check if bcl-convert needed (not previously demuxed, not failed, not LowPass)
                 if [[ -f "${dir}/${fc}/FastqComplete.txt" ]]; then
                     echo "${LOGPREFIX} ${fc} PASS: FastqComplete.txt indicates that run has already been processed."
-                elif [[ -f "${dir}/${fc}/DemuxFailed.txt" ]] ||  [[ -f "${dir}/${fc}/failed.txt" ]]; then
+                elif [[ -f "${dir}/${fc}/DemuxFailed.txt" ]] || [[ -f "${dir}/${fc}/failed.txt" ]]; then
                     echo "${LOGPREFIX} ${fc} PASS: Failed.txt marks a failed Run."
                 elif [[ -f "${dir}/${fc}/DemuxStarted.txt" ]]; then
                     echo "${LOGPREFIX} ${fc} PASS: DemuxStarted.txt marks a bcl-convert process in progress."
