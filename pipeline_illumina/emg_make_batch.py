@@ -442,11 +442,10 @@ def main(args):
 
     # 5. Add 'Clinical Notes'
     # TODO: Validate HPO terms
+    #
     df_batch['Clinical Notes'] = ''
-    # if args.project == 'prag' or args.project == 'eval':
-    #     df_batch['Clinical Notes'] = df_batch['pid']
-    # else:
-    #     df_batch['Clinical Notes'] = ''
+    prag_mask = df_batch.loc[df_batch['project'].str.startswith('PRAG') & (df_batch['relation'] == 'PROBAND')].index
+    df_batch.loc[prag_mask, 'Clinical Notes'] += df_batch.loc[prag_mask, 'mrn'].apply(lambda x: f"Qlin patient_id={lookup_patient_id_for_mrn(x)}")
 
 
     # 6. Return a CSV file to be used as input for Emedgene's batch upload script
