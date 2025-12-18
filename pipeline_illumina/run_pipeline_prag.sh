@@ -21,27 +21,7 @@ else
     WORKDIR=${WORKDIR} # export WORKDIR="/mnt/vs_nas_chusj/CQGC_PROD/fastqs"
 fi
 
-## 1. Déconvolution et conversion des BCLs en FASTQs: devrait se faire 
-## automatiquement par dragen_bcl-convert_watcher.sh
-echo "Waiting for sequencing to finish"
-until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
-do
-    printf '.'
-    sleep ${NAPTIME}
-done
-# echo "Sequencing has completed. Launching Demux"
-# ${SOFTDIR}/Helpers/dragen_bcl-convert_watcher.sh | tee -a /mnt/vs_nas_chusj/CQGC_PROD/sequenceurs/dragen_bcl-convert_watcher.log
-# echo "Waiting for Demux to finish"
-echo "Sequencing has completed. Waiting for Demux to finish"
-until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]
-do
-    printf '.'
-    sleep ${NAPTIME}
-done
-echo "Demux has completed"
-
-
-## 2. Collecter les informations sur les familles dans samples_list.csv,
+## 1. Collecter les informations sur les familles dans samples_list.csv,
 ## fournit aussi la liste des échantillons à téléverser sur BaseSpace (étape 3)
 echo "Get list of samples for run ${FC}"
 if [[ ! -d "${WORKDIR}/${FC}" ]]; then
@@ -51,9 +31,25 @@ cd ${WORKDIR}/${FC}
 python ${SOFTDIR}/Analysis.pipeline_illumina/list_run_samples.py ${FC}
 
 
+## 2. Déconvolution et conversion des BCLs en FASTQs: devrait se faire 
+## automatiquement par dragen_bcl-convert_watcher.sh
+echo "Waiting for sequencing to finish"
+until [ -f ${BASEDIR}/${FC}/CopyComplete.txt ]
+do
+    printf '.'
+    sleep ${NAPTIME}
+done
+echo "Sequencing has completed. Waiting for Demux to finish"
+until [ -f "${BASEDIR}/${FC}/FastqComplete.txt" ]
+do
+    printf '.'
+    sleep ${NAPTIME}
+done
+echo "Demux has completed"
+
+
 ## 3. Téléverser les FASTQs sur BaseSpace
 echo "Uploading samples to BaseSpace"
-## TODO: move FASTQ files from 1.fastq/PROJECT_NAME to 1.fastq/ before uploading when instrument is NovaSeq6000
 python ${SOFTDIR}/Analysis.pipeline_illumina/emg_upload_fastqs.py
 touch ${WORKDIR}/${FC}/UploadBsComplete.txt
 
